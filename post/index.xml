@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on My New Hugo Site</title>
+    <title>Posts on 琳琅世界，观山河</title>
     <link>https://xssor2600.github.io/post/</link>
-    <description>Recent content in Posts on My New Hugo Site</description>
+    <description>Recent content in Posts on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 23 Jun 2020 23:05:15 +0800</lastBuildDate>
@@ -12,12 +12,17 @@
     
     
     <item>
-      <title>First_demo</title>
-      <link>https://xssor2600.github.io/post/first_demo/</link>
+      <title>如何使用hugo来编写文章</title>
+      <link>https://xssor2600.github.io/post/how_to_use_hugo/</link>
       <pubDate>Tue, 23 Jun 2020 23:05:15 +0800</pubDate>
       
-      <guid>https://xssor2600.github.io/post/first_demo/</guid>
-      <description>Hello Hugo Beacuse hugo is running wiht go, and i am a goher,so i choose hugo to write something belong to myself.</description>
+      <guid>https://xssor2600.github.io/post/how_to_use_hugo/</guid>
+      <description>创建文章  创建一个about页面 创建的about页面会自动生成到content/about.md. 创建第一篇文章，放置post目录下 若是平时想要生成文章，则通过下面命令来创建文章:  hugo new post/new_page_name.md 安装皮肤 在皮肤列表hugo皮肤列表中找到喜欢的主题，并通过git clone到themes目录下，在启动的时候，可以指定名录。
+$ cd themes $ git clone https://github.com/spf13/hyde.git 运行hugo 在site的根路径执行hugo启动服务器命令:
+hugo server --theme=hyde --buildDrafts // or hugo server -w 在命令行看到启动后，本地可以通过地址http://localhost:1313打开即可。
+github部署 首先需要在站点根路径下，通过一下命令来生成静态页面:
+hugo --theme=hyde --baseUrl=&amp;quot;https://xssor2600.github.io/&amp;quot; 然后进入public目录，提交代码到GitHub即可
+cd public git add -A git commit -m &amp;quot;first commit&amp;quot; git push -u origin master </description>
     </item>
     
   </channel>
