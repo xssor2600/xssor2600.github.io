@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Golang基础知识 &middot; 琳琅世界，观山河</title>
+    <meta name="author" content="xssor">
+    <meta name="description" content="老夫聊发少年狂~">
+    <meta name="generator" content="Hugo 0.67.1" />
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- RSS autodiscovery -->
+    
+
+    <link rel="shortcut icon" href="https://www.xssor2600.site/img/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://www.xssor2600.site/css/screen.css">
+    <link rel="stylesheet" href="https://www.xssor2600.site/css/github.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/styles/default.min.css">
+    
+
+    
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.xssor2600.site/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://www.xssor2600.site/favicon.ico">
+    
+
+    <!-- Stylesheet for theme color -->
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+</head>
+
+<body class="home-template">
+    <header id="site-head">
+	
+	<h1 class="blog-title"><a href="https://www.xssor2600.site/">琳琅世界，观山河</a></h1>
+	
+	
+	<h1 class="blog-subtitle">前三三|后三三</h1>
+	
+</header>
+    
+    
+    <main class="content" role="main">
+    
+<article class="post">
+    <header>
+        <h1 class="post-title">Golang基础知识</h1>
+        <div class="post-meta">
+            <time datetime="25 June 2020">
+                25 June 2020
+            </time>
+        </div>
+    </header>
+
+    <section class="post-content">
+        <h4 id="常量与变量">常量与变量</h4>
+<pre><code class="language-code" data-lang="code">const limit = 512
+const top uint16 = 1421
+const x,y int = 1,3
+
+var a int
+var b string
+var c float64
+var d [5] int  //数组
+var e [] int   //数组切片
+var f * int    //正确
+var v1 int = 5 //正确
+var v2 = 5     //正确，编译器自动推导出V2类型
+v3 := 5        //正确，编译器自动推导出V3的类型
+</code></pre><h4 id="基础数据类型">基础数据类型</h4>
+<pre><code class="language-code" data-lang="code">
+const limit = 512
+const top uint16 = 1421
+const x,y int = 1,3
+
+var a int
+var b string
+var c float64
+var d [5] int  //数组
+var e [] int   //数组切片
+var f * int    //正确
+var v1 int = 5 //正确
+var v2 = 5     //正确，编译器自动推导出V2类型
+v3 := 5        //正确，编译器自动推导出V3的类型
+
+
+
+// 两种浮点类型和两种复数类型
+float32	±3.402 823 466 385 288 598 117 041 834 845 169 254 40x1038 计算精度大概是小数点后 7 个十进制数
+float64	±1.797 693 134 862 315 708 145 274 237 317 043 567 981x1038 计算精度大概是小数点后 15 个十进制数
+complex32	复数，实部和虚部都是 float32
+complex64	复数，实部和虚部都是 float64
+
+
+</code></pre><p>布尔类型
+布尔值 true 和false. 布尔类型不能接受其他类型的赋值，不支持自动或强制的类型转换</p>
+<pre><code class="language-code" data-lang="code">var a bool
+a = true
+b := (2 == 3) //b也会被推导为bool类型
+
+//错误示范
+var b bool
+b = 1 //编译错误
+b = bool(1) //编译错误
+</code></pre><h4 id="字符串类型">字符串类型</h4>
+<p><code>Go 语言的字符串是 UTF-8 编码，其底层使用 4 个字节表示，也就是 32 bit</code></p>
+<pre><code class="language-code" data-lang="code">s += t	将字符串 t 追加到 s 末尾
+s + t	将字符串 s 和 t 级联
+s[n]	从字符串 s 中索引位置为 n 处的原始字节
+s[n:m]	从位置 n 到位置 m-1 处取得的字符（字节）串
+s[n:]	从位置 n 到位置 len(s)-1 处取得的字符（字节）串
+s[:m]	从位置 0 到位置 m-1 处取得的字符（字节）串
+len(s)	字符串 s 中的字节数
+len([]rune(s))	字符串 s 中字符的个数，可以使用更快的方法 utf8.RuneCountInString()
+[ ]rune(s)	将字符串 s 转换为一个 unicode 值组成的串
+string(chars)	chars 类型是 []rune 或者 []int32, 将之转换为字符串
+[ ]byte(s)	无副本的将字符串 s 转换为一个原始的字节的切片数组，不保证转换的字节是合法的 UTF-8 编码字节
+</code></pre><p><strong>字符串格式化</strong></p>
+<pre><code class="language-code" data-lang="code">%%	% 字面量
+%b	一个二进制整数，将一个整数格式化为二进制的表达方式
+%c	一个 Unicode 的字符
+%d	十进制数值
+%o	八进制数值
+%x	小写的十六进制数值
+%X	大写的十六进制数值
+%U	一个 Unicode 表示法表示的整形码值，默认是 4 个数字字符
+%s	输出以原生的 UTF-8 字节表示的字符，如果 console 不支持 UTF-8 编码，则会输出乱码
+%t	以 true 或者 false 的方式输出布尔值
+</code></pre><p>字符类型
+语言中支持两个字符类型，一个是 Byte（实际上是 Unit8 的别名），代表 UTF-8 字符串的单个字节的值；另一个是 rune，代表单个 Unicode 字符。</p>
+<h4 id="数组类型">数组类型</h4>
+<p>[length]Type
+[N]Type{value1, value2, &hellip;, valueN}
+[&hellip;]Type{value1, value2, &hellip;, valueN}</p>
+<p>a := [&hellip;]int{1,2,3,4,5,6,7}
+s1 := a[3:6]  // 赋值分割</p>
+<p><img src="https://s1.ax1x.com/2020/06/25/NBtyZV.png" alt="NBtyZV.png">
+从内存图中可以看出：</p>
+<ol>
+<li>数组是值类型，数组名指针指向数组第一个值位置</li>
+<li>数组元素之间内存地址的间隔 ⇒ 取决于数组内存储的基本数据类型所占用字节数大小（int占用8个字节</li>
+</ol>
+<p><code>传递数组给函数的时候，是对数组进行值拷贝后传入，函数内对数组的修改并不会修改原数组</code>
+<img src="https://s1.ax1x.com/2020/06/25/NBYAAS.png" alt="NBYAAS.png">
+<strong>若是想要在函数内修改数组，可以将数组的指针传入函数</strong>:
+避免大数组值的拷贝引起的内存性能问题，可以用指针进行传递.
+<img src="https://s1.ax1x.com/2020/06/25/NBYrND.png" alt="NBYrND.png"></p>
+<h4 id="切片">切片</h4>
+<p><code>数组是按值传递的（即是传递的副本），而切片是引用类型，传递切片的成本非常小，而且是不定长的。</code></p>
+<pre><code class="language-code" data-lang="code">make([ ]Type, length, capacity)
+make([ ]Type, length)
+[ ]Type{}
+[ ]Type{value1, value2, ..., valueN}
+</code></pre><h4 id="结构体">结构体</h4>
+<p>GO中struct结构体概念类似于Java中的Class的概念。结构体是一种聚合类型，内部有多个不同类型字段的组合。
+<code>  要封装一个对象，必须使用结构体;GO语言中封装的单位是包而不是类型</code></p>
+<pre><code class="language-code" data-lang="code">type demo struct{
+    }
+</code></pre><p><code>结构体中所有字段在内存中是连续的</code>
+<img src="https://s1.ax1x.com/2020/06/25/NBYjbV.png" alt="NBYjbV.png"></p>
+<p><strong>interface 接口</strong> :
+interface类型可以定义一组方法，但是不需要实现，并且interface不能包含任何变量。</p>
+<pre><code class="language-code" data-lang="code">type 接口名字 interface {
+
+  // 方法列表
+
+}
+</code></pre><ol>
+<li>interface接口内的方法都是没有实现的</li>
+<li>golang接口不需要显式实现，只要一个变量含有接口内所有方法，那么这个变量就实现了这个接口。</li>
+<li>interface类型默认是一个指针（引用类型），没有对接口进行初始化，输出nil</li>
+<li>空接口interface{}没有任何方法，所有类型都实现了空接口（类似与Java的object）</li>
+</ol>
+<h4 id="指针">指针</h4>
+<p>Go中，<code>&amp;</code>操作符可以获取一个变量的地址，使用<code>*</code>操作符可以获取指针引用的变量的值
+<strong>所有的变量都有地址，使用指针可以无须知道变量名字情况下，间接读取或者更新变量的值</strong>
+变量存储的是赋值给改变量的值； 指针的值是一个变量的地址。</p>
+<p><img src="https://s1.ax1x.com/2020/06/25/NB8dnf.png" alt="NB8dnf.png"></p>
+<p>若是指针对象作为入参数传入方法，则是指针的拷贝：
+可以看到方法外的指针对象指针，和传入函数的指针地址是一样的，说明进行了指针的值拷贝。<code>虽然两个变量存储着相同的指针地址，但是两个变量的地址是不同的，方法内会在内存中新创建一个内存地址来保存入参的拷贝值。</code></p>
+<p><img src="https://s1.ax1x.com/2020/06/25/NBtyZV.png" alt="NBtyZV.png"></p>
+<h4 id="函数">函数</h4>
+<p><strong>匿名函数</strong>:</p>
+<pre><code class="language-code" data-lang="code">reslt := func (n1 int,n2 int) int {
+   return n1 + n2 
+}(10,20)
+
+//方式2
+f := func (n1 int ,n2 int ) int {
+     return n1 * n2
+}
+
+reslt1 = f(10,20)
+</code></pre><p><strong>defer机制</strong>:
+defer延迟机制： 在函数执行完成之后，使用该机制来关闭，释放资源。
+当执行到defer时候，go系统会将defer后面语句压入栈中（defer栈），暂时不执行。</p>
+<pre><code class="language-code" data-lang="code">defer file.Close()
+</code></pre><h4 id="方法">方法</h4>
+<p>通过一个变量去调用方法时，和函数调用没什么区别.
+不一样的地方是，变量调用方法时候，变量也会作为一个参数传递到方法中：</p>
+<ol>
+<li>如果变量是值类型，进行值拷贝</li>
+<li>如果变量是引用类型，进行地址拷贝
+<img src="https://s1.ax1x.com/2020/06/25/NBtQxA.png" alt="NBtQxA.png"></li>
+</ol>
+<h4 id="包">包</h4>
+<p>go中的包的概念，和Java库类库的概念类似。一个go具体的包，就类比为Java中的类；go包下的所有<code>*.go</code>文件中大些字母开头的方法名，都可以通过包名来引用调用。
+<code>go中通过包来调用函数，与Java中类来调用函数相同。go并不是通过*.go文件名来调用方法。</code></p>
+<p>包的初始化顺序是按照包导入顺序来进行的。</p>
+<p><strong>init()函数</strong>:
+在加载或者导入某个包的时候，就会先执行该方法。</p>
+<h4 id="异常错误处理">异常错误处理</h4>
+<p>golang中错误处理机制： defer，panic,recover
+GO中可以抛出一个panic异常，然后在defer中通过recover捕获异常，然后正常处理。</p>
+<pre><code class="language-code" data-lang="code">// defer后面调用匿名函数
+defer func(){
+  if err := recover(); err != nil {
+	  //捕获到异常进行处理
+  }
+}()
+
+</code></pre>
+    </section>
+
+    
+    <section class="post-tags" style="padding-bottom:60px;">
+        <div class="post-meta tags">
+            <i class="fa fa-fw fa-tag"></i>
+            
+                
+                <a href="https://www.xssor2600.site/tags/go">go </a>
+            
+        </div>
+    </section>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "spf13" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    <section class="share">
+    <p class="backtotop"><a data-scroll href="#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="#site-head"> Back to top</a></p>
+    <p class="info prompt">Share</p>
+    <a href="http://twitter.com/share?text=Golang%e5%9f%ba%e7%a1%80%e7%9f%a5%e8%af%86&url=https%3a%2f%2fwww.xssor2600.site%2fpost%2fgolang%25E5%259F%25BA%25E7%25A1%2580%25E7%259F%25A5%25E8%25AF%2586%2f" title="Share on Twitter"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+    </a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.xssor2600.site%2fpost%2fgolang%25E5%259F%25BA%25E7%25A1%2580%25E7%259F%25A5%25E8%25AF%2586%2f" title="Share on Facebook"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+    </a>
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fwww.xssor2600.site%2fpost%2fgolang%25E5%259F%25BA%25E7%25A1%2580%25E7%259F%25A5%25E8%25AF%2586%2f" title="Share on Google+"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+    </a>
+</section>
+
+    <footer class="post-footer">
+        <section class="author">
+    <div class="authorimage" style="background: url(https://www.xssor2600.site/img/avatar.jpg)"></div>
+    <h4>xssor</h4>
+    <p class="bio">programmer - blogger</p>
+    <p class="meta">
+      
+    </p>
+</section>
+    </footer>
+    
+</article>
+
+    </main>
+
+    <footer class="site-footer">
+	<div class="inner">
+		<section class="footer-social">
+      
+      <a href="//twitter.com/spf13" target="_blank" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>&nbsp;
+      
+      
+      
+      
+      
+      
+      <a href="//github.com/spf13" target="_blank" title="GitHub"><i class="fa fa-2x fa-fw fa-github"></i> <span class="hidden">GitHub</span></a>&nbsp;
+      
+      
+      
+      
+  </section>
+
+		<section class="copyright">&copy; 2020 <a href="https://www.xssor2600.site/">xssor</a>. .</section>
+	</div>
+</footer>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://www.xssor2600.site/js/index.js"></script>
+<script src="https://www.xssor2600.site/js/smooth-scroll.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js"></script>
+
+
+<script>
+    smoothScroll.init({
+        speed: 800,
+        easing: 'easeInOutCubic',
+        updateURL: false,
+        offset: 125,
+    });
+</script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>
