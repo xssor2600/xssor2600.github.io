@@ -2,13 +2,41 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on 琳琅世界，观山河</title>
-    <link>https://xssor2600.github.io/tags/</link>
+    <link>https://www.xssor2600.site/tags/</link>
     <description>Recent content in Tags on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+    <lastBuildDate>Thu, 25 Jun 2020 17:03:19 +0800</lastBuildDate>
     
-	<atom:link href="https://xssor2600.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.xssor2600.site/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>go</title>
+      <link>https://www.xssor2600.site/tags/go/</link>
+      <pubDate>Thu, 25 Jun 2020 17:03:19 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>基础</title>
+      <link>https://www.xssor2600.site/tags/%E5%9F%BA%E7%A1%80/</link>
+      <pubDate>Thu, 25 Jun 2020 17:03:19 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/%E5%9F%BA%E7%A1%80/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>hugo</title>
+      <link>https://www.xssor2600.site/tags/hugo/</link>
+      <pubDate>Tue, 23 Jun 2020 23:05:15 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/hugo/</guid>
+      <description></description>
+    </item>
     
   </channel>
 </rss>

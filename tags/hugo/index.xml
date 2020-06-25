@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>琳琅世界，观山河</title>
-    <link>https://www.xssor2600.site/</link>
-    <description>Recent content on 琳琅世界，观山河</description>
+    <title>hugo on 琳琅世界，观山河</title>
+    <link>https://www.xssor2600.site/tags/hugo/</link>
+    <description>Recent content in hugo on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 23 Jun 2020 23:03:25 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 23 Jun 2020 23:05:15 +0800</lastBuildDate>
     
-	<atom:link href="https://www.xssor2600.site/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.xssor2600.site/tags/hugo/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>Golang基础知识</title>
-      <link>https://www.xssor2600.site/golang/golang%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</link>
-      <pubDate>Thu, 25 Jun 2020 17:03:19 +0800</pubDate>
-      
-      <guid>https://www.xssor2600.site/golang/golang%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</guid>
-      <description>常量与变量 const limit = 512 const top uint16 = 1421 const x,y int = 1,3 var a int var b string var c float64 var d [5] int //数组 var e [] int //数组切片 var f * int //正确 var v1 int = 5 //正确 var v2 = 5 //正确，编译器自动推导出V2类型 v3 := 5 //正确，编译器自动推导出V3的类型 基础数据类型 const limit = 512 const top uint16 = 1421 const x,y int = 1,3 var a int var b string var c float64 var d [5] int //数组 var e [] int //数组切片 var f * int //正确 var v1 int = 5 //正确 var v2 = 5 //正确，编译器自动推导出V2类型 v3 := 5 //正确，编译器自动推导出V3的类型 // 两种浮点类型和两种复数类型 float32	±3.</description>
-    </item>
     
     <item>
       <title>如何使用hugo来编写文章</title>
@@ -32,15 +23,6 @@ hugo server --theme=hyde --buildDrafts // or hugo server -w 在命令行看到�
 github部署 首先需要在站点根路径下，通过一下命令来生成静态页面:
 hugo --theme=hyde --baseUrl=&amp;quot;https://xssor2600.github.io/&amp;quot; 然后进入public目录，提交代码到GitHub即可
 cd public git add -A git commit -m &amp;quot;first commit&amp;quot; git push -u origin master 文章编写  添加标签tag 若是想对文章添加一些标签，那么可以按照如下方式在文章创建开头使用tags属性：  tags: [ &amp;quot;tag1&amp;quot;, &amp;quot;tag2&amp;quot;, &amp;quot;tag3&amp;quot; ] </description>
-    </item>
-    
-    <item>
-      <title>About</title>
-      <link>https://www.xssor2600.site/about/</link>
-      <pubDate>Tue, 23 Jun 2020 23:03:25 +0800</pubDate>
-      
-      <guid>https://www.xssor2600.site/about/</guid>
-      <description>This is me, who is trying to learn more !</description>
     </item>
     
   </channel>

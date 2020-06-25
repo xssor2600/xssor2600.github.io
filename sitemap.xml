@@ -3,31 +3,57 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://xssor2600.github.io/post/</loc>
+    <loc>https://www.xssor2600.site/tags/go/</loc>
+    <lastmod>2020-06-25T17:03:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/golang/</loc>
+    <lastmod>2020-06-25T17:03:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/golang/golang%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</loc>
+    <lastmod>2020-06-25T17:03:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/tags/</loc>
+    <lastmod>2020-06-25T17:03:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/tags/%E5%9F%BA%E7%A1%80/</loc>
+    <lastmod>2020-06-25T17:03:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/tags/hugo/</loc>
     <lastmod>2020-06-23T23:05:15+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://xssor2600.github.io/post/how_to_use_hugo/</loc>
+    <loc>https://www.xssor2600.site/post/</loc>
     <lastmod>2020-06-23T23:05:15+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://xssor2600.github.io/about/</loc>
+    <loc>https://www.xssor2600.site/post/how_to_use_hugo/</loc>
+    <lastmod>2020-06-23T23:05:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/about/</loc>
     <lastmod>2020-06-23T23:03:25+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://xssor2600.github.io/</loc>
+    <loc>https://www.xssor2600.site/</loc>
     <lastmod>2020-06-23T23:03:25+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://xssor2600.github.io/categories/</loc>
-  </url>
-  
-  <url>
-    <loc>https://xssor2600.github.io/tags/</loc>
+    <loc>https://www.xssor2600.site/categories/</loc>
   </url>
   
 </urlset>
