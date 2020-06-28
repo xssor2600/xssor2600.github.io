@@ -6,10 +6,28 @@
     <description>Recent content in Posts on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 25 Jun 2020 17:03:19 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 28 Jun 2020 23:15:45 +0800</lastBuildDate>
     
 	<atom:link href="https://www.xssor2600.site/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Mac_iterm2_rz_use</title>
+      <link>https://www.xssor2600.site/post/mac_iterm2_rz_use/</link>
+      <pubDate>Sun, 28 Jun 2020 23:15:45 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/mac_iterm2_rz_use/</guid>
+      <description>有这样的需求：在跳板机器登陆远程服务器后，需要将mysql数据库数据导出到Excel，并将文件下载到本地。
+mysql数据导出Excel 在登陆跳板机，ssh连接上服务器后，常规情况通过mysql命令可以直接连接进入数据库。此时我并不需要进入mysql命令行，而是需要在Linux命令行中通过mysql查询命令直接将数据导出到本地文件。
+可以通过mysql -e 命令来完成操作：
+echo &amp;quot;select uid,\`order\`,money,country_code from user_order_record_new_202006 where create_time &amp;gt;= &#39;2020-06-18 00:00:00&#39; and manner_id = 3 and client = 1 and agree =1&amp;quot; | mysql -h xxxxx -uroot -Ddemo -p&#39;123456&#39; --default-character-set=utf8 &amp;gt; /tmp/ios_recharge_18.xls; 当通过指定的s q l执行完成后，数据将会写入到Excel中，在目录中生成：
+  Excel文件下载到本地 在具体服务器生成查询数据文件时候，这时候如何将文件下载到本地？
+主要是通过rz/sz来实现两端服务器文件的传输。
+ 环境: Mac + iterm2终端: 需要在mac中安装lrzsz插件：  brew install lrzsz  Iterm2配置文件发送send,received脚本命令:
+具体脚本参照工程: iterm2-zmodem
+在目录/usr/local/bin/目录下分别创建脚本iterm2-send-zmodem.sh，iterm2-recv-zmodem.sh：
+ iterm2-send-zmodem.sh  #!/bin/bash # Author: Matt Mastracci (matthew@mastracci.com) # AppleScript from http://stackoverflow.</description>
+    </item>
     
     <item>
       <title>Golang基础知识</title>

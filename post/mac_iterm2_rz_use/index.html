@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Mac_iterm2_rz_use &middot; 琳琅世界，观山河</title>
+    <meta name="author" content="xssor">
+    <meta name="description" content="老夫聊发少年狂~">
+    <meta name="generator" content="Hugo 0.67.1" />
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- RSS autodiscovery -->
+    
+
+    <link rel="shortcut icon" href="https://www.xssor2600.site/img/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://www.xssor2600.site/css/screen.css">
+    <link rel="stylesheet" href="https://www.xssor2600.site/css/github.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/styles/default.min.css">
+    
+
+    
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.xssor2600.site/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://www.xssor2600.site/favicon.ico">
+    
+
+    <!-- Stylesheet for theme color -->
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+</head>
+
+<body class="home-template">
+    <header id="site-head">
+	
+	<h1 class="blog-title"><a href="https://www.xssor2600.site/">琳琅世界，观山河</a></h1>
+	
+	
+	<h1 class="blog-subtitle">前三三|后三三</h1>
+	
+</header>
+    
+    
+    <main class="content" role="main">
+    
+<article class="post">
+    <header>
+        <h1 class="post-title">Mac_iterm2_rz_use</h1>
+        <div class="post-meta">
+            <time datetime="28 June 2020">
+                28 June 2020
+            </time>
+        </div>
+    </header>
+
+    <section class="post-content">
+        <p>有这样的需求：在跳板机器登陆远程服务器后，需要将mysql数据库数据导出到Excel，并将文件下载到本地。</p>
+<h4 id="mysql数据导出excel">mysql数据导出Excel</h4>
+<p>在登陆跳板机，ssh连接上服务器后，常规情况通过mysql命令可以直接连接进入数据库。此时我并不需要进入mysql命令行，而是需要在Linux命令行中通过mysql查询命令直接将数据导出到本地文件。</p>
+<p><code>可以通过mysql -e 命令来完成操作</code>：</p>
+<pre><code>echo &quot;select uid,\`order\`,money,country_code from user_order_record_new_202006 where create_time &gt;= '2020-06-18 00:00:00' and manner_id = 3 and client = 1 and agree =1&quot; | mysql -h xxxxx -uroot -Ddemo -p'123456' --default-character-set=utf8  &gt; /tmp/ios_recharge_18.xls;
+</code></pre><p>当通过指定的s q l执行完成后，数据将会写入到Excel中，在目录中生成：</p>
+<p><img src="https://s1.ax1x.com/2020/06/28/NR7CQI.png" alt="NR7CQI.png"></p>
+<hr>
+<hr>
+<h4 id="excel文件下载到本地">Excel文件下载到本地</h4>
+<p>在具体服务器生成查询数据文件时候，这时候如何将文件下载到本地？</p>
+<p>主要是通过rz/sz来实现两端服务器文件的传输。</p>
+<ol>
+<li><code>环境: Mac + iterm2终端</code>: 需要在mac中安装<strong>lrzsz</strong>插件：</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">brew install lrzsz
+</code></pre></div><ol start="2">
+<li>
+<p>Iterm2配置文件发送<code>send</code>,<code>received</code>脚本命令:</p>
+<p>具体脚本参照工程: <a href="https://github.com/aikuyun/iterm2-zmodem">iterm2-zmodem</a></p>
+<p>在目录<code>/usr/local/bin/</code>目录下分别创建脚本<strong>iterm2-send-zmodem.sh</strong>，<strong>iterm2-recv-zmodem.sh</strong>：</p>
+<ul>
+<li><strong>iterm2-send-zmodem.sh</strong></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#!/bin/bash
+</span><span style="color:#75715e"></span><span style="color:#75715e"># Author: Matt Mastracci (matthew@mastracci.com)</span>
+<span style="color:#75715e"># AppleScript from http://stackoverflow.com/questions/4309087/cancel-button-on-osascript-in-a-bash-script</span>
+<span style="color:#75715e"># licensed under cc-wiki with attribution required</span>
+<span style="color:#75715e"># Remainder of script public domain</span>
+    
+osascript -e <span style="color:#e6db74">&#39;tell application &#34;iTerm2&#34; to version&#39;</span> &gt; /dev/null 2&gt;&amp;<span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> NAME<span style="color:#f92672">=</span>iTerm2 <span style="color:#f92672">||</span> NAME<span style="color:#f92672">=</span>iTerm
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[[</span> $NAME <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;iTerm&#34;</span> <span style="color:#f92672">]]</span>; <span style="color:#66d9ef">then</span>
+    FILE<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>osascript -e <span style="color:#e6db74">&#39;tell application &#34;iTerm&#34; to activate&#39;</span> -e <span style="color:#e6db74">&#39;tell application &#34;iTerm&#34; to set thefile to choose file with prompt &#34;Choose a file to send&#34;&#39;</span> -e <span style="color:#e6db74">&#34;do shell script (\&#34;echo \&#34;&amp;(quoted form of POSIX path of thefile as Unicode text)&amp;\&#34;\&#34;)&#34;</span><span style="color:#e6db74">`</span>
+<span style="color:#66d9ef">else</span>
+    FILE<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>osascript -e <span style="color:#e6db74">&#39;tell application &#34;iTerm2&#34; to activate&#39;</span> -e <span style="color:#e6db74">&#39;tell application &#34;iTerm2&#34; to set thefile to choose file with prompt &#34;Choose a file to send&#34;&#39;</span> -e <span style="color:#e6db74">&#34;do shell script (\&#34;echo \&#34;&amp;(quoted form of POSIX path of thefile as Unicode text)&amp;\&#34;\&#34;)&#34;</span><span style="color:#e6db74">`</span>
+<span style="color:#66d9ef">fi</span>
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[[</span> $FILE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span> <span style="color:#f92672">]]</span>; <span style="color:#66d9ef">then</span>
+    echo Cancelled.
+    <span style="color:#75715e"># Send ZModem cancel</span>
+    echo -e <span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18
+    sleep <span style="color:#ae81ff">1</span>
+    echo
+    echo <span style="color:#ae81ff">\#</span> Cancelled transfer
+<span style="color:#66d9ef">else</span>
+    /usr/local/bin/sz <span style="color:#e6db74">&#34;</span>$FILE<span style="color:#e6db74">&#34;</span> -e -b
+    sleep <span style="color:#ae81ff">1</span>
+    echo
+    echo <span style="color:#ae81ff">\#</span> Received $FILE
+<span style="color:#66d9ef">fi</span>
+</code></pre></div><ul>
+<li><strong>iterm2-recv-zmodem.sh</strong></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#!/bin/bash
+</span><span style="color:#75715e"></span><span style="color:#75715e"># Author: Matt Mastracci (matthew@mastracci.com)</span>
+<span style="color:#75715e"># AppleScript from http://stackoverflow.com/questions/4309087/cancel-button-on-osascript-in-a-bash-script</span>
+<span style="color:#75715e"># licensed under cc-wiki with attribution required</span>
+<span style="color:#75715e"># Remainder of script public domain</span>
+    
+osascript -e <span style="color:#e6db74">&#39;tell application &#34;iTerm2&#34; to version&#39;</span> &gt; /dev/null 2&gt;&amp;<span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> NAME<span style="color:#f92672">=</span>iTerm2 <span style="color:#f92672">||</span> NAME<span style="color:#f92672">=</span>iTerm
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[[</span> $NAME <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;iTerm&#34;</span> <span style="color:#f92672">]]</span>; <span style="color:#66d9ef">then</span>
+    FILE<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>osascript -e <span style="color:#e6db74">&#39;tell application &#34;iTerm&#34; to activate&#39;</span> -e <span style="color:#e6db74">&#39;tell application &#34;iTerm&#34; to set thefile to choose folder with prompt &#34;Choose a folder to place received files in&#34;&#39;</span> -e <span style="color:#e6db74">&#34;do shell script (\&#34;echo \&#34;&amp;(quoted form of POSIX path of thefile as Unicode text)&amp;\&#34;\&#34;)&#34;</span><span style="color:#e6db74">`</span>
+<span style="color:#66d9ef">else</span>
+    FILE<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>osascript -e <span style="color:#e6db74">&#39;tell application &#34;iTerm2&#34; to activate&#39;</span> -e <span style="color:#e6db74">&#39;tell application &#34;iTerm2&#34; to set thefile to choose folder with prompt &#34;Choose a folder to place received files in&#34;&#39;</span> -e <span style="color:#e6db74">&#34;do shell script (\&#34;echo \&#34;&amp;(quoted form of POSIX path of thefile as Unicode text)&amp;\&#34;\&#34;)&#34;</span><span style="color:#e6db74">`</span>
+<span style="color:#66d9ef">fi</span>
+    
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[[</span> $FILE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span> <span style="color:#f92672">]]</span>; <span style="color:#66d9ef">then</span>
+    echo Cancelled.
+    <span style="color:#75715e"># Send ZModem cancel</span>
+    echo -e <span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18<span style="color:#ae81ff">\\</span>x18
+    sleep <span style="color:#ae81ff">1</span>
+    echo
+    echo <span style="color:#ae81ff">\#</span> Cancelled transfer
+<span style="color:#66d9ef">else</span>
+    cd <span style="color:#e6db74">&#34;</span>$FILE<span style="color:#e6db74">&#34;</span>
+    /usr/local/bin/rz -E -e -b
+    sleep <span style="color:#ae81ff">1</span>
+    echo
+    echo
+    echo <span style="color:#ae81ff">\#</span> Sent <span style="color:#ae81ff">\-\&gt;</span> $FILE
+<span style="color:#66d9ef">fi</span>
+</code></pre></div><p>修改两个脚本执行文件权限：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">chmod <span style="color:#ae81ff">777</span> /usr/local/bin/iterm2-*
+</code></pre></div></li>
+<li>
+<p>Iterm2的Tirgger特性</p>
+<p>主要目的是将上面两个脚本文件配置到iterm2中。路径<code>profiles-&gt;default-&gt;editProfiles-&gt;Advanced中的Tirgger</code></p>
+<pre><code>  Regular expression: \*\*B0100
+  Action: Run Silent Coprocess
+  Parameters: /usr/local/bin/iterm2-send-zmodem.sh
+           
+  Regular expression: \*\*B00000000000000
+  Action: Run Silent Coprocess
+  Parameters: /usr/local/bin/iterm2-recv-zmodem.sh
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/28/NRHoK1.png" alt="NRHoK1.png"></p>
+</li>
+<li>
+<p>特别需要注意点(参考:<a href="">解决mac item2 sz rz命令失效问题</a>)</p>
+<p>需要注意的是，如果是用了<code>except</code>语法登陆到具体的服务器上，那么会出现如下情况问题:</p>
+<p><strong>在远程服务器上通过sz命令将文件传输到了本地执行路径后，发现文件并没有下载到目录</strong></p>
+<p>为什么会出现这种情况呢？</p>
+<p>原因：<code>item2使用profile 设置的expext 脚本实现自动登录，而lszrz正好与expect脚本冲突，所以sz rz 命令失效</code></p>
+</li>
+</ol>
+<p>​       如何解决？</p>
+<p>​        item2中ssh 命令登录远程服务器，便能正常使用sz rz。既为：</p>
+<p>​        先通过ssh命令连接跳板机，然后在通过ssh连接到指定服务器，此时在通过<code>sz</code>命令就可以把文件下载到本地路径了。</p>
+
+    </section>
+
+    
+    <section class="post-tags" style="padding-bottom:60px;">
+        <div class="post-meta tags">
+            <i class="fa fa-fw fa-tag"></i>
+            
+                
+                <a href="https://www.xssor2600.site/tags/iterm">iterm </a>
+            
+                
+                <a href="https://www.xssor2600.site/tags/rz">rz </a>
+            
+        </div>
+    </section>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "spf13" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    <section class="share">
+    <p class="backtotop"><a data-scroll href="#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="#site-head"> Back to top</a></p>
+    <p class="info prompt">Share</p>
+    <a href="http://twitter.com/share?text=Mac_iterm2_rz_use&url=https%3a%2f%2fwww.xssor2600.site%2fpost%2fmac_iterm2_rz_use%2f" title="Share on Twitter"
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+    </a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.xssor2600.site%2fpost%2fmac_iterm2_rz_use%2f" title="Share on Facebook"
+        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+    </a>
+    <a href="https://plus.google.com/share?url=https%3a%2f%2fwww.xssor2600.site%2fpost%2fmac_iterm2_rz_use%2f" title="Share on Google+"
+       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+    </a>
+</section>
+
+    <footer class="post-footer">
+        <section class="author">
+    <div class="authorimage" style="background: url(https://www.xssor2600.site/img/avatar.jpg)"></div>
+    <h4>xssor</h4>
+    <p class="bio">programmer - blogger</p>
+    <p class="meta">
+      
+    </p>
+</section>
+    </footer>
+    
+</article>
+
+    </main>
+
+    <footer class="site-footer">
+	<div class="inner">
+		<section class="footer-social">
+      
+      <a href="//twitter.com/spf13" target="_blank" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>&nbsp;
+      
+      
+      
+      
+      
+      
+      <a href="//github.com/spf13" target="_blank" title="GitHub"><i class="fa fa-2x fa-fw fa-github"></i> <span class="hidden">GitHub</span></a>&nbsp;
+      
+      
+      
+      
+  </section>
+
+		<section class="copyright">&copy; 2020 <a href="https://www.xssor2600.site/">xssor</a>. .</section>
+	</div>
+</footer>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://www.xssor2600.site/js/index.js"></script>
+<script src="https://www.xssor2600.site/js/smooth-scroll.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js"></script>
+
+
+<script>
+    smoothScroll.init({
+        speed: 800,
+        easing: 'easeInOutCubic',
+        updateURL: false,
+        offset: 125,
+    });
+</script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>
