@@ -1,84 +1,53 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
-    <title>Mac_iterm2_rz_use &middot; 琳琅世界，观山河</title>
-    <meta name="author" content="xssor">
-    <meta name="description" content="老夫聊发少年狂~">
-    <meta name="generator" content="Hugo 0.67.1" />
-    <meta name="HandheldFriendly" content="True">
-    <meta name="MobileOptimized" content="320">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
-    <!-- RSS autodiscovery -->
-    
-
-    <link rel="shortcut icon" href="https://www.xssor2600.site/img/favicon.ico">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="https://www.xssor2600.site/css/screen.css">
-    <link rel="stylesheet" href="https://www.xssor2600.site/css/github.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/styles/default.min.css">
-    
-
-    
-    <link rel="shortcut icon" type="image/x-icon" href="https://www.xssor2600.site/favicon.ico">
-    <link rel="icon" type="image/x-icon" href="https://www.xssor2600.site/favicon.ico">
-    
-
-    <!-- Stylesheet for theme color -->
-    <style type="text/css">
-    a, a:visited {color: #33cc99;}
-    .pagination a {color: #33cc99;}
-    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
-    a:focus, a:hover {color: #178b6b;}
-    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
-    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
-</style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Mac_iterm2_rz_use</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
 </head>
-
-<body class="home-template">
-    <header id="site-head">
-	
-	<h1 class="blog-title"><a href="https://www.xssor2600.site/">琳琅世界，观山河</a></h1>
-	
-	
-	<h1 class="blog-subtitle">前三三|后三三</h1>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三|后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/post/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+			<a href="/minds/"><b>随想杂记</b></a>.
+			
+	</nav>
+	</p>
 	
 </header>
-    
-<nav class="menu" role="nav">
-    <ul>
-        
-        	<li class="nav nav-current"><a href="/post/">Posts</a></li>
-      	
-        	<li class="nav nav-current"><a href="/categories/">Categories</a></li>
-      	
-        	<li class="nav nav-current"><a href="/tags/">Tags</a></li>
-      	
-        	<li class="nav nav-current"><a href="/minds/">随想杂记</a></li>
-      	
-    </ul>
-</nav>
 
-    
-    <main class="content" role="main">
-    
-<article class="post">
-    <header>
-        <h1 class="post-title">Mac_iterm2_rz_use</h1>
-        <div class="post-meta">
-            <time datetime="28 June 2020">
-                28 June 2020
-            </time>
-        </div>
-    </header>
+	
+	<main>
+		<article>
+			<h1>Mac_iterm2_rz_use</h1>
+			<b><time>28.06.2020 23:15</time></b>
+		       
+		           <a href="/tags/iterm">iterm</a>
+        	       
+		           <a href="/tags/rz">rz</a>
+        	       
 
-    <section class="post-content">
-        <p>有这样的需求：在跳板机器登陆远程服务器后，需要将mysql数据库数据导出到Excel，并将文件下载到本地。</p>
+			<div>
+				<p>有这样的需求：在跳板机器登陆远程服务器后，需要将mysql数据库数据导出到Excel，并将文件下载到本地。</p>
 <h4 id="mysql数据导出excel">mysql数据导出Excel</h4>
 <p>在登陆跳板机，ssh连接上服务器后，常规情况通过mysql命令可以直接连接进入数据库。此时我并不需要进入mysql命令行，而是需要在Linux命令行中通过mysql查询命令直接将数据导出到本地文件。</p>
 <p><code>可以通过mysql -e 命令来完成操作</code>：</p>
@@ -185,112 +154,36 @@ osascript -e <span style="color:#e6db74">&#39;tell application &#34;iTerm2&#34; 
 <p>​        item2中ssh 命令登录远程服务器，便能正常使用sz rz。既为：</p>
 <p>​        先通过ssh命令连接跳板机，然后在通过ssh连接到指定服务器，此时在通过<code>sz</code>命令就可以把文件下载到本地路径了。</p>
 
-    </section>
-
-    
-    <section class="post-tags" style="padding-bottom:60px;">
-        <div class="post-meta tags">
-            <i class="fa fa-fw fa-tag"></i>
-            
-                
-                <a href="https://www.xssor2600.site/tags/iterm">iterm </a>
-            
-                
-                <a href="https://www.xssor2600.site/tags/rz">rz </a>
-            
-        </div>
-    </section>
-    
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "spf13" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    <section class="share">
-    <p class="backtotop"><a data-scroll href="#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="#site-head"> Back to top</a></p>
-    <p class="info prompt">Share</p>
-    <a href="http://twitter.com/share?text=Mac_iterm2_rz_use&url=https%3a%2f%2fwww.xssor2600.site%2fpost%2fmac_iterm2_rz_use%2f" title="Share on Twitter"
-        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-        <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
-    </a>
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.xssor2600.site%2fpost%2fmac_iterm2_rz_use%2f" title="Share on Facebook"
-        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-        <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
-    </a>
-    <a href="https://plus.google.com/share?url=https%3a%2f%2fwww.xssor2600.site%2fpost%2fmac_iterm2_rz_use%2f" title="Share on Google+"
-       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-        <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
-    </a>
-</section>
-
-    <footer class="post-footer">
-        <section class="author">
-    <div class="authorimage" style="background: url(https://www.xssor2600.site/img/avatar.jpg)"></div>
-    <h4>xssor</h4>
-    <p class="bio">programmer - blogger</p>
-    <p class="meta">
-      
-    </p>
-</section>
-    </footer>
-    
-</article>
-
-    </main>
-
-    <footer class="site-footer">
-	<div class="inner">
-		<section class="footer-social">
-      
-      <a href="//twitter.com/spf13" target="_blank" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>&nbsp;
-      
-      
-      
-      
-      
-      
-      <a href="//github.com/spf13" target="_blank" title="GitHub"><i class="fa fa-2x fa-fw fa-github"></i> <span class="hidden">GitHub</span></a>&nbsp;
-      
-      
-      
-      
-  </section>
-
-		<section class="copyright">&copy; 2020 <a href="https://www.xssor2600.site/">xssor</a>. </section>
+			</div>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/mac_iterm2_rz_use/">Mac_iterm2_rz_use</a></li>
+				
+				<li><a href="/post/golang%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">Golang基础知识</a></li>
+				
+				<li><a href="/post/how_to_use_hugo/">如何使用hugo来编写文章</a></li>
+				
+			</ul>
+		</div>
 	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	<a href="https://example.com/@user"><b>Mastodon</b></a>.
+	<a href="/imprint"><b>Imprint</b></a>.
+	</p>
 </footer>
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://www.xssor2600.site/js/index.js"></script>
-<script src="https://www.xssor2600.site/js/smooth-scroll.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js"></script>
-
-
-<script>
-    smoothScroll.init({
-        speed: 800,
-        easing: 'easeInOutCubic',
-        updateURL: false,
-        offset: 125,
-    });
-</script>
-<script>hljs.initHighlightingOnLoad();</script>
-
 
 </body>
 </html>
