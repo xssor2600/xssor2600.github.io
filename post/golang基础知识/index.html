@@ -50,6 +50,20 @@
 	
 </header>
     
+<nav class="menu" role="nav">
+    <ul>
+        
+        	<li class="nav nav-current"><a href="/post/">Posts</a></li>
+      	
+        	<li class="nav nav-current"><a href="/categories/">Categories</a></li>
+      	
+        	<li class="nav nav-current"><a href="/tags/">Tags</a></li>
+      	
+        	<li class="nav nav-current"><a href="/minds/">随想杂记</a></li>
+      	
+    </ul>
+</nav>
+
     
     <main class="content" role="main">
     
@@ -145,17 +159,15 @@ string(chars)	chars 类型是 []rune 或者 []int32, 将之转换为字符串
 [&hellip;]Type{value1, value2, &hellip;, valueN}</p>
 <p>a := [&hellip;]int{1,2,3,4,5,6,7}
 s1 := a[3:6]  // 赋值分割</p>
-<p><img src="https://s1.ax1x.com/2020/06/25/NBtyZV.png" alt="NBtyZV.png">
-从内存图中可以看出：</p>
 <ol>
 <li>数组是值类型，数组名指针指向数组第一个值位置</li>
 <li>数组元素之间内存地址的间隔 ⇒ 取决于数组内存储的基本数据类型所占用字节数大小（int占用8个字节</li>
 </ol>
 <p><code>传递数组给函数的时候，是对数组进行值拷贝后传入，函数内对数组的修改并不会修改原数组</code>
-<img src="https://s1.ax1x.com/2020/06/25/NBYAAS.png" alt="NBYAAS.png">
-<strong>若是想要在函数内修改数组，可以将数组的指针传入函数</strong>:
+<a href="https://imgchr.com/i/NBYAAS"><img src="https://s1.ax1x.com/2020/06/25/NBYAAS.md.png" alt="NBYAAS.md.png"></a></p>
+<p><strong>若是想要在函数内修改数组，可以将数组的指针传入函数</strong>:
 避免大数组值的拷贝引起的内存性能问题，可以用指针进行传递.
-<img src="https://s1.ax1x.com/2020/06/25/NBYrND.png" alt="NBYrND.png"></p>
+<a href="https://imgchr.com/i/NBYrND"><img src="https://s1.ax1x.com/2020/06/25/NBYrND.md.png" alt="NBYrND.md.png"></a></p>
 <h4 id="切片">切片</h4>
 <p><code>数组是按值传递的（即是传递的副本），而切片是引用类型，传递切片的成本非常小，而且是不定长的。</code></p>
 <pre><code class="language-code" data-lang="code">make([ ]Type, length, capacity)
@@ -168,7 +180,7 @@ make([ ]Type, length)
 <pre><code class="language-code" data-lang="code">type demo struct{
     }
 </code></pre><p><code>结构体中所有字段在内存中是连续的</code>
-<img src="https://s1.ax1x.com/2020/06/25/NBYjbV.png" alt="NBYjbV.png"></p>
+<a href="https://imgchr.com/i/NBYjbV"><img src="https://s1.ax1x.com/2020/06/25/NBYjbV.md.png" alt="NBYjbV.md.png"></a></p>
 <p><strong>interface 接口</strong> :
 interface类型可以定义一组方法，但是不需要实现，并且interface不能包含任何变量。</p>
 <pre><code class="language-code" data-lang="code">type 接口名字 interface {
@@ -189,7 +201,7 @@ interface类型可以定义一组方法，但是不需要实现，并且interfac
 <p><img src="https://s1.ax1x.com/2020/06/25/NB8dnf.png" alt="NB8dnf.png"></p>
 <p>若是指针对象作为入参数传入方法，则是指针的拷贝：
 可以看到方法外的指针对象指针，和传入函数的指针地址是一样的，说明进行了指针的值拷贝。<code>虽然两个变量存储着相同的指针地址，但是两个变量的地址是不同的，方法内会在内存中新创建一个内存地址来保存入参的拷贝值。</code></p>
-<p><img src="https://s1.ax1x.com/2020/06/25/NBtyZV.png" alt="NBtyZV.png"></p>
+<p><a href="https://imgchr.com/i/NBtyZV"><img src="https://s1.ax1x.com/2020/06/25/NBtyZV.md.png" alt="NBtyZV.md.png"></a></p>
 <h4 id="函数">函数</h4>
 <p><strong>匿名函数</strong>:</p>
 <pre><code class="language-code" data-lang="code">reslt := func (n1 int,n2 int) int {
@@ -314,7 +326,7 @@ defer func(){
       
   </section>
 
-		<section class="copyright">&copy; 2020 <a href="https://www.xssor2600.site/">xssor</a>. .</section>
+		<section class="copyright">&copy; 2020 <a href="https://www.xssor2600.site/">xssor</a>. </section>
 	</div>
 </footer>
 
