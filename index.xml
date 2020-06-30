@@ -12,6 +12,25 @@
     
     
     <item>
+      <title>关于架构学习的一点思考</title>
+      <link>https://www.xssor2600.site/minds/some_thoughts_on_arc_learning/</link>
+      <pubDate>Tue, 30 Jun 2020 22:30:31 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/minds/some_thoughts_on_arc_learning/</guid>
+      <description>为什么会需要架构？
+​ 软件架构设计出来的目的就是为了解决软件工程实践过程中带来的复杂度问题。软件架构引入也会带来新的复杂度，即架构不是银弹,不能解决一切问题。
+​ 需要根据实际业务来调整架构，业务驱动架构。
+  从上而下
+架构设计，分类，模式
+先从整体上了解主流架构思想，突破从无到有。即为知道有这么个玩意～
+之后学习一些架构实践的各种框架设计就能应用架构思想，从而更容易理解框架功能与核心功能。
+  从下而上
+学习一门新技术，先从大的架构设计去理解，应用什么模式架构去解决了什么问题。
+先从理解框架技术的底层原理，在将框架具体架构设计与应用原理对比分析。
+   拓展视野，新增感念 框架技术架构印证 代码实现应用场景 了解设计理念便于理解源码模块  </description>
+    </item>
+    
+    <item>
       <title>Mac_iterm2_rz_use</title>
       <link>https://www.xssor2600.site/post/mac_iterm2_rz_use/</link>
       <pubDate>Sun, 28 Jun 2020 23:15:45 +0800</pubDate>
