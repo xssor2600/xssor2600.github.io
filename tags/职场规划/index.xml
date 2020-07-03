@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Minds on 琳琅世界，观山河</title>
-    <link>https://www.xssor2600.site/minds/</link>
-    <description>Recent content in Minds on 琳琅世界，观山河</description>
+    <title>职场规划 on 琳琅世界，观山河</title>
+    <link>https://www.xssor2600.site/tags/%E8%81%8C%E5%9C%BA%E8%A7%84%E5%88%92/</link>
+    <description>Recent content in 职场规划 on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 03 Jul 2020 23:25:02 +0800</lastBuildDate>
     
-	<atom:link href="https://www.xssor2600.site/minds/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.xssor2600.site/tags/%E8%81%8C%E5%9C%BA%E8%A7%84%E5%88%92/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -20,25 +20,6 @@
       <description>对于一个职场中，脑子主观总是以技术在手，走遍公司都不怕想法驱动的程序员来说，虽然说对技术的最求，持续的学习，能够持续保持的热情都是难能可贵的，但是我不是那1%的扫地僧，没那能力去争抢那稀缺岗位。所以，需要对自己警示，技术并不是全部。
 随着职场工作的业务沉淀和公司平台，同事关系等资源的积累，要学会将自己多路拓展思路，将在技术这座难以翻越的大山遮蔽下的眼界，稍微往左右侧时不时也可以考量和尝试一下。当然了，工作中基本的技术职业素养还是不能够丢弃的，持续向优秀方向努力前进。
 在技术学习过程中，重点还是得基础扎实，之后的学习策略思考根据自身条件进行指定和调整，业务也是很重要的一项。所以也是需要时常归纳，总结业务。业务是公司资本赚钱最直接的表现,技术只是实现业务的一种方式而已。</description>
-    </item>
-    
-    <item>
-      <title>关于架构学习的一点思考</title>
-      <link>https://www.xssor2600.site/minds/some_thoughts_on_arc_learning/</link>
-      <pubDate>Tue, 30 Jun 2020 22:30:31 +0800</pubDate>
-      
-      <guid>https://www.xssor2600.site/minds/some_thoughts_on_arc_learning/</guid>
-      <description>为什么会需要架构？
-​ 软件架构设计出来的目的就是为了解决软件工程实践过程中带来的复杂度问题。软件架构引入也会带来新的复杂度，即架构不是银弹,不能解决一切问题。
-​ 需要根据实际业务来调整架构，业务驱动架构。
-  从上而下
-架构设计，分类，模式
-先从整体上了解主流架构思想，突破从无到有。即为知道有这么个玩意～
-之后学习一些架构实践的各种框架设计就能应用架构思想，从而更容易理解框架功能与核心功能。
-  从下而上
-学习一门新技术，先从大的架构设计去理解，应用什么模式架构去解决了什么问题。
-先从理解框架技术的底层原理，在将框架具体架构设计与应用原理对比分析。
-   拓展视野，新增感念 框架技术架构印证 代码实现应用场景 了解设计理念便于理解源码模块  </description>
     </item>
     
   </channel>
