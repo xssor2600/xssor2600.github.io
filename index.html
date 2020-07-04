@@ -41,6 +41,25 @@
 		
 		
 			<article>
+	<h1><a href="https://www.xssor2600.site/post/common_user_redis_batch_scripts/">redis常用的脚本</a></h1>
+	<b><time>04.07.2020 13:51</time></b>
+	
+	<a href="/tags/redis">redis</a>
+	
+	<div>
+		若是想批量启动多个redis服务，或者同时关闭重启多个redis服务，那么通过脚本是最简单的方式。
+  Redis批量启动(使用默认配置文件)
+#!/bin/bash echo &#34;----- start sentinel redis servers --------&#34; cd /usr/local/redis sudo ./redis-server ./redis.conf sudo ./redis-server ./redis-6378.conf sudo ./redis-server ./redis-6380.conf sudo ./redis-server ./redis-sentinel-26379.conf --sentinel echo &#34;----- sentinel redis servers start successfully! ------&#34;   Redis命令参数化连接
+因为配置多个redis实例,每个实例对应不同端口.通过脚本简化redis连接客户端传入的端口参数.
+#!/bin/bash echo &#34;---- connection redis client sudo ./redis-cli -p $1------&#34; cd /usr/local/redis # 其中$0 得到命令语句 $1代表命令后的第一个参数 sudo ./redis-cli -p $1 -a x@123456 # 若是每个redis服务密码也不同，则可以使用密码占用符 sudo ./redis-cli -p $1 -a $2 在使用改脚本去连接redis服务器的时候，可以像如下使用：
+		
+			<a href="https://www.xssor2600.site/post/common_user_redis_batch_scripts/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
 	<h1><a href="https://www.xssor2600.site/post/mac_iterm2_rz_use/">Mac_iterm2_rz_use</a></h1>
 	<b><time>28.06.2020 23:15</time></b>
 	

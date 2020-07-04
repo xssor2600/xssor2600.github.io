@@ -3,12 +3,27 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://www.xssor2600.site/minds/</loc>
-    <lastmod>2020-07-03T23:25:02+08:00</lastmod>
+    <loc>https://www.xssor2600.site/post/</loc>
+    <lastmod>2020-07-04T13:51:53+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/tags/redis/</loc>
+    <lastmod>2020-07-04T13:51:53+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/post/common_user_redis_batch_scripts/</loc>
+    <lastmod>2020-07-04T13:51:53+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://www.xssor2600.site/tags/</loc>
+    <lastmod>2020-07-04T13:51:53+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/minds/</loc>
     <lastmod>2020-07-03T23:25:02+08:00</lastmod>
   </url>
   
@@ -44,11 +59,6 @@
   
   <url>
     <loc>https://www.xssor2600.site/post/mac_iterm2_rz_use/</loc>
-    <lastmod>2020-06-28T23:15:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://www.xssor2600.site/post/</loc>
     <lastmod>2020-06-28T23:15:45+08:00</lastmod>
   </url>
   

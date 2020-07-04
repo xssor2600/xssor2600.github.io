@@ -6,10 +6,23 @@
     <description>Recent content in Posts on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 28 Jun 2020 23:15:45 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 04 Jul 2020 13:51:53 +0800</lastBuildDate>
     
 	<atom:link href="https://www.xssor2600.site/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>redis常用的脚本</title>
+      <link>https://www.xssor2600.site/post/common_user_redis_batch_scripts/</link>
+      <pubDate>Sat, 04 Jul 2020 13:51:53 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/common_user_redis_batch_scripts/</guid>
+      <description>若是想批量启动多个redis服务，或者同时关闭重启多个redis服务，那么通过脚本是最简单的方式。
+  Redis批量启动(使用默认配置文件)
+#!/bin/bash echo &amp;#34;----- start sentinel redis servers --------&amp;#34; cd /usr/local/redis sudo ./redis-server ./redis.conf sudo ./redis-server ./redis-6378.conf sudo ./redis-server ./redis-6380.conf sudo ./redis-server ./redis-sentinel-26379.conf --sentinel echo &amp;#34;----- sentinel redis servers start successfully! ------&amp;#34;   Redis命令参数化连接
+因为配置多个redis实例,每个实例对应不同端口.通过脚本简化redis连接客户端传入的端口参数.
+#!/bin/bash echo &amp;#34;---- connection redis client sudo ./redis-cli -p $1------&amp;#34; cd /usr/local/redis # 其中$0 得到命令语句 $1代表命令后的第一个参数 sudo ./redis-cli -p $1 -a x@123456 # 若是每个redis服务密码也不同，则可以使用密码占用符 sudo ./redis-cli -p $1 -a $2 在使用改脚本去连接redis服务器的时候，可以像如下使用：</description>
+    </item>
     
     <item>
       <title>Mac_iterm2_rz_use</title>
