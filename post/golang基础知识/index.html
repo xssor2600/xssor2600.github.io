@@ -62,9 +62,7 @@
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">v1</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">5</span> <span style="color:#75715e">//正确
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">v2</span> = <span style="color:#ae81ff">5</span>     <span style="color:#75715e">//正确，编译器自动推导出V2类型
 </span><span style="color:#75715e"></span><span style="color:#a6e22e">v3</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">5</span>        <span style="color:#75715e">//正确，编译器自动推导出V3的类型
-</span></code></pre></div><hr>
-<hr>
-<h4 id="基础数据类型">基础数据类型</h4>
+</span></code></pre></div><h4 id="基础数据类型">基础数据类型</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
 <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">limit</span> = <span style="color:#ae81ff">512</span>
 <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">top</span> <span style="color:#66d9ef">uint16</span> = <span style="color:#ae81ff">1421</span>
@@ -89,9 +87,7 @@
 <span style="color:#66d9ef">complex64</span>	<span style="color:#a6e22e">复数</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">实部和虚部都是</span> <span style="color:#66d9ef">float64</span>
 
 
-</code></pre></div><p>[<img src="https://s1.ax1x.com/2020/07/04/Nx5WtO.md.png" alt="Nx5WtO.md.png">]</p>
-<hr>
-<hr>
+</code></pre></div><p><a href="https://imgchr.com/i/Nx5WtO"><img src="https://s1.ax1x.com/2020/07/04/Nx5WtO.md.png" alt="Nx5WtO.md.png"></a></p>
 <p>布尔类型
 布尔值 true 和false. 布尔类型不能接受其他类型的赋值，不支持自动或强制的类型转换</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#66d9ef">bool</span>
@@ -102,9 +98,7 @@
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">bool</span>
 <span style="color:#a6e22e">b</span> = <span style="color:#ae81ff">1</span> <span style="color:#75715e">//编译错误
 </span><span style="color:#75715e"></span><span style="color:#a6e22e">b</span> = bool(<span style="color:#ae81ff">1</span>) <span style="color:#75715e">//编译错误
-</span></code></pre></div><hr>
-<hr>
-<h4 id="字符串类型">字符串类型</h4>
+</span></code></pre></div><h4 id="字符串类型">字符串类型</h4>
 <p><code>Go 语言的字符串是 UTF-8 编码，其底层使用 4 个字节表示，也就是 32 bit</code></p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">s</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">t</span>	<span style="color:#a6e22e">将字符串</span> <span style="color:#a6e22e">t</span> <span style="color:#a6e22e">追加到</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">末尾</span>
 <span style="color:#a6e22e">s</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">t</span>	<span style="color:#a6e22e">将字符串</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">和</span> <span style="color:#a6e22e">t</span> <span style="color:#a6e22e">级联</span>
@@ -117,9 +111,7 @@ len([]rune(<span style="color:#a6e22e">s</span>))	<span style="color:#a6e22e">�
 [ ]rune(<span style="color:#a6e22e">s</span>)	<span style="color:#a6e22e">将字符串</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">转换为一个</span> <span style="color:#a6e22e">unicode</span> <span style="color:#a6e22e">值组成的串</span>
 string(<span style="color:#a6e22e">chars</span>)	<span style="color:#a6e22e">chars</span> <span style="color:#a6e22e">类型是</span> []<span style="color:#66d9ef">rune</span> <span style="color:#a6e22e">或者</span> []<span style="color:#66d9ef">int32</span>, <span style="color:#a6e22e">将之转换为字符串</span>
 [ ]byte(<span style="color:#a6e22e">s</span>)	<span style="color:#a6e22e">无副本的将字符串</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">转换为一个原始的字节的切片数组</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">不保证转换的字节是合法的</span> <span style="color:#a6e22e">UTF</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span> <span style="color:#a6e22e">编码字节</span>
-</code></pre></div><hr>
-<hr>
-<p><strong>字符串格式化</strong></p>
+</code></pre></div><p><strong>字符串格式化</strong></p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">%%</span>	<span style="color:#f92672">%</span> <span style="color:#a6e22e">字面量</span>
 <span style="color:#f92672">%</span><span style="color:#a6e22e">b</span>	<span style="color:#a6e22e">一个二进制整数</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">将一个整数格式化为二进制的表达方式</span>
 <span style="color:#f92672">%</span><span style="color:#a6e22e">c</span>	<span style="color:#a6e22e">一个</span> <span style="color:#a6e22e">Unicode</span> <span style="color:#a6e22e">的字符</span>
@@ -132,8 +124,6 @@ string(<span style="color:#a6e22e">chars</span>)	<span style="color:#a6e22e">cha
 <span style="color:#f92672">%</span><span style="color:#a6e22e">t</span>	<span style="color:#a6e22e">以</span> <span style="color:#66d9ef">true</span> <span style="color:#a6e22e">或者</span> <span style="color:#66d9ef">false</span> <span style="color:#a6e22e">的方式输出布尔值</span>
 </code></pre></div><p>字符类型
 语言中支持两个字符类型，一个是 Byte（实际上是 Unit8 的别名），代表 UTF-8 字符串的单个字节的值；另一个是 rune，代表单个 Unicode 字符。</p>
-<hr>
-<hr>
 <h4 id="数组类型">数组类型</h4>
 <p>[length]Type
 [N]Type{value1, value2, &hellip;, valueN}
@@ -149,8 +139,6 @@ s1 := a[3:6]  // 赋值分割</p>
 <p><strong>若是想要在函数内修改数组，可以将数组的指针传入函数</strong>:
 避免大数组值的拷贝引起的内存性能问题，可以用指针进行传递.
 [<img src="https://s1.ax1x.com/2020/06/25/NBYrND.md.png" alt="NBYrND.md.png">]</p>
-<hr>
-<hr>
 <h4 id="切片">切片</h4>
 <p><code>数组是按值传递的（即是传递的副本），而切片是引用类型，传递切片的成本非常小，而且是不定长的。</code></p>
 <pre><code class="language-code" data-lang="code">make([ ]Type, length, capacity)
@@ -158,8 +146,6 @@ make([ ]Type, length)
 [ ]Type{}
 [ ]Type{value1, value2, ..., valueN}
 </code></pre><p><!-- raw HTML omitted --></p>
-<hr>
-<hr>
 <h4 id="结构体">结构体</h4>
 <p>GO中struct结构体概念类似于Java中的Class的概念。结构体是一种聚合类型，内部有多个不同类型字段的组合。
 <code>  要封装一个对象，必须使用结构体;GO语言中封装的单位是包而不是类型</code></p>
@@ -168,8 +154,6 @@ make([ ]Type, length)
 </code></pre><p><code>结构体中所有字段在内存中是连续的</code>
 <a href="https://imgchr.com/i/NBYjbV"><img src="https://s1.ax1x.com/2020/06/25/NBYjbV.md.png" alt="NBYjbV.md.png"></a></p>
 <p>【<img src="https://s1.ax1x.com/2020/07/04/NxoCxH.png" alt="NxoCxH.png"></p>
-<hr>
-<hr>
 <p><strong>interface 接口</strong> :
 interface类型可以定义一组方法，但是不需要实现，并且interface不能包含任何变量。</p>
 <pre><code class="language-code" data-lang="code">type 接口名字 interface {
@@ -184,8 +168,6 @@ interface类型可以定义一组方法，但是不需要实现，并且interfac
 <li>空接口interface{}没有任何方法，所有类型都实现了空接口（类似与Java的object）</li>
 </ol>
 <p><img src="https://s1.ax1x.com/2020/07/04/Nx5zcj.png" alt="Nx5zcj.png"></p>
-<hr>
-<hr>
 <h4 id="指针">指针</h4>
 <p>Go中，<code>&amp;</code>操作符可以获取一个变量的地址，使用<code>*</code>操作符可以获取指针引用的变量的值
 <strong>所有的变量都有地址，使用指针可以无须知道变量名字情况下，间接读取或者更新变量的值</strong>
@@ -194,8 +176,6 @@ interface类型可以定义一组方法，但是不需要实现，并且interfac
 <p>若是指针对象作为入参数传入方法，则是指针的拷贝：
 可以看到方法外的指针对象指针，和传入函数的指针地址是一样的，说明进行了指针的值拷贝。<code>虽然两个变量存储着相同的指针地址，但是两个变量的地址是不同的，方法内会在内存中新创建一个内存地址来保存入参的拷贝值。</code></p>
 <p><a href="https://imgchr.com/i/NBtyZV"><img src="https://s1.ax1x.com/2020/06/25/NBtyZV.md.png" alt="NBtyZV.md.png"></a></p>
-<hr>
-<hr>
 <h4 id="函数">函数</h4>
 <p><strong>匿名函数</strong>:</p>
 <pre><code class="language-code" data-lang="code">reslt := func (n1 int,n2 int) int {
@@ -221,8 +201,6 @@ defer延迟机制： 在函数执行完成之后，使用该机制来关闭，�
 <img src="https://s1.ax1x.com/2020/06/25/NBtQxA.png" alt="NBtQxA.png"></li>
 </ol>
 <p><img src="https://s1.ax1x.com/2020/07/04/NxI1UK.png" alt="NxI1UK.png"></p>
-<hr>
-<hr>
 <h4 id="包">包</h4>
 <p>go中的包的概念，和Java库类库的概念类似。一个go具体的包，就类比为Java中的类；go包下的所有<code>*.go</code>文件中大些字母开头的方法名，都可以通过包名来引用调用。
 <code>go中通过包来调用函数，与Java中类来调用函数相同。go并不是通过*.go文件名来调用方法。</code></p>
@@ -239,9 +217,217 @@ defer func(){
   }
 }()
 
-</code></pre><hr>
-<hr>
-<h4 id="channel管道">channel管道</h4>
+</code></pre><h4 id="channel管道">channel管道</h4>
+<p>管道channel底层就是一种数据结构-&gt; 队列。队列数据是有类型定义的，即为不同的数据类型的channel是不可以共同存在与一个channel内的。(管道channel这种数据类型也是一种<strong>引用类型</strong>)</p>
+<p>channel是存放数据的容器，必然会涉及共享数据访问问题，channel是线程安全的，多个携程可以同时操作channel内的数据，并且不需要依赖而外的锁来来保证资源的访 问。</p>
+<p>[<img src="https://s1.ax1x.com/2020/07/04/NzOkxf.md.png" alt="NzOkxf.md.png">]</p>
+<p>如何使用channel：</p>
+<p>定义：<code> var 管道名字  chan 管道数据类型</code></p>
+<p>初始化：<code>make(chan type,length)</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_go1</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>){
+	<span style="color:#75715e">// 声明存放int类型数据的管道
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">intchan</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#75715e">// 管道的初始化
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">intchan</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">3</span>)
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;管道变量intchan的值=%v,intchan变量的地址=%v\n&#34;</span>,<span style="color:#a6e22e">intchan</span>,<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">intchan</span>)
+
+}
+<span style="color:#75715e">//管道变量intchan的值=0xc000076100,intchan变量的地址=0xc00000e038
+</span><span style="color:#75715e"></span>
+
+ <span style="color:#75715e">// 向管道写入数据
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">intchan</span> <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">10</span>
+	<span style="color:#a6e22e">num</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">211</span>
+	<span style="color:#a6e22e">intchan</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">num</span>
+
+	<span style="color:#75715e">// 查看管道长度和容量
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;channel len=%v, capacity=%v\n&#34;</span>, len(<span style="color:#a6e22e">intchan</span>),cap(<span style="color:#a6e22e">intchan</span>))
+
+
+<span style="color:#75715e">// 管道取出数据
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">take</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">intchan</span>
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;take :%v |  channel len=%v, capacity=%v\n&#34;</span>,<span style="color:#a6e22e">take</span>, len(<span style="color:#a6e22e">intchan</span>),cap(<span style="color:#a6e22e">intchan</span>))
+
+<span style="color:#75715e">// 通过内置函数关闭
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// 关闭管道
+</span><span style="color:#75715e"></span>	close(<span style="color:#a6e22e">intchan</span>)
+</code></pre></div><p>channel的使用步骤:</p>
+<ol>
+<li>
+<p>声明channel类型变量 (var channelName chan type)</p>
+</li>
+<li>
+<p>make初始化channel （make(chan type length)</p>
+</li>
+<li>
+<p>channel ←向管道写入数据 |  ← channel 从管道读取数据</p>
+</li>
+<li>
+<p>关闭管道</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 可以继续从channel管道读取数据，但是不能写入数据
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> close(<span style="color:#a6e22e">c</span> <span style="color:#66d9ef">chan</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Type</span>)
+</code></pre></div></li>
+</ol>
+<p>管道可以声明为只读/只写:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 声明为只写
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">chan1</span> <span style="color:#66d9ef">chan</span><span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">int</span>
+<span style="color:#a6e22e">chan1</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">3</span>)
+
+
+<span style="color:#75715e">// 声明为只读
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">chan2</span> <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>
+
+</code></pre></div><p><strong>channel管道的遍历:</strong></p>
+<p>Channel支持for-range方式遍历，但是注意两个细节：</p>
+<ol>
+<li>在遍历时，如果channel没有关闭，则会出现deadlock错误。</li>
+<li>在遍历时，如果channel已经关闭，则会正常遍历数据。</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 遍历管道的时候若是没有关闭管道，则遍历结束会抛出死锁异常
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">intchan</span> {
+		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;channel -&gt; %d&#34;</span> , <span style="color:#a6e22e">v</span>)
+	}
+
+<span style="color:#a6e22e">管道变量intchan的值</span>=<span style="color:#ae81ff">0xc000076100</span>,<span style="color:#a6e22e">intchan变量的地址</span>=<span style="color:#ae81ff">0xc00000e038</span>
+<span style="color:#a6e22e">put</span> : <span style="color:#a6e22e">channel</span> <span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">2</span>, <span style="color:#a6e22e">capacity</span>=<span style="color:#ae81ff">3</span>
+<span style="color:#a6e22e">take</span> :<span style="color:#ae81ff">10</span> |  <span style="color:#a6e22e">channel</span> <span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">capacity</span>=<span style="color:#ae81ff">3</span>
+<span style="color:#a6e22e">channel</span> <span style="color:#f92672">-</span>&gt; <span style="color:#ae81ff">211</span><span style="color:#a6e22e">fatal</span> <span style="color:#66d9ef">error</span>: <span style="color:#a6e22e">all</span> <span style="color:#a6e22e">goroutines</span> <span style="color:#a6e22e">are</span> <span style="color:#a6e22e">asleep</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">deadlock</span>!
+
+
+<span style="color:#75715e">// 在range遍历管道之前应该要把管道关闭
+</span><span style="color:#75715e">// 关闭管道
+</span><span style="color:#75715e"></span>	close(<span style="color:#a6e22e">intchan</span>)
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">intchan</span> {
+		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;channel -&gt; %d&#34;</span> , <span style="color:#a6e22e">v</span>)
+	}
+
+  <span style="color:#75715e">// v代表是从intchan管道读取出来的数据，ok代表是否读取成功
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// 当intchan关闭时候，ok=false
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">v</span>,<span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">intchan</span>
+</code></pre></div><h4 id="反射">反射</h4>
+<p>反射有什么作用？</p>
+<ol>
+<li>可以在运行动态获取变量的各种信息： 类型（type) 类别(kind); 若是结构体还能获取结构体字段与方法。</li>
+<li>可以动态修改变量的值，可以调用关联的方法</li>
+</ol>
+<p>首先得明确反射中的几个很重要的概念。</p>
+<ul>
+<li>
+<p><strong>Type</strong></p>
+<p>type类型是用来表示一个go类型（基础类型/引用类型）。但是并不是所有的go类型的都能使用所有方法。</p>
+<p>在调用有分类限定的方法时，应先使用kind方法获知类型的分类，调用分类不支持的方法会导致panic。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// TypeOf返回接口中保存的值的类型，TypeOf(nil)会返回nil
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">interface</span>{}) <span style="color:#a6e22e">Type</span>
+  
+  
+  <span style="color:#a6e22e">appleProductIdMap</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>, <span style="color:#ae81ff">0</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">appleProductIdMap</span>)) <span style="color:#75715e">//map[string]string
+</span></code></pre></div></li>
+<li>
+<p>Value</p>
+<p>Value为go值提供了反射入口，不是所有的go类型值的Value表示都能使用所有方法。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Value</span> <span style="color:#66d9ef">struct</span>{
+  <span style="color:#75715e">// 内含隐藏或者非导出字段
+</span><span style="color:#75715e"></span>}
+  
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">ValueOf</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">interface</span>{}) <span style="color:#a6e22e">Value</span>
+  
+  
+  <span style="color:#a6e22e">appleProductIdMap</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>, <span style="color:#ae81ff">0</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">ValueOf</span>(<span style="color:#a6e22e">appleProductIdMap</span>)) 
+<span style="color:#75715e">//map[143800:yiamar_vip_us179.99 228800:yiamar_vip_us299.99 39800:yiamar_vip_us49.99]
+</span><span style="color:#75715e"></span>  
+  
+</code></pre></div></li>
+<li>
+<p>Kind</p>
+<p>Kind代表Type类型值表示的具体分类。是比Type类型更高一层的，go生态对数据类型的抽象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">const</span> (
+    <span style="color:#a6e22e">Invalid</span> <span style="color:#a6e22e">Kind</span> = <span style="color:#66d9ef">iota</span>
+    <span style="color:#a6e22e">Bool</span>
+    <span style="color:#a6e22e">Int</span>
+    <span style="color:#a6e22e">Int8</span>
+    <span style="color:#a6e22e">Int16</span>
+    <span style="color:#a6e22e">Int32</span>
+    <span style="color:#a6e22e">Int64</span>
+    <span style="color:#a6e22e">Uint</span>
+    <span style="color:#a6e22e">Uint8</span>
+    <span style="color:#a6e22e">Uint16</span>
+    <span style="color:#a6e22e">Uint32</span>
+    <span style="color:#a6e22e">Uint64</span>
+    <span style="color:#a6e22e">Uintptr</span> <span style="color:#75715e">// 指针类型
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Float32</span>
+    <span style="color:#a6e22e">Float64</span>
+    <span style="color:#a6e22e">Complex64</span>
+    <span style="color:#a6e22e">Complex128</span>
+    <span style="color:#a6e22e">Array</span>
+    <span style="color:#a6e22e">Chan</span>  <span style="color:#75715e">// 管道
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Func</span>  <span style="color:#75715e">// 函数
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Interface</span>
+    <span style="color:#a6e22e">Map</span>
+    <span style="color:#a6e22e">Ptr</span>
+    <span style="color:#a6e22e">Slice</span>  <span style="color:#75715e">// 切片
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">String</span>
+    <span style="color:#a6e22e">Struct</span> <span style="color:#75715e">// 结构体
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">UnsafePointer</span>  <span style="color:#75715e">//指针，与Uintptr区别？
+</span><span style="color:#75715e"></span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">appleProductIdMap</span>))
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">ValueOf</span>(<span style="color:#a6e22e">appleProductIdMap</span>))
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">appleProductIdMap</span>).<span style="color:#a6e22e">Kind</span>())
+  
+<span style="color:#75715e">// TypeOf ==&gt;.  map[string]string
+</span><span style="color:#75715e">// ValueOf ==&gt; map[143800:yiamar_vip_us179.99 228800:yiamar_vip_us299.99 39800:yiamar_vip_us49.99]
+</span><span style="color:#75715e">// Kind ==&gt; map
+</span></code></pre></div></li>
+</ul>
+<p>​	如果一个变量，通过ValueOf获取得到它的值，是否能直接更改改值？</p>
+<p>​    答案是：不行的。需要通过Value的函数<code>Elem()</code>方法返回Value对值的包装（值指针地址，才能修改)</p>
+<h4 id="闭包">闭包</h4>
+<p>在go系统中，闭包的本质就是包含特殊变量值传递的函数。Go 语言的匿名函数是一个闭包（Closure）</p>
+<blockquote>
+<p>所谓闭包指的是引用了自由变量（未绑定到特定对象的变量，通常在匿名函数外定义）的函数，被引用的自由变量将和这个函数一同存在，即使已经离开了创造它的上下文环境也不会被释放（比如传递到其他函数或对象中）。或者通俗点说，「闭」的意思是「封闭外部状态」，即使外部状态已经失效，闭包内部依然保留了一份从外部引用的变量。</p>
+</blockquote>
+<ol>
+<li>
+<p>闭包内部声明的局部变量无法从外部修改</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">1</span>
+   
+<span style="color:#a6e22e">f</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">func</span>() {
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">1</span>
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;i, j: %d, %d\n&#34;</span>, <span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span>)
+}
+   
+<span style="color:#a6e22e">f</span>()
+<span style="color:#a6e22e">j</span> <span style="color:#f92672">+=</span> <span style="color:#ae81ff">2</span>
+<span style="color:#a6e22e">f</span>()
+   
+<span style="color:#75715e">// output
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span>: <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>
+<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span>: <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>
+</code></pre></div><p>变量 f 指向的闭包引用了局部变量 i 和 j，i 在闭包内部定义，其值被隔离，不能从外部修改，而变量 j 在闭包外部定义，所以可以从外部修改，<strong>闭包持有的只是其引用</strong>。</p>
+</li>
+<li>
+<p>将匿名函数作为参数</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">10</span>
+    <span style="color:#a6e22e">add</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">int</span>) {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Variable i from main func: %d\n&#34;</span>, <span style="color:#a6e22e">i</span>)
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;The sum of %d and %d is: %d\n&#34;</span>, <span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span>, <span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#a6e22e">b</span>)
+    }
+    <span style="color:#a6e22e">callback</span>(<span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">add</span>);
+}
+   
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">callback</span>(<span style="color:#a6e22e">x</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">f</span> <span style="color:#66d9ef">func</span>(<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>)) {
+    <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">x</span>, <span style="color:#ae81ff">2</span>)
+}
+   
+<span style="color:#75715e">// output
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">Variable</span> <span style="color:#a6e22e">i</span> <span style="color:#a6e22e">from</span> <span style="color:#a6e22e">main</span> <span style="color:#66d9ef">func</span>: <span style="color:#ae81ff">10</span>
+<span style="color:#a6e22e">The</span> <span style="color:#a6e22e">sum</span> <span style="color:#a6e22e">of</span> <span style="color:#ae81ff">1</span> <span style="color:#a6e22e">and</span> <span style="color:#ae81ff">2</span> <span style="color:#a6e22e">is</span>: <span style="color:#ae81ff">3</span>
+   
+</code></pre></div><p>我们还验证了虽然 i 变量声明在 main 函数中，在调用 callback 外部函数时传入了匿名函数 add作为参数，add 函数在外部函数中执行，<strong>虽然作用域离开了 main 函数，但是还是可以访问到变量 i。</strong></p>
+</li>
+</ol>
 
 			</div>
                    </br>[content:] end~</br>
