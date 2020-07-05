@@ -18,7 +18,8 @@
       
       <guid>https://www.xssor2600.site/post/golang%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</guid>
       <description>记录一些刚开始学习go的基础内容。
-常量与变量 const limit = 512 const top uint16 = 1421 const x,y int = 1,3 var a int var b string var c float64 var d [5] int //数组 var e [] int //数组切片 var f * int //正确 var v1 int = 5 //正确 var v2 = 5 //正确，编译器自动推导出V2类型 v3 := 5 //正确，编译器自动推导出V3的类型 基础数据类型 const limit = 512 const top uint16 = 1421 const x,y int = 1,3 var a int var b string var c float64 var d [5] int //数组 var e [] int //数组切片 var f * int //正确 var v1 int = 5 //正确 var v2 = 5 //正确，编译器自动推导出V2类型 v3 := 5 //正确，编译器自动推导出V3的类型  // 两种浮点类型和两种复数类型 float32	±3.</description>
+GO的一些特点：
+ 并行： go让函数很容易成为非常轻量的线程，这些线程在Go中叫做携程。 安全： 当转换一个类型到另外一个类型，需要显示转换并遵循严格的规则。 快速： 编译很快，执行很快。  常量与变量 const limit = 512 const top uint16 = 1421 const x,y int = 1,3 var a int var b string var c float64 var d [5] int //数组 var e [] int //数组切片 var f * int //正确 var v1 int = 5 //正确 var v2 = 5 //正确，编译器自动推导出V2类型 v3 := 5 //正确，编译器自动推导出V3的类型 基础数据类型 const limit = 512 const top uint16 = 1421 const x,y int = 1,3 var a int var b string var c float64 var d [5] int //数组 var e [] int //数组切片 var f * int //正确 var v1 int = 5 //正确 var v2 = 5 //正确，编译器自动推导出V2类型 v3 := 5 //正确，编译器自动推导出V3的类型  // 两种浮点类型和两种复数类型 float32	±3.</description>
     </item>
     
     <item>

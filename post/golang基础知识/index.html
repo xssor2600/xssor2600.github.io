@@ -48,6 +48,12 @@
                    </br>[content:] start~</br>
 			<div>
 				<p>记录一些刚开始学习go的基础内容。</p>
+<p>GO的一些特点：</p>
+<ol>
+<li>并行： go让函数很容易成为非常轻量的线程，这些线程在Go中叫做携程。</li>
+<li>安全： 当转换一个类型到另外一个类型，需要显示转换并遵循严格的规则。</li>
+<li>快速： 编译很快，执行很快。</li>
+</ol>
 <h4 id="常量与变量">常量与变量</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">limit</span> = <span style="color:#ae81ff">512</span>
 <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">top</span> <span style="color:#66d9ef">uint16</span> = <span style="color:#ae81ff">1421</span>
@@ -111,7 +117,9 @@ len([]rune(<span style="color:#a6e22e">s</span>))	<span style="color:#a6e22e">�
 [ ]rune(<span style="color:#a6e22e">s</span>)	<span style="color:#a6e22e">将字符串</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">转换为一个</span> <span style="color:#a6e22e">unicode</span> <span style="color:#a6e22e">值组成的串</span>
 string(<span style="color:#a6e22e">chars</span>)	<span style="color:#a6e22e">chars</span> <span style="color:#a6e22e">类型是</span> []<span style="color:#66d9ef">rune</span> <span style="color:#a6e22e">或者</span> []<span style="color:#66d9ef">int32</span>, <span style="color:#a6e22e">将之转换为字符串</span>
 [ ]byte(<span style="color:#a6e22e">s</span>)	<span style="color:#a6e22e">无副本的将字符串</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">转换为一个原始的字节的切片数组</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">不保证转换的字节是合法的</span> <span style="color:#a6e22e">UTF</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span> <span style="color:#a6e22e">编码字节</span>
-</code></pre></div><p><strong>字符串格式化</strong></p>
+</code></pre></div><p>字符类型
+语言中支持两个字符类型，一个是 Byte（实际上是 Unit8 的别名），代表 UTF-8 字符串的单个字节的值；另一个是 rune，代表单个 Unicode 字符。</p>
+<p><strong>字符串格式化</strong></p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">%%</span>	<span style="color:#f92672">%</span> <span style="color:#a6e22e">字面量</span>
 <span style="color:#f92672">%</span><span style="color:#a6e22e">b</span>	<span style="color:#a6e22e">一个二进制整数</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">将一个整数格式化为二进制的表达方式</span>
 <span style="color:#f92672">%</span><span style="color:#a6e22e">c</span>	<span style="color:#a6e22e">一个</span> <span style="color:#a6e22e">Unicode</span> <span style="color:#a6e22e">的字符</span>
@@ -122,15 +130,32 @@ string(<span style="color:#a6e22e">chars</span>)	<span style="color:#a6e22e">cha
 <span style="color:#f92672">%</span><span style="color:#a6e22e">U</span>	<span style="color:#a6e22e">一个</span> <span style="color:#a6e22e">Unicode</span> <span style="color:#a6e22e">表示法表示的整形码值</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">默认是</span> <span style="color:#ae81ff">4</span> <span style="color:#a6e22e">个数字字符</span>
 <span style="color:#f92672">%</span><span style="color:#a6e22e">s</span>	<span style="color:#a6e22e">输出以原生的</span> <span style="color:#a6e22e">UTF</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span> <span style="color:#a6e22e">字节表示的字符</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">如果</span> <span style="color:#a6e22e">console</span> <span style="color:#a6e22e">不支持</span> <span style="color:#a6e22e">UTF</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span> <span style="color:#a6e22e">编码</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">则会输出乱码</span>
 <span style="color:#f92672">%</span><span style="color:#a6e22e">t</span>	<span style="color:#a6e22e">以</span> <span style="color:#66d9ef">true</span> <span style="color:#a6e22e">或者</span> <span style="color:#66d9ef">false</span> <span style="color:#a6e22e">的方式输出布尔值</span>
-</code></pre></div><p>字符类型
-语言中支持两个字符类型，一个是 Byte（实际上是 Unit8 的别名），代表 UTF-8 字符串的单个字节的值；另一个是 rune，代表单个 Unicode 字符。</p>
+</code></pre></div><p>若是想要修改某个字符串变量的值如何处理？</p>
+<p>在GO中，字符串string是不可变的，即为变量指向的内存中的数据是不能修改的。若是想要改变字符串，需要将字符串通过rune数组，再进行修改。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestStr</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#a6e22e">s</span><span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
+	<span style="color:#75715e">//s[0] = &#39;c&#39; 不可操作
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> []rune(<span style="color:#a6e22e">s</span>)  <span style="color:#75715e">//将字符串s转换为rune数组
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#e6db74">&#39;c&#39;</span> <span style="color:#75715e">// 修改字符数组
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">ns</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">c</span>) <span style="color:#75715e">// 将修改的字符串赋值给新字符串
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">ns</span>) <span style="color:#75715e">// chello
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">c</span>)) <span style="color:#75715e">// 类型是int32类型的切片
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">ValueOf</span>(<span style="color:#a6e22e">c</span>))
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">c</span>).<span style="color:#a6e22e">Kind</span>()) <span style="color:#75715e">// slice
+</span><span style="color:#75715e"></span>}
+</code></pre></div><blockquote>
+<p>Rune 是 int32 的别名。用 UTF-8 进行编码。这个类型在什么时候使用呢?例如需要遍 历字符串中的字符。可以循环每个字节(仅在使用 US ASCII 编码字符串时与字符等价， 而它们在 Go 中不存在!)。因此为了获得实际的字符，需要使用 rune 类型。</p>
+</blockquote>
 <h4 id="数组类型">数组类型</h4>
+<p>数组是有固定大小的，长度不可改变。<strong>数组是值类型，将一个数组赋值给另外一个数组，会复制所有数组元素；若是向函数传递一个数组，它会获得一个数组的拷贝副本，而不是数组的指针</strong></p>
 <p>[length]Type
 [N]Type{value1, value2, &hellip;, valueN}
 [&hellip;]Type{value1, value2, &hellip;, valueN}</p>
-<p>a := [&hellip;]int{1,2,3,4,5,6,7}
-s1 := a[3:6]  // 赋值分割</p>
-<ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">arr</span> [<span style="color:#ae81ff">10</span>]<span style="color:#66d9ef">int</span>
+<span style="color:#a6e22e">arr</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">42</span>
+<span style="color:#a6e22e">arr</span>[<span style="color:#ae81ff">1</span>] = <span style="color:#ae81ff">13</span>
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;The first element is %d\n&#34;</span>, <span style="color:#a6e22e">arr</span>[<span style="color:#ae81ff">0</span>])
+</code></pre></div><ol>
 <li>数组是值类型，数组名指针指向数组第一个值位置</li>
 <li>数组元素之间内存地址的间隔 ⇒ 取决于数组内存储的基本数据类型所占用字节数大小（int占用8个字节</li>
 </ol>
@@ -140,12 +165,27 @@ s1 := a[3:6]  // 赋值分割</p>
 避免大数组值的拷贝引起的内存性能问题，可以用指针进行传递.
 [<img src="https://s1.ax1x.com/2020/06/25/NBYrND.md.png" alt="NBYrND.md.png">]</p>
 <h4 id="切片">切片</h4>
-<p><code>数组是按值传递的（即是传递的副本），而切片是引用类型，传递切片的成本非常小，而且是不定长的。</code></p>
-<pre><code class="language-code" data-lang="code">make([ ]Type, length, capacity)
-make([ ]Type, length)
-[ ]Type{}
-[ ]Type{value1, value2, ..., valueN}
-</code></pre><p><!-- raw HTML omitted --></p>
+<blockquote>
+<p>slice 是一个指向 array 的指针,但是slice的长度是可变的。</p>
+<p>给定一个 array 或者其他 slice，一个新 slice 通过 a[I:J] 的方式创建。这会创建一个 新的 slice，指向变量 a，从序号 I 开始，结束在序号 J 之前。长度为 J - I。</p>
+</blockquote>
+<p>数组是按值传递的（即是传递的副本），而切片是引用类型，传递切片的成本非常小，而且是不定长的。`</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">make([ ]<span style="color:#a6e22e">Type</span>, <span style="color:#a6e22e">length</span>, <span style="color:#a6e22e">capacity</span>)
+make([ ]<span style="color:#a6e22e">Type</span>, <span style="color:#a6e22e">length</span>)
+[ ]<span style="color:#a6e22e">Type</span>{}
+[ ]<span style="color:#a6e22e">Type</span>{<span style="color:#a6e22e">value1</span>, <span style="color:#a6e22e">value2</span>, <span style="color:#f92672">...</span>, <span style="color:#a6e22e">valueN</span>}
+
+
+	<span style="color:#a6e22e">array</span> <span style="color:#f92672">:=</span> [<span style="color:#f92672">...</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">8</span>}
+	<span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">array</span>[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">3</span>] <span style="color:#75715e">// index=0,1,2,不包括右边范围索引
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">s1</span>).<span style="color:#a6e22e">Kind</span>())
+
+<span style="color:#75715e">// slice拷贝
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span>=[<span style="color:#f92672">...</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">7</span>}
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> = make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">6</span>)
+<span style="color:#a6e22e">n1</span> <span style="color:#f92672">:=</span> copy(<span style="color:#a6e22e">s</span>, <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">0</span>:]) <span style="color:#960050;background-color:#1e0010">←</span><span style="color:#a6e22e">n1</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">6</span>, <span style="color:#a6e22e">s</span> <span style="color:#f92672">==</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>} 
+<span style="color:#a6e22e">n2</span> <span style="color:#f92672">:=</span> copy(<span style="color:#a6e22e">s</span>, <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">2</span>:]) <span style="color:#960050;background-color:#1e0010">←</span><span style="color:#a6e22e">n2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">4</span>, <span style="color:#a6e22e">s</span> <span style="color:#f92672">==</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>}
+</code></pre></div><p><!-- raw HTML omitted --></p>
 <h4 id="结构体">结构体</h4>
 <p>GO中struct结构体概念类似于Java中的Class的概念。结构体是一种聚合类型，内部有多个不同类型字段的组合。
 <code>  要封装一个对象，必须使用结构体;GO语言中封装的单位是包而不是类型</code></p>
@@ -168,15 +208,112 @@ interface类型可以定义一组方法，但是不需要实现，并且interfac
 <li>空接口interface{}没有任何方法，所有类型都实现了空接口（类似与Java的object）</li>
 </ol>
 <p><img src="https://s1.ax1x.com/2020/07/04/Nx5zcj.png" alt="Nx5zcj.png"></p>
-<h4 id="指针">指针</h4>
-<p>Go中，<code>&amp;</code>操作符可以获取一个变量的地址，使用<code>*</code>操作符可以获取指针引用的变量的值
+<p>interface在OOP中的常见应用，定义一个接口interface，然后作为入参传入其他函数，那么则可以符合<code>面向接口编程</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">I</span> <span style="color:#66d9ef">interface</span> { 
+  <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">int</span> 
+  <span style="color:#a6e22e">Put</span>(<span style="color:#66d9ef">int</span>)
+}
+
+<span style="color:#75715e">// 定义接受接口作为入参的函数
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">p</span> <span style="color:#a6e22e">I</span>) { 
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">Get</span>()) 
+  <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">Put</span>(<span style="color:#ae81ff">1</span>) 
+}
+
+<span style="color:#75715e">// S类型实现了接口I
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">S</span> <span style="color:#66d9ef">struct</span> {<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span> }
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">p</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">S</span>) <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">int</span> { <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">i</span> } 
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">p</span><span style="color:#f92672">*</span><span style="color:#a6e22e">S</span>)<span style="color:#a6e22e">Put</span>(<span style="color:#a6e22e">v</span> <span style="color:#66d9ef">int</span>) { <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">i</span>=<span style="color:#a6e22e">v</span> }
+</code></pre></div><p>interface接口中定义所有方法。若是实现了改接口中的所有接口，即可表示实现了改interface接口。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">S</span>; <span style="color:#75715e">// 结构体S实现了接口I的所有方法，则s是I的实现
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">s</span>)
+
+
+<span style="color:#75715e">// 若是有多个类型都实现了接口I，那么在函数中如何判断具体类型？
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">R</span> <span style="color:#66d9ef">struct</span> {<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span> }
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">p</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">R</span>) <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">int</span> { <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">i</span> } 
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">p</span><span style="color:#f92672">*</span><span style="color:#a6e22e">R</span>)<span style="color:#a6e22e">Put</span>(<span style="color:#a6e22e">v</span> <span style="color:#66d9ef">int</span>) { <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">i</span>=<span style="color:#a6e22e">v</span> }
+
+</code></pre></div><p>如何判断某个类型是否实现了某个接口？</p>
+<p>使用<code>(type)</code>结合具体类型来判断是否实现某个接口。可以使用 “comma, ok” 来判断一个接口类型是否实现了 某个特定接口.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">p</span> <span style="color:#a6e22e">I</span>) {
+  <span style="color:#75715e">// 使用变量.(type)语法判断类型
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">t</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">p</span>.(<span style="color:#66d9ef">type</span>) {
+    <span style="color:#66d9ef">case</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">S</span>:
+    <span style="color:#66d9ef">case</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">R</span>:
+  }
+}
+
+<span style="color:#75715e">// 对于某些实现了接口 I 的 
+</span><span style="color:#75715e">// t 是其所拥有的类型
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> <span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">something</span>.(<span style="color:#a6e22e">I</span>) ; <span style="color:#a6e22e">ok</span> { 
+}
+</code></pre></div><h4 id="指针">指针</h4>
+<p>在GO中是没有指针运算的。指针的概念必定与变量有关。即为所有在程序中定义的变量在计算机内存中都会有一个具体的内存地址eg:0x7ff96b81c000a来保存变量的值（eg: str := &ldquo;hello wolrd&rdquo;)</p>
+<p><code>使用标识符&amp;+变量名，可以获取得到变量名的内存地址。</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">p</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">int</span> 
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%v&#34;</span>, <span style="color:#a6e22e">p</span>)
+
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span>
+<span style="color:#a6e22e">p</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>
+</code></pre></div><p>Go中，<code>&amp;</code>操作符可以获取一个变量的地址，使用<code>*</code>操作符可以获取指针引用的变量的值
 <strong>所有的变量都有地址，使用指针可以无须知道变量名字情况下，间接读取或者更新变量的值</strong>
 变量存储的是赋值给改变量的值； 指针的值是一个变量的地址。</p>
 <p><img src="https://s1.ax1x.com/2020/06/25/NB8dnf.png" alt="NB8dnf.png"></p>
 <p>若是指针对象作为入参数传入方法，则是指针的拷贝：
 可以看到方法外的指针对象指针，和传入函数的指针地址是一样的，说明进行了指针的值拷贝。<code>虽然两个变量存储着相同的指针地址，但是两个变量的地址是不同的，方法内会在内存中新创建一个内存地址来保存入参的拷贝值。</code></p>
 <p><a href="https://imgchr.com/i/NBtyZV"><img src="https://s1.ax1x.com/2020/06/25/NBtyZV.md.png" alt="NBtyZV.md.png"></a></p>
+<p>用标识符<code>new</code>与<code>make</code>分配内存地址有什么不同？</p>
+<ul>
+<li>
+<p>new分配内存</p>
+<p>new(T) 分配了零值填充 的 T 类型的内存空间，并且返回其地址，一个 *T 类型的值。用 Go 的术语说，它返回 了一个指针，指向新分配的类型 T 的零值。</p>
+<p><code>这 意 味 着 使 用 者 可 以 用 new 创 建 一 个 数 据 结 构 的 实 例 并 且 可 以 直 接 工 作。</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">SyncedBuffer</span> <span style="color:#66d9ef">struct</span> { 
+  <span style="color:#a6e22e">lock</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span> 
+  <span style="color:#a6e22e">buffer</span> <span style="color:#a6e22e">bytes</span>.<span style="color:#a6e22e">Buffer</span>
+}
+  
+<span style="color:#a6e22e">p</span> <span style="color:#f92672">:=</span> new(<span style="color:#a6e22e">SyncedBuffer</span>) <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">Type</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">SyncedBuffer</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">已经可以使用</span> 
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">v</span> <span style="color:#a6e22e">SyncedBuffer</span> <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">Type</span> <span style="color:#a6e22e">SyncedBuffer</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">同上</span>
+</code></pre></div></li>
+<li>
+<p>make分配内存</p>
+<p>内建函数 make(T, args) 与 new(T) 有着不同的功能。它只能创建 <code>slice，map 和 channel</code>，并且返回一个有初始值(非零)的 T 类型，*<em>而不是 <em>T</em></em>。</p>
+<p><strong>为什么这三种引用类型需要用make来进行初始化分配内存？</strong></p>
+<p>导致这三个类型有所不同的原因是指向数据结构的引用在使用前必须被初始化。</p>
+<blockquote>
+<p>例如，一个 slice，是一个包含指向数据(内部 array)的指针，长度和容量的三项描述 符;在这些项目被初始化之前，slice 为 nil。对于 slice，map 和 channel，make 初始 化了内部的数据结构，填充适当的值。</p>
+</blockquote>
+</li>
+</ul>
+<p>​         例如，make([]int, 10, 100) 分配了 100 个整数的数组，然后用长度 10 和容量 100 创建了 slice 结构指向数组的前 10 个元素。区别是，new([]int) 返回指向新分配的内 存的指针，而零值填充的 slice 结构是指向 nil 的 slice 值。</p>
+<p><code> make 仅适用于 map，slice 和 channel，并且返回的不是指针。</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#960050;background-color:#1e0010">•</span> new(<span style="color:#a6e22e">T</span>)<span style="color:#a6e22e">返回</span><span style="color:#f92672">*</span><span style="color:#a6e22e">T指向一个零值T</span>
+<span style="color:#960050;background-color:#1e0010">•</span> make(<span style="color:#a6e22e">T</span>)<span style="color:#a6e22e">返回初始化后的T</span>
+</code></pre></div><p>复合结构体指针：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewFile</span>(<span style="color:#a6e22e">fd</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">File</span> { <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">fd</span>&lt;<span style="color:#ae81ff">0</span> {
+  <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span> }
+<span style="color:#a6e22e">f</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">File</span>{<span style="color:#a6e22e">fd</span>, <span style="color:#a6e22e">name</span>, <span style="color:#66d9ef">nil</span>, <span style="color:#ae81ff">0</span>}
+<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">f</span> <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">返回</span> <span style="color:#a6e22e">f</span> <span style="color:#a6e22e">的地址</span>
+}
+</code></pre></div><p>事实上，从复合声明获取分配的实例的地址更好，因此可以最终将两行缩短到一行。<code>return &amp;File{fd, name, nil, 0}</code></p>
+<h4 id="map">Map</h4>
+<p>map 可以认为是一个用字符串做索引的数组。</p>
+<p>初始化大体上有两种方式：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">demoMap</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>{
+  <span style="color:#e6db74">&#34;key1&#34;</span>:<span style="color:#ae81ff">10</span>,
+  <span style="color:#e6db74">&#34;key2&#34;</span>:<span style="color:#ae81ff">200</span>,
+}
+
+<span style="color:#a6e22e">demoMap</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">0</span>)
+</code></pre></div><p>如何判断map中是否存在某一个key值？</p>
+<p><code>v, ok := monthdays[&quot;Jan&quot;]</code>，通过第二个参数是否为true来判断map中的某个key是否存在。</p>
+<p>如何从map中移除某个key值？</p>
+<p>delete(m, x) 会删除 map 中由 m[x] 建立的实例</p>
 <h4 id="函数">函数</h4>
+<p>函数的定义：<code>func (p mytype) funcname(q int) (r,s int) {return 0,0}</code></p>
+<p>GO中的函数是可以有<strong>多个返回值的，还能对返回值进行自定义命名</strong></p>
 <p><strong>匿名函数</strong>:</p>
 <pre><code class="language-code" data-lang="code">reslt := func (n1 int,n2 int) int {
    return n1 + n2 
@@ -188,11 +325,56 @@ f := func (n1 int ,n2 int ) int {
 }
 
 reslt1 = f(10,20)
-</code></pre><p><strong>defer机制</strong>:
+</code></pre><p><strong>defer机制</strong>:（延迟函数）
 defer延迟机制： 在函数执行完成之后，使用该机制来关闭，释放资源。
 当执行到defer时候，go系统会将defer后面语句压入栈中（defer栈），暂时不执行。</p>
 <pre><code class="language-code" data-lang="code">defer file.Close()
-</code></pre><h4 id="方法">方法</h4>
+</code></pre><p>因为defer是在函数执行完后执行，并且函数的返回值是可以有变量命名的，那么：在defer函数执行过程中可以对函数返回的内容进行切片处理，修改返回值。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>()(<span style="color:#a6e22e">ret</span> <span style="color:#66d9ef">int</span>){ <span style="color:#75715e">// 默认初始化ret = 0
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>(){
+    <span style="color:#a6e22e">ret</span><span style="color:#f92672">++</span>
+  }
+  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>     <span style="color:#75715e">//函数f()返回的值是1，并不是0
+</span><span style="color:#75715e"></span>}
+</code></pre></div><ul>
+<li>
+<p>内建函数</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">close</span> <span style="color:#a6e22e">new</span> <span style="color:#a6e22e">panic</span> <span style="color:#a6e22e">complex</span> <span style="color:#a6e22e">delete</span> 
+<span style="color:#a6e22e">make</span> <span style="color:#a6e22e">recover</span> <span style="color:#a6e22e">real</span> <span style="color:#a6e22e">len</span> <span style="color:#a6e22e">append</span> <span style="color:#a6e22e">print</span>
+<span style="color:#a6e22e">imag</span> <span style="color:#a6e22e">cap</span> <span style="color:#a6e22e">copy</span> <span style="color:#a6e22e">println</span>
+</code></pre></div><p>内建函数使用说明：</p>
+<p>其中<code>delete</code>用于在map中删除实例。<code>make</code>用于内建引用类型（map,slice,channel）的内存分配。</p>
+<p><code>copy</code>用于复制slice。</p>
+</li>
+<li>
+<p>恐慌和恢复(panic-and-recover)机制</p>
+<ol>
+<li>
+<p><em>Panic</em></p>
+<blockquote>
+<p>是一个内建函数，可以中断原有的控制流程，进入一个令人恐慌的流程中。当函 数 F 调用 panic，函数 F 的执行被中断，并且 F 中的延迟函数会正常执行，然 后 F 返回到调用它的地方。在调用的地方，F 的行为就像调用了 panic。这一过 程继续向上，直到程序崩溃时的所有 goroutine 返回。</p>
+</blockquote>
+</li>
+<li>
+<p><em>Recover</em></p>
+<blockquote>
+<p>是一个内建的函数，可以让进入令人恐慌的流程中的 goroutine 恢复过来。recover 仅在延迟函数中有效。
+在正常的执行过程中，调用 recover 会返回 nil 并且没有其他任何效果。如果 当前的 goroutine 陷入恐慌，调用 recover 可以捕获到 panic 的输入值，并且恢 复正常的执行。</p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">throwsPanic</span>(<span style="color:#a6e22e">f</span> <span style="color:#66d9ef">func</span>()) (<span style="color:#a6e22e">b</span> <span style="color:#66d9ef">bool</span>){
+  <span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>(){
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">x</span><span style="color:#f92672">:=</span> recover(); <span style="color:#a6e22e">x</span><span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+      <span style="color:#a6e22e">b</span> = <span style="color:#66d9ef">true</span>
+    }()
+    <span style="color:#a6e22e">f</span>()  <span style="color:#75715e">// 若是传入函数f中有panic产生，则会尽心recover
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span>
+  }
+}
+</code></pre></div><h4 id="方法">方法</h4>
 <p>通过一个变量去调用方法时，和函数调用没什么区别.
 不一样的地方是，变量调用方法时候，变量也会作为一个参数传递到方法中：</p>
 <ol>
@@ -217,7 +399,7 @@ defer func(){
   }
 }()
 
-</code></pre><h4 id="channel管道">channel管道</h4>
+</code></pre><h4 id="channel管道与携程">channel管道与携程</h4>
 <p>管道channel底层就是一种数据结构-&gt; 队列。队列数据是有类型定义的，即为不同的数据类型的channel是不可以共同存在与一个channel内的。(管道channel这种数据类型也是一种<strong>引用类型</strong>)</p>
 <p>channel是存放数据的容器，必然会涉及共享数据访问问题，channel是线程安全的，多个携程可以同时操作channel内的数据，并且不需要依赖而外的锁来来保证资源的访 问。</p>
 <p>[<img src="https://s1.ax1x.com/2020/07/04/NzOkxf.md.png" alt="NzOkxf.md.png">]</p>
@@ -304,7 +486,29 @@ defer func(){
   <span style="color:#75715e">// v代表是从intchan管道读取出来的数据，ok代表是否读取成功
 </span><span style="color:#75715e"></span>  <span style="color:#75715e">// 当intchan关闭时候，ok=false
 </span><span style="color:#75715e"></span>  <span style="color:#a6e22e">v</span>,<span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">intchan</span>
-</code></pre></div><h4 id="反射">反射</h4>
+</code></pre></div><ul>
+<li>
+<p>协程goroutine</p>
+<p>goroutine 是一个普通的函数，只是需要使用关键字 go 作为开头。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">ready</span>(<span style="color:#e6db74">&#34;Tea&#34;</span>, <span style="color:#ae81ff">2</span>) <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">普通函数调用</span>
+<span style="color:#66d9ef">go</span> <span style="color:#a6e22e">ready</span>(<span style="color:#e6db74">&#34;Tea&#34;</span>, <span style="color:#ae81ff">2</span>) <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">ready</span>() <span style="color:#a6e22e">作为</span> <span style="color:#a6e22e">goroutine</span> <span style="color:#a6e22e">运行</span>
+  
+<span style="color:#75715e">//time.Sleep(time.Duration(sec) * time.Second)
+</span></code></pre></div><p>协程之间数据交互通信是channel管道。若是在channel数据交互过程中，如果不知道有启动了多少个 goroutine 怎么办呢?</p>
+<p><code>Go 内建的关键字:select。通过 select(和其他东西)可以监听 channel 上输入的 数据。</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">L</span>: <span style="color:#66d9ef">for</span> { 
+     <span style="color:#66d9ef">select</span> { 
+       <span style="color:#66d9ef">case</span> &lt;<span style="color:#960050;background-color:#1e0010">−</span><span style="color:#a6e22e">c</span>:  
+            <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> 
+            <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">i</span>&gt;<span style="color:#ae81ff">1</span> 
+            {  <span style="color:#66d9ef">break</span> <span style="color:#a6e22e">L</span>  } 
+     } 
+}
+  
+<span style="color:#75715e">//现在将会一直等待下去。只有当从 channel c 上收到多个响应时才会退出循环 L。
+</span></code></pre></div></li>
+</ul>
+<h4 id="反射">反射</h4>
 <p>反射有什么作用？</p>
 <ol>
 <li>可以在运行动态获取变量的各种信息： 类型（type) 类别(kind); 若是结构体还能获取结构体字段与方法。</li>
@@ -382,6 +586,20 @@ defer func(){
 </ul>
 <p>​	如果一个变量，通过ValueOf获取得到它的值，是否能直接更改改值？</p>
 <p>​    答案是：不行的。需要通过Value的函数<code>Elem()</code>方法返回Value对值的包装（值指针地址，才能修改)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Person</span> <span style="color:#66d9ef">struct</span>{
+  <span style="color:#a6e22e">Name</span> <span style="color:#66d9ef">string</span>
+  <span style="color:#a6e22e">age</span> <span style="color:#66d9ef">int</span>
+}
+
+<span style="color:#75715e">// 通过反射修改结构体Person类型
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Set</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">interface</span>{}){
+  <span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">t</span><span style="color:#f92672">:=</span> <span style="color:#a6e22e">i</span>.(<span style="color:#66d9ef">type</span>){
+    <span style="color:#66d9ef">case</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Person</span>:
+    <span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">ValueOf</span>(<span style="color:#a6e22e">i</span>)
+    <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Elem</span>().<span style="color:#a6e22e">Field</span>(<span style="color:#ae81ff">0</span>).<span style="color:#a6e22e">SetString</span>(<span style="color:#e6db74">&#34;test&#34;</span>)
+  }
+}
+</code></pre></div><p><img src="https://s1.ax1x.com/2020/07/05/UpIESU.png" alt="image"></p>
 <h4 id="闭包">闭包</h4>
 <p>在go系统中，闭包的本质就是包含特殊变量值传递的函数。Go 语言的匿名函数是一个闭包（Closure）</p>
 <blockquote>
