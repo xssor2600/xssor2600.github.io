@@ -6,10 +6,28 @@
     <description>Recent content in Tags on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 04 Jul 2020 13:51:53 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 11 Jul 2020 17:43:49 +0800</lastBuildDate>
     
 	<atom:link href="https://www.xssor2600.site/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>golang</title>
+      <link>https://www.xssor2600.site/tags/golang/</link>
+      <pubDate>Sat, 11 Jul 2020 17:43:49 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/golang/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>resources</title>
+      <link>https://www.xssor2600.site/tags/resources/</link>
+      <pubDate>Sat, 11 Jul 2020 17:43:49 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/resources/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>redis</title>
@@ -68,7 +86,7 @@
     <item>
       <title>hugo</title>
       <link>https://www.xssor2600.site/tags/hugo/</link>
-      <pubDate>Fri, 26 Jun 2020 23:05:15 +0800</pubDate>
+      <pubDate>Tue, 23 Jun 2020 23:05:15 +0800</pubDate>
       
       <guid>https://www.xssor2600.site/tags/hugo/</guid>
       <description></description>
