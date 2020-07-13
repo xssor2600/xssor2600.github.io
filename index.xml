@@ -12,6 +12,17 @@
     
     
     <item>
+      <title>Mysql库表数据常用操作整理</title>
+      <link>https://www.xssor2600.site/post/mysql%E5%BA%93%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E6%95%B4%E7%90%86/</link>
+      <pubDate>Mon, 13 Jul 2020 15:57:51 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/mysql%E5%BA%93%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E6%95%B4%E7%90%86/</guid>
+      <description>在日常mysql使用过程中，通常会涉及到mysql库的迁移，库表数据的同步导入/导出。或者是将一些线上库表数据导出到本地，都会涉及到常见的mysql数据处理流程，那么就需要总结一下常见的mysql针对数据，库表，结构的数据的导入导出方式。
+将线上库表数据导出文本 需要先登陆数据库服务器，通过mysql命令指定参数添加sql查询结果导出到当前服务器路径。后面通过sc,zc进行传输。详情参考另外一篇文章:mac使用sz,rz远程传输文件
+mysql -h 10.224.40.35 -uuser -p&amp;#39;password&amp;#39; -Ddatabase --default-character-set=utf8 -e&amp;#34;select column1,column2... where payee_logon_id in(&amp;#39;13960225506&amp;#39;,&amp;#39;15905957688&amp;#39;,&amp;#39;15905023789&amp;#39;,&amp;#39;13641490558&amp;#39;,&amp;#39;15260388243&amp;#39;,&amp;#39;17305081757&amp;#39;)&amp;#34; &amp;gt;tt.log  // 另外一种方式 echo &amp;#34;select uid,\`order\`,money,country_code from user_order_record_new_202006 where create_time &amp;gt;= &amp;#39;2020-06-18 00:00:00&amp;#39; and manner_id = 3 and client = 1 and agree =1&amp;#34; | mysql -h xxxxx -uroot -Ddemo -p&amp;#39;123456&amp;#39; --default-character-set=utf8 &amp;gt; /tmp/ios_recharge_18.xls;  // mysqldump -uinke_db_user -h10.100.130.39 -p --default-character-set=utf8 --single-transaction --master-data --where=&amp;#39;type = 1 and money &amp;gt; 1 and money &amp;lt; 9998&amp;#39; inke_payment rule_charge &amp;gt; TableConditon.</description>
+    </item>
+    
+    <item>
       <title>Golang面试题资料</title>
       <link>https://www.xssor2600.site/post/golang%E9%9D%A2%E8%AF%95%E9%A2%98%E8%B5%84%E6%96%99/</link>
       <pubDate>Sun, 12 Jul 2020 00:52:17 +0800</pubDate>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Mysql库表数据常用操作整理</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Mysql库表数据常用操作整理</h1>
+			<b><time>2020.07.13 15:57</time></b>
+		       
+		           <a href="/tags/mysql">mysql</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<p>在日常mysql使用过程中，通常会涉及到mysql库的迁移，库表数据的同步导入/导出。或者是将一些线上库表数据导出到本地，都会涉及到常见的mysql数据处理流程，那么就需要总结一下常见的mysql针对数据，库表，结构的数据的导入导出方式。</p>
+<h4 id="将线上库表数据导出文本">将线上库表数据导出文本</h4>
+<p>需要先登陆数据库服务器，通过mysql命令指定参数添加sql查询结果导出到当前服务器路径。后面通过<code>sc,zc</code>进行传输。详情参考另外一篇文章:<a href="https://www.xssor2600.site/post/mac_iterm2_rz_use/">mac使用sz,rz远程传输文件</a></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysql <span style="color:#f92672">-</span>h <span style="color:#ae81ff">10</span>.<span style="color:#ae81ff">224</span>.<span style="color:#ae81ff">40</span>.<span style="color:#ae81ff">35</span> <span style="color:#f92672">-</span>uuser <span style="color:#f92672">-</span>p<span style="color:#e6db74">&#39;password&#39;</span>  <span style="color:#f92672">-</span>Ddatabase <span style="color:#75715e">--default-character-set=utf8  -e&#34;select column1,column2... where payee_logon_id in(&#39;13960225506&#39;,&#39;15905957688&#39;,&#39;15905023789&#39;,&#39;13641490558&#39;,&#39;15260388243&#39;,&#39;17305081757&#39;)&#34; &gt;tt.log
+</span><span style="color:#75715e"></span>
+<span style="color:#f92672">//</span> <span style="color:#960050;background-color:#1e0010">另外一种方式</span>
+echo <span style="color:#e6db74">&#34;select uid,\`order\`,money,country_code from user_order_record_new_202006 where create_time &gt;= &#39;2020-06-18 00:00:00&#39; and manner_id = 3 and client = 1 and agree =1&#34;</span> <span style="color:#f92672">|</span> mysql <span style="color:#f92672">-</span>h xxxxx <span style="color:#f92672">-</span>uroot <span style="color:#f92672">-</span>Ddemo <span style="color:#f92672">-</span>p<span style="color:#e6db74">&#39;123456&#39;</span> <span style="color:#75715e">--default-character-set=utf8  &gt; /tmp/ios_recharge_18.xls;
+</span><span style="color:#75715e"></span>
+<span style="color:#f92672">//</span>
+mysqldump <span style="color:#f92672">-</span>uinke_db_user <span style="color:#f92672">-</span>h10.<span style="color:#ae81ff">100</span>.<span style="color:#ae81ff">130</span>.<span style="color:#ae81ff">39</span> <span style="color:#f92672">-</span>p <span style="color:#75715e">--default-character-set=utf8 --single-transaction --master-data --where=&#39;type = 1 and money &gt; 1 and money &lt; 9998&#39; inke_payment rule_charge &gt; TableConditon.sql
+</span><span style="color:#75715e"></span>
+</code></pre></div><p>有时候想要做库表级别的查询？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> information_schema.tables <span style="color:#66d9ef">where</span> TABLE_SCHEMA<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;demo&#39;</span> <span style="color:#66d9ef">and</span> table_rows<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">0</span> <span style="color:#66d9ef">and</span> <span style="color:#66d9ef">TABLE_NAME</span> <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;gold%&#39;</span> <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#66d9ef">G</span>;
+</code></pre></div><hr>
+<h4 id="库表迁移">库表迁移</h4>
+<ul>
+<li>
+<p>有时候需要将一个库里面的所有表结构进行复制，但是不需要表数据，如何处理？<!-- raw HTML omitted --></p>
+<p><strong>方式1:</strong>
+通过指定查询sql将要清空的表sql命令拼接列出，后面可以批量执行(复制truncate语句到mysql命令行执行，可以一次复制多条执行)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysql <span style="color:#f92672">-</span>hlocalhost <span style="color:#f92672">-</span>uroot <span style="color:#f92672">-</span>px1234567 <span style="color:#f92672">-</span>N <span style="color:#f92672">-</span>s information_schema <span style="color:#f92672">-</span>e <span style="color:#e6db74">&#34;SELECT CONCAT(&#39;TRUNCATE TABLE &#39;,table_schema,&#39;.&#39;,TABLE_NAME,&#39;;&#39;) FROM TABLES WHERE TABLE_SCHEMA=&#39;test&#39;&#34;</span>
+mysql: [Warning] <span style="color:#66d9ef">Using</span> a password <span style="color:#66d9ef">on</span> the command line interface can be insecure.
+<span style="color:#66d9ef">TRUNCATE</span> <span style="color:#66d9ef">TABLE</span> test.demo;   <span style="color:#f92672">//</span> <span style="color:#960050;background-color:#1e0010">需要执行的</span>sql脚本
+...
+</code></pre></div><p>​		  <strong>方式2:</strong>
+​         通过mysqldump命令先将原来库内表结构导出，然后直接drop掉库，然后新建库后导入表结构通过<code>source</code>命令将sql文件导入数据库。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysqldump <span style="color:#f92672">-</span>h localhost <span style="color:#f92672">-</span>uroot <span style="color:#f92672">-</span>proot <span style="color:#f92672">-</span>d databaseT <span style="color:#f92672">&gt;</span> emtpy_tables.<span style="color:#66d9ef">sql</span>
+  
+mysql<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">drop</span> <span style="color:#66d9ef">database</span> databaseT;
+Query OK, <span style="color:#ae81ff">62</span> <span style="color:#66d9ef">rows</span> affected, <span style="color:#ae81ff">1</span> warning (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">28</span> sec)
+  
+mysql<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">DATABASE</span> <span style="color:#f92672">`</span>databaseT<span style="color:#f92672">`</span> CHARACTER <span style="color:#66d9ef">SET</span> utf8 <span style="color:#66d9ef">COLLATE</span> utf8_general_ci;
+Query OK, <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span> affected (<span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">00</span> sec)
+  
+mysql<span style="color:#f92672">&gt;</span> use databaseT;
+<span style="color:#66d9ef">Database</span> changed
+mysql<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">source</span> <span style="color:#f92672">/</span>tmp<span style="color:#f92672">/</span>empty_tables.<span style="color:#66d9ef">sql</span>
+</code></pre></div><p>针对<code>mysqldump</code>常见的对库表的使用方式：</p>
+<ol>
+<li>
+<p>导出指定表的数据</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysqldump <span style="color:#f92672">-</span>t <span style="color:#66d9ef">database</span> <span style="color:#f92672">-</span>u username <span style="color:#f92672">-</span>ppassword <span style="color:#75715e">--tables table_name1 table_name2 table_name3 &gt;D:\db_script.sql
+</span></code></pre></div></li>
+<li>
+<p>导出指定表的结构</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysqldump <span style="color:#f92672">-</span>d <span style="color:#66d9ef">database</span> <span style="color:#f92672">-</span>u username <span style="color:#f92672">-</span>ppassword <span style="color:#75715e">--tables table_name1 table_name2 table_name3&gt;D:\db_script.sql
+</span></code></pre></div></li>
+<li>
+<p>导出表的数据及结构</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysqldump  <span style="color:#66d9ef">database</span> <span style="color:#f92672">-</span>u username <span style="color:#f92672">-</span>ppassword <span style="color:#75715e">--tables table_name1 table_name2 table_name3&gt;D:\db_script.sql
+</span></code></pre></div></li>
+<li>
+<p>若 数据中 ，某些表除外，其余表都需导出</p>
+<p>可以使用<code>--ignore-table</code>参数指定跳过导出的表结构数据。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">mysqldump <span style="color:#f92672">-</span>h ip <span style="color:#f92672">-</span>u username <span style="color:#f92672">-</span>ppassword <span style="color:#75715e">--default-character-set=utf8 --database database_name --ignore-table=database_name.table_name1 &gt; D:\db_script.sql
+</span></code></pre></div></li>
+</ol>
+</li>
+<li>
+<p>如何将*.sql语句导入数据库</p>
+<p>从数据库中导出数据，参考上面内容。那么如何将sql语句导入数据库？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#f92672">//</span> <span style="color:#960050;background-color:#1e0010">方式</span><span style="color:#ae81ff">1</span>:<span style="color:#960050;background-color:#1e0010">（</span><span style="color:#66d9ef">source</span><span style="color:#960050;background-color:#1e0010">）</span> <span style="color:#960050;background-color:#1e0010">首先建空数据库</span><span style="color:#f92672">/</span><span style="color:#960050;background-color:#1e0010">导入数据库</span>
+mysql<span style="color:#f92672">&gt;</span><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">database</span> abc;
+mysql<span style="color:#f92672">&gt;</span>use abc;
+mysql<span style="color:#f92672">&gt;</span><span style="color:#66d9ef">source</span> <span style="color:#f92672">/</span>home<span style="color:#f92672">/</span>abc<span style="color:#f92672">/</span>abc.<span style="color:#66d9ef">sql</span>;
+  
+<span style="color:#f92672">//</span> <span style="color:#960050;background-color:#1e0010">方式</span><span style="color:#ae81ff">2</span>: <span style="color:#960050;background-color:#1e0010">直接命令行导入</span>
+mysql <span style="color:#f92672">-</span>u用户名 <span style="color:#f92672">-</span>p密码 <span style="color:#960050;background-color:#1e0010">数据库名</span> <span style="color:#f92672">&lt;</span> <span style="color:#960050;background-color:#1e0010">数据库名</span>.<span style="color:#66d9ef">sql</span>
+<span style="color:#f92672">#</span>mysql <span style="color:#f92672">-</span>uabc_f <span style="color:#f92672">-</span>p abc <span style="color:#f92672">&lt;</span> abc.<span style="color:#66d9ef">sql</span>
+  
+</code></pre></div></li>
+</ul>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/mysql%E5%BA%93%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E6%95%B4%E7%90%86/">Mysql库表数据常用操作整理</a></li>
+				
+				<li><a href="/post/golang%E9%9D%A2%E8%AF%95%E9%A2%98%E8%B5%84%E6%96%99/">Golang面试题资料</a></li>
+				
+				<li><a href="/post/go%E5%AD%A6%E4%B9%A0%E4%B8%AD%E6%96%87%E7%BD%91%E8%B5%84%E6%96%99%E5%BD%92%E9%9B%86/">Go学习中文网资料归集</a></li>
+				
+				<li><a href="/post/common_user_redis_batch_scripts/">redis常用的脚本</a></li>
+				
+				<li><a href="/post/mac_iterm2_rz_use/">Mac_iterm2_rz_use</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>
