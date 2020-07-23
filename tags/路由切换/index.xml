@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>路由切换 on 琳琅世界，观山河</title>
+    <link>https://www.xssor2600.site/tags/%E8%B7%AF%E7%94%B1%E5%88%87%E6%8D%A2/</link>
+    <description>Recent content in 路由切换 on 琳琅世界，观山河</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 23 Jul 2020 16:42:42 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.xssor2600.site/tags/%E8%B7%AF%E7%94%B1%E5%88%87%E6%8D%A2/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>动态域名切换</title>
+      <link>https://www.xssor2600.site/post/%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2/</link>
+      <pubDate>Thu, 23 Jul 2020 16:42:42 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2/</guid>
+      <description>在中台或者其他应用对接开发过程中，如果某条业务线产品运营广告投放行为可能会影响产品线域名是否被封情况，例如经常在社交应用分享一些分销推广很容易就会导致域名被封，那么产品线下通过域名进行网络传输就会被影响，在金融支付容易影响的，就是一些外网渠道交互场景：例如对接某个渠道，例如微信，那么需要配置安全域名，回调地址等等。
+对于域名被封情况下，若是金融端对接外部渠道没有主动查单功能，那么就会导致掉单问题，引起大量用户报障投诉。 所以，需要域名动态切换。当然了前提是产品线应用，例如客户端和服务端协商一个域名获取的请求地址，通过外部域名或者内部ip就能解析到的实时域名。（当域名被封后，需要快速替换域名）
+域名动态切换  统一域名获取地址 例如客户端和服务端协商通过地址：http://test.dyncroutehostname.com/api/config/get_raw 获取测试环境和线上环境域名地址如下：  { &amp;#34;data&amp;#34;: { &amp;#34;App&amp;#34;: &amp;#34;http://service.dyncroutehostname.com&amp;#34;, &amp;#34;H5&amp;#34;: &amp;#34;https://h5.dyncroutehostname.com&amp;#34;, &amp;#34;TestApp&amp;#34;: &amp;#34;http://test.dyncroutehostname.com&amp;#34;, &amp;#34;TestH5&amp;#34;: &amp;#34;http://testh5.dyncroutehostname.com&amp;#34;, .... }, &amp;#34;dm_error&amp;#34;: 0, &amp;#34;error_msg&amp;#34;: &amp;#34;操作成功&amp;#34;, &amp;#34;status&amp;#34;: &amp;#34;ok&amp;#34;, &amp;#34;version&amp;#34;: &amp;#34;1590117188&amp;#34; }  服务器端动态切换  服务器端实现思路： 通过每次实时的通过http调用域名获取地址来得到最新的域名，因为使用场景不是高并发，对实时性要求比较高的场景。同时对域名的实时正确性要求比较高，（因为如果回调域名错误就掉单，当然了渠道也会有延时通知机制）所以可以先不考虑使用redis缓存来缓存域名。
+其中，一个域名可以通过CNAME解析到不同机器ip地址上，所以可以咨询产品线的运维获取域名解析到的机器IP，服务器端可以根据ip动态路由地址。
+  在配置文件中通过占位符配置统一域名获取地址：
+#app_config_url = &amp;#34;http://%s/api/appconfig/get_raw&amp;#34; #app_config_ips = [&amp;#34;10.x.x.19&amp;#34;,&amp;#34;10.x.x.20&amp;#34;,] // 也可以通过内网ip进行替换域名获取,可以配置多个ip #base_host = &amp;#34;https://test.basehostname.com&amp;#34; //配置兜底域名  // 外部渠道回调通知地址 channel_notify_url = &amp;#34;/api/test/notify&amp;#34;   在程序中通过http获取最新域名 目的就是通过地址获取动态域名，然后再拼接上内部具体回调url进行拼接，得到完整的url地址。
+  func _getNotifyUrl() string { url := cfgs.</description>
+    </item>
+    
+  </channel>
+</rss>
