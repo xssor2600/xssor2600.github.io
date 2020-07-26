@@ -6,10 +6,24 @@
     <description>Recent content in 设计模式 on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 26 Jul 2020 13:31:35 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jul 2020 23:01:37 +0800</lastBuildDate>
     
 	<atom:link href="https://www.xssor2600.site/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Golang设计模式学习_工厂方法FactoryMethod</title>
+      <link>https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/</link>
+      <pubDate>Sun, 26 Jul 2020 23:01:37 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/</guid>
+      <description>工厂方法模式理论   为什么需要工厂方法模式？
+工厂方法模式也是一种创建型模式，产生的目的就是为了“创建对象”。那么为什么需要这种模式来创建对象，创建哪些场景的对象呢？工厂方法模式也是为了适应软件设计开闭原则，依赖倒置原则的，目的就是通过一种工程化方式，设计可拓展的程序。面向接口开发。不需要太多的关注实现细节
+ 定义一个用于创建对象的接口，让子类绝对实例化哪一个类，工厂方法使一个类的实例化延迟到其子类。 总是引用接口而非实现类，能允许变换子类而不影响调用方，即尽可能面向抽象编程。
+ 在OOP中，通常都会有抽象的概念，通常在高级语言中，会通过内建的一些关键字进行表达，例如abstrct,interface...,目的就是让开发者通过这些抽象，去设计高可拓展，稳定的程序。
+例如在Java中，如果不是面向接口（抽象）去创建产品，那么在对象的创建过程，和对象的使用过程都会有局限性，因为太过于具体而不利于拓展。
+// 例如有两个实体 public class ProductA { } public class ProductB { } // 要打印所有的商品 public Class ProductPrinter { // 为了突出目的，不用重写  public void printA(ProductA pa){ } public void printB(ProductB pb){ } // ... public void print(ProductB pb){  //} } // 常规创建对象 public static void main(String[] args) { ProductA a = new ProductA(); ProductB b = new ProductB(); // ProductC c = new ProductC();  ProductPrinter printer = new ProductPrinter(); printer.</description>
+    </item>
     
     <item>
       <title>Golang设计模式学习_建造者builder</title>

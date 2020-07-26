@@ -6,10 +6,28 @@
     <description>Recent content in Tags on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 26 Jul 2020 13:31:35 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jul 2020 23:01:37 +0800</lastBuildDate>
     
 	<atom:link href="https://www.xssor2600.site/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>工厂方法</title>
+      <link>https://www.xssor2600.site/tags/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Sun, 26 Jul 2020 23:01:37 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>设计模式</title>
+      <link>https://www.xssor2600.site/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 26 Jul 2020 23:01:37 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>创建型</title>
@@ -17,15 +35,6 @@
       <pubDate>Sun, 26 Jul 2020 13:31:35 +0800</pubDate>
       
       <guid>https://www.xssor2600.site/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>设计模式</title>
-      <link>https://www.xssor2600.site/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link>
-      <pubDate>Sun, 26 Jul 2020 13:31:35 +0800</pubDate>
-      
-      <guid>https://www.xssor2600.site/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</guid>
       <description></description>
     </item>
     
