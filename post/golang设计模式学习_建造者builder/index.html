@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Golang设计模式学习_建造者builder</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Golang设计模式学习_建造者builder</h1>
+			<b><time>2020.07.26 13:31</time></b>
+		       
+		           <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F">设计模式</a>
+        	       
+		           <a href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B">创建型</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<p>插一句，如果一个<code>struct</code>类型变量，若是属性都是小写开头的话（private），那么<code>json.Marshal</code>方法是序列化不出来的。(<a href="https://blog.csdn.net/zxy_666/article/details/80173288">Go的json解析：Marshal与Unmarshal</a>)</p>
+<h4 id="建造者模式理念">建造者模式理念</h4>
+<ol>
+<li>
+<p>为什么需要建造者模式？</p>
+<p>建造者模式是构造方法的一种替代方案，目的是通过抽象一层工程方法来更规范的构建复杂对象。</p>
+<p>什么叫复杂的对象？按照<code>单一职责原则</code>来说，一个对象不能包含太多的职责，也就不能包含太多的<code>属性</code>与<code>行为方法</code>,那么在满足单一职责原则基础上，或者实际应用中由于各种情况，也许程序开发中不能遵守原则，有时候会有负责对象的产生：<strong>不少的对象属性与行为方法，其中属性又是其他负责对象，常规构造对象过程过于臃肿，不便于拓展，那么就需要设计模式来重构</strong></p>
+<p>核心理念：<code>将复杂对象的表现层与构造过程剥离开来，使相同的构造过程能创建不同的表现层。</code></p>
+<p>对象构建过程，本质就是赋予对象行为逻辑与设置属性的值，那么Builder建造者模式，在应用上来看，是将<strong>对象的属性与创建分离，抽象对象创建过程，根据不同场景复用创建过程</strong>。</p>
+</li>
+<li>
+<p>建造模式有哪些组成？</p>
+<p>核心重要的就是两部分：<code>产品实体属性与方法 + 抽象的构建过程</code></p>
+<ul>
+<li>
+<p>抽象建造者（builder）：描述具体建造者的公共接口，一般用来定义建造细节的方法，并不涉及具体的对象部件的创建。【<strong>可复用</strong>】</p>
+</li>
+<li>
+<p>产品（Product）：描述一个由一系列部件组成较为复杂的对象。</p>
+</li>
+<li>
+<p>具体建造者（ConcreteBuilder）：描述具体建造者，并实现抽象建造者公共接口。</p>
+</li>
+<li>
+<p>指挥者（Director）：调用具体建造者来创建复杂对象（产品）的各个部分，并按照一定顺序（流程）来建造复杂对象。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>建造者有哪些应用套路？</p>
+<ul>
+<li>
+<p><strong>为了分离对象的属性与创建过程</strong></p>
+<p>一旦将属性与对象创建过程接耦，那么对象的创建过程就不再强依赖所有的属性，创建过程就能更灵活的，具体建造者就可以根据实际的对象属性组合的创建不同的产品。</p>
+</li>
+<li>
+<p><strong>相同的构造流程可以产出不同的表现层</strong></p>
+<p>因为对象构建过程是抽象的！那么有相同构建过程的产品，都可以复用改构建过程，从而可以组合创建不同的产品。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>建造者有哪些优势缺点？</p>
+<ul>
+<li>
+<p>优点：</p>
+<p>1、建造者独立，易扩展。 2、便于控制细节风险。</p>
+</li>
+<li>
+<p>缺点：</p>
+<p>1、产品必须有共同点，范围有限制。 2、如内部变化复杂，会有很多的建造类。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="建造者实践应用">建造者实践应用</h4>
+<p>了解了设计模式建造者模式理念，那么就可以通过高级语言来实践应用。</p>
+<h6 id="go应用">Go应用</h6>
+<ol>
+<li>
+<p>定义建造者最终的产品实体Product(产品都有相同的构建过程)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 产品1：支付订单Product
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Order</span> <span style="color:#66d9ef">struct</span> {
+ <span style="color:#a6e22e">OrderId</span> <span style="color:#66d9ef">string</span>
+ <span style="color:#a6e22e">Price</span> <span style="color:#a6e22e">Money</span>
+ <span style="color:#a6e22e">UserId</span> <span style="color:#66d9ef">int64</span>
+ <span style="color:#a6e22e">GoodName</span> <span style="color:#66d9ef">string</span>
+ <span style="color:#a6e22e">OrderType</span> <span style="color:#66d9ef">string</span>
+   
+ <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}
+   
+<span style="color:#75715e">// 产品2：外卖订单Product
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">FootOrder</span> <span style="color:#66d9ef">struct</span> {
+ <span style="color:#a6e22e">OrderId</span> <span style="color:#66d9ef">string</span>
+ <span style="color:#a6e22e">Price</span> <span style="color:#a6e22e">Money</span>
+ <span style="color:#a6e22e">UserId</span> <span style="color:#66d9ef">int64</span>
+ <span style="color:#a6e22e">GoodName</span> <span style="color:#66d9ef">string</span>
+ <span style="color:#a6e22e">OrderType</span> <span style="color:#66d9ef">string</span>
+   
+ <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}
+</code></pre></div></li>
+<li>
+<p>抽象建造者Builder</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">//2. 抽象产品实体构建过程
+</span><span style="color:#75715e">// 抽象建造者Builder，描述具体建造者的公共接口，一般用来定义建造细节的方法
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Builder</span> <span style="color:#66d9ef">interface</span> {
+ <span style="color:#a6e22e">WithOrderId</span>(<span style="color:#a6e22e">orderId</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span>
+ <span style="color:#a6e22e">WithPrice</span>(<span style="color:#a6e22e">p</span> <span style="color:#a6e22e">Money</span>)  <span style="color:#a6e22e">Builder</span>
+ <span style="color:#a6e22e">WithUid</span>(<span style="color:#a6e22e">uid</span> <span style="color:#66d9ef">int64</span>)  <span style="color:#a6e22e">Builder</span>
+ <span style="color:#a6e22e">WithGoodName</span>(<span style="color:#a6e22e">gn</span> <span style="color:#66d9ef">string</span>)  <span style="color:#a6e22e">Builder</span>
+ <span style="color:#a6e22e">WithType</span>(<span style="color:#a6e22e">otype</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span>
+ <span style="color:#a6e22e">Build</span>() <span style="color:#a6e22e">Builder</span>
+}
+</code></pre></div></li>
+<li>
+<p>不同产品复用相同构建过程的实现（实现具体建造者ConcreteBuilder）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 产品1: 支付订单Order的具体构建过程
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">od</span> <span style="color:#a6e22e">Order</span>) <span style="color:#a6e22e">WithOrderId</span>(<span style="color:#a6e22e">oid</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#66d9ef">if</span> len(<span style="color:#a6e22e">oid</span>) &gt; <span style="color:#ae81ff">0</span> {
+     <span style="color:#a6e22e">od</span>.<span style="color:#a6e22e">OrderId</span> = <span style="color:#a6e22e">oid</span>
+ }
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">od</span>
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">od</span> <span style="color:#a6e22e">Order</span>) <span style="color:#a6e22e">WithPrice</span>(<span style="color:#a6e22e">m</span> <span style="color:#a6e22e">Money</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">od</span>.<span style="color:#a6e22e">Price</span> = <span style="color:#a6e22e">m</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">od</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">od</span> <span style="color:#a6e22e">Order</span>) <span style="color:#a6e22e">WithUid</span>(<span style="color:#a6e22e">uid</span> <span style="color:#66d9ef">int64</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">od</span>.<span style="color:#a6e22e">UserId</span> = <span style="color:#a6e22e">uid</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">od</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">od</span> <span style="color:#a6e22e">Order</span>) <span style="color:#a6e22e">WithGoodName</span>(<span style="color:#a6e22e">gn</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">od</span>.<span style="color:#a6e22e">GoodName</span> = <span style="color:#a6e22e">gn</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">od</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">od</span> <span style="color:#a6e22e">Order</span>) <span style="color:#a6e22e">WithType</span>(<span style="color:#a6e22e">otype</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">od</span>.<span style="color:#a6e22e">OrderType</span> = <span style="color:#a6e22e">otype</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">od</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">od</span> <span style="color:#a6e22e">Order</span>) <span style="color:#a6e22e">Build</span>() <span style="color:#a6e22e">Builder</span>{
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">od</span>
+}
+   
+   
+<span style="color:#75715e">// 产品2: 外卖订单Order的具体构建过程
+</span><span style="color:#75715e">///// footOrder ///
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fo</span> <span style="color:#a6e22e">FootOrder</span>) <span style="color:#a6e22e">WithOrderId</span>(<span style="color:#a6e22e">oid</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#66d9ef">if</span> len(<span style="color:#a6e22e">oid</span>) &gt; <span style="color:#ae81ff">0</span> {
+     <span style="color:#a6e22e">fo</span>.<span style="color:#a6e22e">OrderId</span> = <span style="color:#a6e22e">oid</span>
+ }
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fo</span>
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fo</span> <span style="color:#a6e22e">FootOrder</span>) <span style="color:#a6e22e">WithPrice</span>(<span style="color:#a6e22e">m</span> <span style="color:#a6e22e">Money</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">fo</span>.<span style="color:#a6e22e">Price</span> = <span style="color:#a6e22e">m</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fo</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fo</span> <span style="color:#a6e22e">FootOrder</span>) <span style="color:#a6e22e">WithUid</span>(<span style="color:#a6e22e">uid</span> <span style="color:#66d9ef">int64</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">fo</span>.<span style="color:#a6e22e">UserId</span> = <span style="color:#a6e22e">uid</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fo</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fo</span> <span style="color:#a6e22e">FootOrder</span>) <span style="color:#a6e22e">WithGoodName</span>(<span style="color:#a6e22e">gn</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">fo</span>.<span style="color:#a6e22e">GoodName</span> = <span style="color:#a6e22e">gn</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fo</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fo</span> <span style="color:#a6e22e">FootOrder</span>) <span style="color:#a6e22e">WithType</span>(<span style="color:#a6e22e">otype</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#a6e22e">fo</span>.<span style="color:#a6e22e">OrderType</span> = <span style="color:#a6e22e">otype</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fo</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fo</span> <span style="color:#a6e22e">FootOrder</span>) <span style="color:#a6e22e">Build</span>() <span style="color:#a6e22e">Builder</span>{
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fo</span>
+}
+   
+</code></pre></div></li>
+<li>
+<p>构建产品构建指挥者Director</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 构造Director，用来具体构建对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewOrderBuilder</span>() <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Order</span>{}
+}
+   
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewFootOrderBuilder</span>() <span style="color:#a6e22e">Builder</span> {
+ <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">FootOrder</span>{}
+}
+</code></pre></div></li>
+<li>
+<p>使用Usage</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_builder</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+ <span style="color:#75715e">// 使用相同构建过程，创建支付订单对象
+</span><span style="color:#75715e"></span> <span style="color:#a6e22e">payOrder</span><span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewOrderBuilder</span>().<span style="color:#a6e22e">WithOrderId</span>(<span style="color:#e6db74">&#34;EG001&#34;</span>).
+     <span style="color:#a6e22e">WithPrice</span>(<span style="color:#ae81ff">20.40</span>).
+     <span style="color:#a6e22e">WithUid</span>(<span style="color:#ae81ff">10010</span>).
+     <span style="color:#a6e22e">WithGoodName</span>(<span style="color:#e6db74">&#34;商品&#34;</span>).
+     <span style="color:#a6e22e">WithType</span>(<span style="color:#e6db74">&#34;支付订单&#34;</span>).<span style="color:#a6e22e">Build</span>()
+   
+  <span style="color:#75715e">// 使用相同构建过程，创建外卖单对象
+</span><span style="color:#75715e"></span> <span style="color:#a6e22e">footOrder</span><span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewFootOrderBuilder</span>().<span style="color:#a6e22e">WithOrderId</span>(<span style="color:#e6db74">&#34;F001&#34;</span>).
+     <span style="color:#a6e22e">WithPrice</span>(<span style="color:#ae81ff">10.40</span>).
+     <span style="color:#a6e22e">WithUid</span>(<span style="color:#ae81ff">10010</span>).
+     <span style="color:#a6e22e">WithGoodName</span>(<span style="color:#e6db74">&#34;酸奶&#34;</span>).
+     <span style="color:#a6e22e">WithType</span>(<span style="color:#e6db74">&#34;商品订单&#34;</span>).<span style="color:#a6e22e">Build</span>()
+   
+ <span style="color:#a6e22e">sorder</span>,<span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">Marshal</span>(<span style="color:#a6e22e">payOrder</span>)
+ <span style="color:#a6e22e">forder</span>,<span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">Marshal</span>(<span style="color:#a6e22e">footOrder</span>)
+   
+   
+ <span style="color:#75715e">//fmt.Println(reflect.TypeOf(order).Kind())
+</span><span style="color:#75715e"></span> <span style="color:#75715e">//fmt.Println(reflect.ValueOf(payOrder))
+</span><span style="color:#75715e"></span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(string(<span style="color:#a6e22e">sorder</span>))
+ <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;&#34;</span>)
+ <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(string(<span style="color:#a6e22e">forder</span>))
+}
+</code></pre></div></li>
+</ol>
+<hr>
+<h6 id="java应用">Java应用</h6>
+<p>参考了该篇文章例子：<a href="https://blog.csdn.net/weixin_38230747/article/details/88560118">Java设计模式14：建造者模式</a></p>
+<ol>
+<li>
+<p>具体复杂对象产品定义</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Actor</span> <span style="color:#f92672">{</span>
+ String type<span style="color:#f92672">;</span>
+ String sex<span style="color:#f92672">;</span>
+ String face<span style="color:#f92672">;</span>
+ String costume<span style="color:#f92672">;</span>
+ String hairstyle<span style="color:#f92672">;</span>
+    <span style="color:#75715e">//此处已省略getter合setter构建的方法
+</span><span style="color:#75715e"></span>    
+<span style="color:#f92672">}</span>
+</code></pre></div></li>
+<li>
+<p>抽象对象建造者,定义抽象的产品创建过程</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ActorBuilder</span> <span style="color:#f92672">{</span>
+ Actor actor <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Actor<span style="color:#f92672">();</span>
+    
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildType</span><span style="color:#f92672">();</span>
+    
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildSex</span><span style="color:#f92672">();</span>
+    
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildFace</span><span style="color:#f92672">();</span>
+    
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildCostume</span><span style="color:#f92672">();</span>
+    
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildHairstyle</span><span style="color:#f92672">();</span>
+    
+ <span style="color:#66d9ef">public</span> Actor <span style="color:#a6e22e">createActor</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     <span style="color:#66d9ef">return</span> actor<span style="color:#f92672">;</span>
+ <span style="color:#f92672">};</span>
+<span style="color:#f92672">}</span>
+</code></pre></div></li>
+<li>
+<p>不同产品具体建造者实现（实现具体建造者ConcreteBuilder）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AngelBuilder</span> <span style="color:#66d9ef">extends</span> ActorBuilder <span style="color:#f92672">{</span>
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildType</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setType</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;天使&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildSex</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setSex</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;AngelSex&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildFace</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setFace</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;AngelFace&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildCostume</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setCostume</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;AngelCostume&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildHairstyle</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setHairstyle</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;AngelHairStyle&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+     
+  <span style="color:#75715e">// 另外一种产品实现
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GhostBuilder</span> <span style="color:#66d9ef">extends</span> ActorBuilder <span style="color:#f92672">{</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildType</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setType</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;精灵&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildSex</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setSex</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GhostSex&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildFace</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setFace</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GhostFace&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildCostume</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setCostume</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GhostCostume&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+ <span style="color:#a6e22e">@Override</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">buildHairstyle</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     actor<span style="color:#f92672">.</span><span style="color:#a6e22e">setHairstyle</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GhostHairStyle&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+    
+<span style="color:#f92672">}</span>
+   
+    
+</code></pre></div></li>
+<li>
+<p>构建产品构建指挥者Director</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Client</span> <span style="color:#f92672">{</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+     ActorBuilder ab <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AngelBuilder<span style="color:#f92672">();</span><span style="color:#75715e">//无配置文件
+</span><span style="color:#75715e"></span>     ActorController ac <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ActorController<span style="color:#f92672">();</span>
+     Actor angel<span style="color:#f92672">;</span>
+     angel <span style="color:#f92672">=</span> ac<span style="color:#f92672">.</span><span style="color:#a6e22e">construct</span><span style="color:#f92672">(</span>ab<span style="color:#f92672">);</span>
+     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>angel<span style="color:#f92672">.</span><span style="color:#a6e22e">getType</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;的外观：&#34;</span><span style="color:#f92672">);</span>
+     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;性别：&#34;</span> <span style="color:#f92672">+</span> angel<span style="color:#f92672">.</span><span style="color:#a6e22e">getSex</span><span style="color:#f92672">());</span>
+     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;面容：&#34;</span> <span style="color:#f92672">+</span> angel<span style="color:#f92672">.</span><span style="color:#a6e22e">getFace</span><span style="color:#f92672">());</span>
+     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;服装：&#34;</span> <span style="color:#f92672">+</span> angel<span style="color:#f92672">.</span><span style="color:#a6e22e">getCostume</span><span style="color:#f92672">());</span>
+     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;发型：&#34;</span> <span style="color:#f92672">+</span> angel<span style="color:#f92672">.</span><span style="color:#a6e22e">getHairstyle</span><span style="color:#f92672">());</span>
+ <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div></li>
+</ol>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%BB%BA%E9%80%A0%E8%80%85builder/">Golang设计模式学习_建造者builder</a></li>
+				
+				<li><a href="/post/golang%E4%B8%ADcontext%E7%9A%84%E5%BA%94%E7%94%A8/">Golang中context的应用</a></li>
+				
+				<li><a href="/post/%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2/">动态域名切换</a></li>
+				
+				<li><a href="/post/%E4%B8%AD%E5%8F%B0%E5%AD%A6%E4%B9%A0/">中台学习</a></li>
+				
+				<li><a href="/post/mysql%E5%BA%93%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E6%95%B4%E7%90%86/">Mysql库表数据常用操作整理</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

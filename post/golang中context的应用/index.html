@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<style type=text/css>body{font-family:monospace;}</style>
-	<title>如何使用hugo来编写文章</title>
+	<title>Golang中context的应用</title>
 	<meta name="description" content="老夫聊发少年狂~">
 	
 	<link rel="stylesheet" href="/css/style.css">
@@ -39,48 +39,15 @@
 	
 	<main>
 		<article>
-			<h1>如何使用hugo来编写文章</h1>
-			<b><time>2020.06.23 23:05</time></b>
+			<h1>Golang中context的应用</h1>
+			<b><time>2020.07.23 18:56</time></b>
 		       
-		           <a href="/tags/hugo">hugo</a>
+		           <a href="/tags/context">context</a>
         	       
                    </br>
                    </br>[content:] start~</br>
 			<div>
-				<h3 id="创建文章">创建文章</h3>
-<ul>
-<li>创建一个about页面
-创建的about页面会自动生成到<code>content/about.md</code>.</li>
-<li>创建第一篇文章，放置post目录下
-若是平时想要生成文章，则通过下面命令来创建文章:</li>
-</ul>
-<pre><code class="language-code" data-lang="code"> hugo new post/new_page_name.md
-</code></pre><h3 id="安装皮肤">安装皮肤</h3>
-<p>在皮肤列表<a href="https://www.gohugo.org/theme/">hugo皮肤列表</a>中找到喜欢的主题，并通过git clone到<code>themes</code>目录下，在启动的时候，可以指定名录。</p>
-<pre><code class="language-code" data-lang="code">$ cd themes
-$ git clone https://github.com/spf13/hyde.git
-</code></pre><h3 id="运行hugo">运行hugo</h3>
-<p>在site的根路径执行hugo启动服务器命令:</p>
-<pre><code class="language-code" data-lang="code">hugo server --theme=hyde --buildDrafts
-// or
-hugo server -w
-</code></pre><p>在命令行看到启动后，本地可以通过地址http://localhost:1313打开即可。</p>
-<h3 id="github部署">github部署</h3>
-<p>首先需要在站点根路径下，通过一下命令来生成静态页面:</p>
-<pre><code class="language-code" data-lang="code">hugo --theme=hyde --baseUrl=&quot;https://xssor2600.github.io/&quot;
-</code></pre><p>然后进入<code>public</code>目录，提交代码到GitHub即可</p>
-<pre><code class="language-code" data-lang="code">cd public
-git add -A
-git commit -m &quot;first commit&quot;
-git push -u origin master
-</code></pre><h3 id="文章编写">文章编写</h3>
-<ul>
-<li>添加标签tag
-若是想对文章添加一些标签，那么可以按照如下方式在文章创建开头使用<code>tags</code>属性：</li>
-</ul>
-<pre><code class="language-code" data-lang="code">tags: [ &quot;tag1&quot;, &quot;tag2&quot;, &quot;tag3&quot; ]
-
-</code></pre>
+				
 			</div>
                    </br>[content:] end~</br>
 		</article>
