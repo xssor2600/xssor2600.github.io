@@ -187,29 +187,29 @@
 <ol>
 <li>
 <p>定义产品抽象，<strong>重点是对产品共同行为进行抽象</strong>。
-假设设定抽象产品是：操作运算符。根据不同符号进行不同操作（创建不同的操作符对象）</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 加分操作符对象Product
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AddOperate</span> <span style="color:#66d9ef">struct</span> {
+假设设定抽象产品是：不同渠道的充值订单。根据不同渠道标示manner进行不同操作，创建不同订单对象。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 根据不同的支付渠道manner创建不同的订单对象Product
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">PayOrder</span> <span style="color:#66d9ef">struct</span> {
+   <span style="color:#a6e22e">Id</span>            <span style="color:#66d9ef">int64</span>   <span style="color:#e6db74">`json:&#34;id&#34;`</span>
+   <span style="color:#a6e22e">Order</span>         <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;order&#34;`</span>
+   <span style="color:#a6e22e">Uid</span>           <span style="color:#66d9ef">int64</span>   <span style="color:#e6db74">`json:&#34;uid&#34;`</span>
+   <span style="color:#a6e22e">Peer</span>          <span style="color:#66d9ef">int64</span>   <span style="color:#e6db74">`json:&#34;peer&#34;`</span>
+   <span style="color:#a6e22e">Money</span>         <span style="color:#66d9ef">float64</span> <span style="color:#e6db74">`json:&#34;money&#34;`</span>
+   <span style="color:#a6e22e">Lc</span>            <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;lc&#34;`</span>
+   <span style="color:#a6e22e">Cv</span>            <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;cv&#34;`</span>
+   <span style="color:#a6e22e">Ua</span>            <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;ua&#34;`</span>
+   <span style="color:#a6e22e">Option</span>        <span style="color:#66d9ef">string</span>  <span style="color:#e6db74">`json:&#34;option&#34;`</span>
+   <span style="color:#a6e22e">MannerId</span>      <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;manner_id&#34;`</span> <span style="color:#75715e">// 区分渠道
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>针对不同支付订单，抽取相同共性的行为，若是没有的话，可以自定义一个<code>Get</code>方法，目的就是抽象出一个<code>interface</code>, 与<code>struct</code>结合抽象才能比较方便利用设计模式。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 定义一个所有Product的抽象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">OrderInterface</span> <span style="color:#66d9ef">interface</span> {
+   <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">interface</span>{}
 }
      
-<span style="color:#75715e">// 乘法操作符对象Product
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">MultipleOperate</span> <span style="color:#66d9ef">struct</span> {
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">po</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">PayOrder</span>) <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">interface</span>{}{
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">po</span>
 }
-</code></pre></div><p>都是二元运算符，相同的行为就是：<code>根据两个参数进行运算操作</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 在golang中的行为抽象就是定义interface
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Operater</span> <span style="color:#66d9ef">interface</span> {
-    <span style="color:#a6e22e">Operate</span>(<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span>
-}
-     
-<span style="color:#75715e">// golang中需要产品Product实现interface方法，才能成为完整的面向对象
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AddOperate</span>) <span style="color:#a6e22e">Operate</span>(<span style="color:#a6e22e">rhs</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">lhs</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">rhs</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">lhs</span>
-}
-     
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">MultipleOperate</span>) <span style="color:#a6e22e">Operate</span>(<span style="color:#a6e22e">rhs</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">lhs</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">rhs</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">lhs</span>
-}
-     
      
 </code></pre></div></li>
 <li>
@@ -218,25 +218,40 @@
 <blockquote>
 <p>这里需要注意的一点是：工厂方法创建的对象不是传统Java中的Product，在golang中，工厂方法返回的是Product中具有相同行为的抽象，即为方法=&gt; interface</p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 定义抽象工厂包含： struct + interface（创建产品方法）
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">OperateFactory</span> <span style="color:#66d9ef">struct</span> {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 静态工厂对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">OrderStaticFactory</span> <span style="color:#66d9ef">struct</span> {
+     
 }
      
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewOperateFactory</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">OperateFactory</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">OperateFactory</span>{}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">newOrderFactory</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderStaticFactory</span> {
+   <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">OrderStaticFactory</span>{}
 }
      
 <span style="color:#75715e">// 定义简单工厂创建不同的product的方法,这里返回的不是Product，而是Product&#39;s 方法
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OperateFactory</span>) <span style="color:#a6e22e">CreateOperate</span>(<span style="color:#a6e22e">operatename</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Operater</span> {
-    <span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">operatename</span> {
-    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;+&#34;</span>:
-        <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AddOperate</span>{}
-    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;*&#34;</span>:
-        <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">MultipleOperate</span>{}
-    <span style="color:#66d9ef">default</span>:
-        panic(<span style="color:#e6db74">&#34;无效运算符号&#34;</span>)
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
-    }
+</span><span style="color:#75715e">// 创建对象的静态工厂
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">of</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderStaticFactory</span>) <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) (<span style="color:#a6e22e">OrderInterface</span>,<span style="color:#66d9ef">int</span>,<span style="color:#66d9ef">error</span>) {
+   <span style="color:#a6e22e">manner</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">param</span>.<span style="color:#a6e22e">Manner</span>
+   <span style="color:#75715e">// lc := param.Lc
+</span><span style="color:#75715e"></span>     
+   <span style="color:#75715e">// 可以做一些公共的基础逻辑校验，例如通用参数校验，session校验等
+</span><span style="color:#75715e"></span>   <span style="color:#75715e">// orderCreateCommonCheck(param) ....
+</span><span style="color:#75715e"></span>   <span style="color:#75715e">// sessionValid(param) ...
+</span><span style="color:#75715e"></span>     
+     
+   <span style="color:#75715e">// 尽量减少分支，只是根据一级manner进行划分分支
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">manner</span> {
+   <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;alipay&#34;</span>:
+        <span style="color:#75715e">// createAlipayOrder(param)
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// 内部service再根据具体manner，lc进行创建订单
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;weixin&#34;</span>:
+       <span style="color:#75715e">// createWechatOrder(param)
+</span><span style="color:#75715e"></span>       <span style="color:#75715e">// 内部service再根据具体lc进行创建订单
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;apple&#34;</span>:
+       <span style="color:#75715e">// createAppleOrder(param)
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;googlepay&#34;</span>:
+       <span style="color:#75715e">// createGooglePayOrder(param)
+</span><span style="color:#75715e"></span>   }
+   <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">PayOrder</span>{},<span style="color:#ae81ff">0</span>,<span style="color:#66d9ef">nil</span>
 }
      
 </code></pre></div></li>
@@ -244,8 +259,9 @@
 <p>使用方式Usage</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
     <span style="color:#75715e">// 创建工厂对象，并根据传入内容进行创建具体的Product
-</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Operator</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewOperateFactory</span>().<span style="color:#a6e22e">CreateOperate</span>(<span style="color:#e6db74">&#34;+&#34;</span>)
-    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;add result is %d\n&#34;</span>, <span style="color:#a6e22e">Operator</span>.<span style="color:#a6e22e">Operate</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>))
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">param</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">BaseReq</span>{}
+     <span style="color:#a6e22e">payOrder</span>,<span style="color:#a6e22e">code</span>,<span style="color:#a6e22e">errr</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newOrderFactory</span>().<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#a6e22e">payOrder</span>.<span style="color:#a6e22e">Get</span>().<span style="color:#a6e22e">Order</span>)
 }
 </code></pre></div></li>
 </ol>
@@ -255,102 +271,211 @@
 <p>与简单工厂模式不同，工厂方法模式：<code>每个具体工厂类只负责创建对应的产品</code>,也就是产品Product与Factory工厂是一一对应的。好处就是，不像简单工厂模式，新建产品Product还是需要修改单一的工厂方法，而工厂方法模式因为产品与工厂是一一对应，则不需要改动之前的产品代码。</p>
 <blockquote>
 <p>每一种产品Product都会有具体的Factory与之对应，具体的Factory来创建具体的产品。</p>
-</blockquote>
+<pre><code>////// 工厂方法模式 ////
+// WechatOrderFactory --&gt; WechatOrder
+// AlipayOrderFactory --&gt; AlipayOrder
+// AppleOrderFactory --&gt; AppleOrder
+// GooleOrderFactory --&gt; GoogleOrder
+</code></pre></blockquote>
 <ol>
 <li>
 <p>定义抽象产品Product，不同的具体产品需要继承该产品。</p>
 <p>在golang中，对抽象产品Product的继承，就是通过<code>将一个struct，作为属性定义在子类struct中</code>.通过<strong>struct+interface</strong>组合成了<code>封装</code>的概念。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 抽象产品对象，二元操作数
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Operation</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">a</span> <span style="color:#66d9ef">float64</span>
-    <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">float64</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 定义一个所有Product的行为抽象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">OrderInterface</span> <span style="color:#66d9ef">interface</span> {
+   <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">interface</span>{}
 }
      
-<span style="color:#75715e">// 抽象的产品行为
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">OperationI</span> <span style="color:#66d9ef">interface</span> {
-    <span style="color:#a6e22e">GetResult</span>() <span style="color:#66d9ef">float64</span>
-    <span style="color:#a6e22e">SetA</span>(<span style="color:#66d9ef">float64</span>)
-    <span style="color:#a6e22e">SetB</span>(<span style="color:#66d9ef">float64</span>)
+<span style="color:#75715e">// 定义不同的支付订单product
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AlipayProduct</span> <span style="color:#66d9ef">struct</span> {
+   <span style="color:#a6e22e">PayOrder</span>
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">ap</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AlipayProduct</span>) <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">interface</span>{}{
+   <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ap</span>
+}
+     
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">WechatProduct</span> <span style="color:#66d9ef">struct</span> {
+   <span style="color:#a6e22e">PayOrder</span>
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">wp</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">WechatProduct</span>) <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">interface</span>{}{
+   <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">wp</span>
+}
+     
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AppleProduct</span> <span style="color:#66d9ef">struct</span> {
+   <span style="color:#a6e22e">PayOrder</span>
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">ap</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AppleProduct</span>) <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">interface</span>{}{
+   <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ap</span>
+}
+     
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">GoogleProduct</span> <span style="color:#66d9ef">struct</span> {
+   <span style="color:#a6e22e">PayOrder</span>
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">gp</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">GoogleProduct</span>) <span style="color:#a6e22e">Get</span>() <span style="color:#66d9ef">interface</span>{}{
+   <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">gp</span>
 }
      
      
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">op</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Operation</span>) <span style="color:#a6e22e">SetA</span>(<span style="color:#a6e22e">a</span> <span style="color:#66d9ef">float64</span>) {
-    <span style="color:#a6e22e">op</span>.<span style="color:#a6e22e">a</span> = <span style="color:#a6e22e">a</span>
-}
-     
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">op</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Operation</span>) <span style="color:#a6e22e">SetB</span>(<span style="color:#a6e22e">b</span> <span style="color:#66d9ef">float64</span>) {
-    <span style="color:#a6e22e">op</span>.<span style="color:#a6e22e">b</span> = <span style="color:#a6e22e">b</span>
-}
-     
-</code></pre></div><p>针对不同的操作运算符对象（+-*/）就是不同的具体的子产品。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 加法产品，通过将抽象的产品作为属性继承
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AddOperation</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">Operation</span>
-}
-<span style="color:#75715e">// 多态的实现抽象产品中的行为
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AddOperation</span>) <span style="color:#a6e22e">GetResult</span>() <span style="color:#66d9ef">float64</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">a</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">b</span>
-}
-     
-     
-<span style="color:#75715e">// 减法
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">SubOperation</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">Operation</span>
-}
-     
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">SubOperation</span>) <span style="color:#a6e22e">GetResult</span>() <span style="color:#66d9ef">float64</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">a</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">b</span>
-}
-     
-<span style="color:#75715e">// 乘法
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">MulOperation</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">Operation</span>
-}
-     
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">MulOperation</span>) <span style="color:#a6e22e">GetResult</span>() <span style="color:#66d9ef">float64</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">a</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">b</span>
-}
-     
-<span style="color:#75715e">// 除法
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">DivOperation</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#a6e22e">Operation</span>
-}
-     
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">DivOperation</span>) <span style="color:#a6e22e">GetResult</span>() <span style="color:#66d9ef">float64</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">a</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">b</span>
-}
 </code></pre></div></li>
 <li>
 <p>定义抽象工厂方法，并针对不同的子产品，定义不同具体工厂实现去创建产品</p>
 <p>因为工厂方法的概念，就是需要根据抽象的工厂方法，创建具体的工厂方法，来创建具体的子产品。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 抽象工厂interface，内部有抽象方法返回抽象的产品Product
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">IFactory</span> <span style="color:#66d9ef">interface</span> {
-    <span style="color:#a6e22e">CreateOperation</span>() <span style="color:#a6e22e">Operation</span>   <span style="color:#75715e">// 抽象工厂方法返回抽象产品
-</span><span style="color:#75715e"></span>}
-     
-     
-<span style="color:#75715e">// 创建具体的抽象工厂，创建具体子产品
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AddFactory</span> <span style="color:#66d9ef">struct</span> {
+</span><span style="color:#75715e">// 定义抽象的工厂方法，注意此处返回的是Product的行为抽象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AbstrctOrderFactory</span> <span style="color:#66d9ef">interface</span> {
+   <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) <span style="color:#a6e22e">OrderInterface</span>
 }
      
-<span style="color:#75715e">// 具体抽象工厂，返回具体的子对象
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">this</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AddFactory</span>) <span style="color:#a6e22e">CreateOperation</span>() <span style="color:#a6e22e">OperationI</span> {
-    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span>(<span style="color:#a6e22e">AddOperation</span>{})
+     
+<span style="color:#75715e">// 分别定义不同具体工厂创建对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">WechatOrderFactory</span> <span style="color:#66d9ef">struct</span> {
 }
+     
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">wof</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">WechatOrderFactory</span>) <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) <span style="color:#a6e22e">OrderInterface</span> {
+   <span style="color:#75715e">// createWehchatOrder(param)
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">WechatProduct</span>{}
+}
+     
+     
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AlipayOrderFactory</span> <span style="color:#66d9ef">struct</span> {
+}
+     
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">wof</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AlipayOrderFactory</span>) <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) <span style="color:#a6e22e">OrderInterface</span> {
+   <span style="color:#75715e">// createAlipayOrder(param)
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AlipayProduct</span>{}
+}
+     
+     
+     
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AppleOrderFactory</span> <span style="color:#66d9ef">struct</span> {
+}
+     
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">wof</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AppleOrderFactory</span>) <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) <span style="color:#a6e22e">OrderInterface</span> {
+   <span style="color:#75715e">// createAppleOrder(param)
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AppleProduct</span>{}
+}
+     
+     
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">GoogleOrderFactory</span> <span style="color:#66d9ef">struct</span> {
+}
+     
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">wof</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">GoogleOrderFactory</span>) <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) <span style="color:#a6e22e">OrderInterface</span> {
+   <span style="color:#75715e">// createGoogleOrder(param)
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">GoogleProduct</span>{}
+}
+     
 </code></pre></div></li>
 <li>
 <p>Usage使用方式
 和标准定义工厂方法模式略有不同，此处是直接创建具体的工厂对象，进而来创建具体的子产品。
 因为抽象工厂在golang中是interface类型的，不能直接实例化的。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-    <span style="color:#a6e22e">fac</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span>(<span style="color:#a6e22e">AddFactory</span>{}) <span style="color:#75715e">// 加法工厂
-</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">oper</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fac</span>.<span style="color:#a6e22e">CreateOperation</span>() <span style="color:#75715e">// 创建加法对象
-</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">oper</span>.<span style="color:#a6e22e">SetA</span>(<span style="color:#ae81ff">1</span>)
-    <span style="color:#a6e22e">oper</span>.<span style="color:#a6e22e">SetB</span>(<span style="color:#ae81ff">2</span>)
-    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">oper</span>.<span style="color:#a6e22e">GetResult</span>())
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_Fm</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+   <span style="color:#a6e22e">param</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">BaseReq</span>{}
+   <span style="color:#75715e">// 创建微信订单对象
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">wechatFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">WechatOrderFactory</span>{}
+   <span style="color:#a6e22e">wxOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">wechatFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">wxOrder</span>)
+     
+   <span style="color:#75715e">// 创建支付宝订单
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">alipayFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AlipayOrderFactory</span>{}
+   <span style="color:#a6e22e">alipayOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">alipayFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">alipayOrder</span>)
+     
+   <span style="color:#75715e">// 创建apple订单
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">appleFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AppleOrderFactory</span>{}
+   <span style="color:#a6e22e">appleOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">appleFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">appleOrder</span>)
+     
+     
+   <span style="color:#75715e">// 创建google订单
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">googleFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">GoogleOrderFactory</span>{}
+   <span style="color:#a6e22e">googleOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">googleFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">googleOrder</span>)
+     
 }
 </code></pre></div></li>
 </ol>
+<ul>
+<li>
+<p>总结</p>
+<p>根据上面创建型过程，是否在不是传统意义的设计模式上，将两种结合，第一个步进行外部渠道的路由，第二步则进行具体渠道订单的创建。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">of</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderStaticFactory</span>) <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) (<span style="color:#a6e22e">OrderInterface</span>,<span style="color:#66d9ef">int</span>,<span style="color:#66d9ef">error</span>) {
+    <span style="color:#a6e22e">manner</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">param</span>.<span style="color:#a6e22e">Manner</span>
+    <span style="color:#75715e">// lc := param.Lc
+</span><span style="color:#75715e"></span>    
+    <span style="color:#75715e">// 可以做一些公共的基础逻辑校验，例如通用参数校验，session校验等
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// orderCreateCommonCheck(param) ....
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// sessionValid(param) ...
+</span><span style="color:#75715e"></span>    
+    
+    <span style="color:#75715e">// 尽量减少分支，只是根据一级manner进行划分分支
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">manner</span> {
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;alipay&#34;</span>:
+      <span style="color:#a6e22e">alipayFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AlipayOrderFactory</span>{}
+            <span style="color:#a6e22e">alipayOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">alipayFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+      <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">alipayOrder</span>
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;weixin&#34;</span>:
+            <span style="color:#a6e22e">wechatFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">WechatOrderFactory</span>{}
+        <span style="color:#a6e22e">wxOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">wechatFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+      <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">wxOrder</span>
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;apple&#34;</span>:
+          <span style="color:#a6e22e">appleFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AppleOrderFactory</span>{}
+        <span style="color:#a6e22e">appleOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">appleFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+          <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">appleOrder</span>
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;googlepay&#34;</span>:
+        <span style="color:#a6e22e">googleFactory</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">GoogleOrderFactory</span>{}
+        <span style="color:#a6e22e">googleOrder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">googleFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>()
+      <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">googleOrder</span>
+    }
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">PayOrder</span>{},<span style="color:#ae81ff">0</span>,<span style="color:#66d9ef">nil</span>
+}
+    
+    
+    
+<span style="color:#75715e">// client usage
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#75715e">// 创建工厂对象，并根据传入内容进行创建具体的Product
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">param</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">BaseReq</span>{}
+      <span style="color:#a6e22e">payOrder</span>,<span style="color:#a6e22e">code</span>,<span style="color:#a6e22e">errr</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newOrderFactory</span>().<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#a6e22e">payOrder</span>.<span style="color:#a6e22e">Get</span>().<span style="color:#a6e22e">Order</span>)
+}
+    
+    
+    
+<span style="color:#75715e">// 或者能够更简化，其实根据渠道分支判断逻辑总是少不了，无法是通过其他映射关系，字段来选择。
+</span><span style="color:#75715e">// 只是在程序的粒度上又进行变换,这样可以缩小变换的范围
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">of</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderStaticFactory</span>) <span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span> <span style="color:#a6e22e">BaseReq</span>) (<span style="color:#a6e22e">OrderInterface</span>,<span style="color:#66d9ef">int</span>,<span style="color:#66d9ef">error</span>) {
+    <span style="color:#a6e22e">manner</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">param</span>.<span style="color:#a6e22e">Manner</span>
+    <span style="color:#75715e">// lc := param.Lc
+</span><span style="color:#75715e"></span>    
+    <span style="color:#75715e">// 可以做一些公共的基础逻辑校验，例如通用参数校验，session校验等
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// orderCreateCommonCheck(param) ....
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// sessionValid(param) ...
+</span><span style="color:#75715e"></span>    
+    
+    <span style="color:#75715e">// 尽量减少分支，只是根据一级manner进行划分分支
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">mannerFactory</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">getFactoryByManner</span>(<span style="color:#a6e22e">param</span>.<span style="color:#a6e22e">manner</span>)
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">mannerFactory</span>.<span style="color:#a6e22e">createOrder</span>(<span style="color:#a6e22e">param</span>).<span style="color:#a6e22e">Get</span>(),<span style="color:#ae81ff">0</span>,<span style="color:#66d9ef">nil</span>
+}
+    
+    
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">getFactoryByManner</span> (<span style="color:#a6e22e">manner</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">AbstrctOrderFactory</span> {
+  <span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">manner</span> {
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;alipay&#34;</span>:
+      <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AlipayOrderFactory</span>{}
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;weixin&#34;</span>:
+      <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">WechatOrderFactory</span>{}
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;apple&#34;</span>:
+          <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AppleOrderFactory</span>{}
+    <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;googlepay&#34;</span>:
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">GoogleOrderFactory</span>{}
+    }
+  <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+}
+    
+    
+</code></pre></div></li>
+</ul>
 </li>
 </ul>
 <h5 id="heading"></h5>
