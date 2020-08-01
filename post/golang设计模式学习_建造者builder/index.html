@@ -253,6 +253,58 @@
  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(string(<span style="color:#a6e22e">forder</span>))
 }
 </code></pre></div></li>
+<li>
+<p>用插件自动生成的建造者模式代码</p>
+<p>改种方式是通过组合产品对象product与对应的建造者来创建对象。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// Order builder pattern code
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">OrderBuilder</span> <span style="color:#66d9ef">struct</span> {
+ <span style="color:#a6e22e">order</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Order</span>
+}
+   
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewOrderBuilder</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span> {
+ <span style="color:#a6e22e">order</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Order</span>{}
+ <span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">OrderBuilder</span>{<span style="color:#a6e22e">order</span>: <span style="color:#a6e22e">order</span>}
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">b</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span>) <span style="color:#a6e22e">OrderId</span>(<span style="color:#a6e22e">orderId</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span> {
+ <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">order</span>.<span style="color:#a6e22e">OrderId</span> = <span style="color:#a6e22e">orderId</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">b</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span>) <span style="color:#a6e22e">Price</span>(<span style="color:#a6e22e">price</span> <span style="color:#66d9ef">float64</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span> {
+ <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">order</span>.<span style="color:#a6e22e">Price</span> = <span style="color:#a6e22e">price</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">b</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span>) <span style="color:#a6e22e">UserId</span>(<span style="color:#a6e22e">userId</span> <span style="color:#66d9ef">int64</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span> {
+ <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">order</span>.<span style="color:#a6e22e">UserId</span> = <span style="color:#a6e22e">userId</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">b</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span>) <span style="color:#a6e22e">GoodName</span>(<span style="color:#a6e22e">goodName</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span> {
+ <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">order</span>.<span style="color:#a6e22e">GoodName</span> = <span style="color:#a6e22e">goodName</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">b</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span>) <span style="color:#a6e22e">OrderType</span>(<span style="color:#a6e22e">orderType</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span> {
+ <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">order</span>.<span style="color:#a6e22e">OrderType</span> = <span style="color:#a6e22e">orderType</span>
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">b</span>
+}
+   
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderBuilder</span>) <span style="color:#a6e22e">Build</span>() (<span style="color:#f92672">*</span><span style="color:#a6e22e">Order</span>, <span style="color:#66d9ef">error</span>) {
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">order</span>, <span style="color:#66d9ef">nil</span>
+}
+   
+   
+   
+<span style="color:#75715e">// usage
+</span><span style="color:#75715e"></span> <span style="color:#a6e22e">payOrder</span><span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewOrderBuilder</span>().<span style="color:#a6e22e">WithOrderId</span>(<span style="color:#e6db74">&#34;EG001&#34;</span>).
+     <span style="color:#a6e22e">WithPrice</span>(<span style="color:#ae81ff">20.40</span>).
+     <span style="color:#a6e22e">WithUid</span>(<span style="color:#ae81ff">10010</span>).
+     <span style="color:#a6e22e">WithGoodName</span>(<span style="color:#e6db74">&#34;商品&#34;</span>).
+     <span style="color:#a6e22e">WithType</span>(<span style="color:#e6db74">&#34;支付订单&#34;</span>).<span style="color:#a6e22e">Build</span>()
+</code></pre></div></li>
 </ol>
 <hr>
 <h6 id="java应用">Java应用</h6>
