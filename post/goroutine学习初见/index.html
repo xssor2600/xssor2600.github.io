@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<style type=text/css>body{font-family:monospace;}</style>
-	<title>About</title>
+	<title>Goroutine学习初见</title>
 	<meta name="description" content="老夫聊发少年狂~">
 	
 	<link rel="stylesheet" href="/css/style.css">
@@ -39,13 +39,24 @@
 	
 	<main>
 		<article>
-			<h1>About</h1>
-			<b><time>2020.06.23 23:03</time></b>
+			<h1>Goroutine学习初见</h1>
+			<b><time>2020.08.02 15:23</time></b>
 		       
+		           <a href="/tags/goroutine">goroutine</a>
+        	       
                    </br>
                    </br>[content:] start~</br>
 			<div>
-				<p>This is me, who is trying to learn more !</p>
+				<p><code>Go</code> 编程语言的目的:</p>
+<blockquote>
+<p>Go 的目的不是研究编程语言设计; 它是为了改善设计师和同事的工作环境。 Go 比编程语言研究更关注软件工程。 或者换句话说，就是为软件工程师服务的语言设计。</p>
+</blockquote>
+<p>Go 运行时允许您在机器上运行数十万个并发 <code>goroutine</code> 。<code>Goroutine</code> 是一个轻量级的执行线程。 <code>Go</code> 运行时将这些 <code>goroutine</code> 复用到操作系统线程上。 这意味着多个 <code>goroutine</code> 可以在单个操作系统线程上同时运行。</p>
+<p><code>Go</code> 运行时有一个调度程序，其任务是调度这些 <code>goroutine</code> 执行。</p>
+<blockquote>
+<p>1:初始化时的 Goroutine 具有 2KB 的堆栈。与一个一般为 1 MB 的 OS 线程堆栈相比，这非常小巧。当你需要同时运行几十万个不同的 goroutine 时，这个数字很重要。如果你要并行运行数千个 OS 线程，RAM 显然将成为瓶颈。
+2:Go 可以遵循与 Java 等其他语言相同的模型，它支持与 OS 线程相同的线程概念。但是在这种情况下，OS 线程之间的上下文切换成本比不同的 goroutine 之间的上下文切换成本要大得多。</p>
+</blockquote>
 
 			</div>
                    </br>[content:] end~</br>

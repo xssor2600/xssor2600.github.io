@@ -42,6 +42,45 @@
 		
 		
 			<article>
+	<h1><a href="https://www.xssor2600.site/post/make%E4%B8%8Enew/">Make与new</a></h1>
+	<b><time>2020.08.02 15:58</time></b>
+	
+	<a href="/tags/golang">@golang</a>
+	
+    </br>[content:~]</br>
+	<div>
+		make 和 new 在 Go 语言中，make 关键字的主要作用是初始化内置的数据结构，也就是我们在前面提到的 数组和切片、哈希表 和 Channel，而当我们想要获取指向某个类型的指针时其实可以使用 new 关键字.
+虽然 make 和 new 都是能够用于初始化数据结构，但是它们两者能够初始化的结构类型却有着较大的不同；make 在 Go 语言中只能用于初始化语言中的基本类型：
+slice := make([]int, 0, 100) hashMap := make(map[int]string, 10) ch := make(chan int, 5) 另一个用于初始化数据结构的关键字 new 的作用其实就非常简单了，它只是接收一个类型作为参数然后返回一个指向这个类型的指针：
+i := new(int) // 变量i中保存着指向int类型的指针地址0x.... var v int i := &amp;v   new(T) 为每个新的类型T分配一片内存，初始化为 0 并且返回类型为*T的内存地址：这种方法 返回一个指向类型为 T值为 0 的地址的指针，它适用于值类型如数组和结构体；它相当于 &amp;T{}
+var p *[]int = new([]int) // *p == nil; with len and cap 0   make(T) 返回一个类型为 T 的初始值，它只适用于3种内建的引用类型：切片、map 和 channel。
+		
+			<a href="https://www.xssor2600.site/post/make%E4%B8%8Enew/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/goroutine%E5%AD%A6%E4%B9%A0%E5%88%9D%E8%A7%81/">Goroutine学习初见</a></h1>
+	<b><time>2020.08.02 15:23</time></b>
+	
+	<a href="/tags/goroutine">@goroutine</a>
+	
+    </br>[content:~]</br>
+	<div>
+		Go 编程语言的目的:
+ Go 的目的不是研究编程语言设计; 它是为了改善设计师和同事的工作环境。 Go 比编程语言研究更关注软件工程。 或者换句话说，就是为软件工程师服务的语言设计。
+ Go 运行时允许您在机器上运行数十万个并发 goroutine 。Goroutine 是一个轻量级的执行线程。 Go 运行时将这些 goroutine 复用到操作系统线程上。 这意味着多个 goroutine 可以在单个操作系统线程上同时运行。
+Go 运行时有一个调度程序，其任务是调度这些 goroutine 执行。
+ 1:初始化时的 Goroutine 具有 2KB 的堆栈。与一个一般为 1 MB 的 OS 线程堆栈相比，这非常小巧。当你需要同时运行几十万个不同的 goroutine 时，这个数字很重要。如果你要并行运行数千个 OS 线程，RAM 显然将成为瓶颈。 2:Go 可以遵循与 Java 等其他语言相同的模型，它支持与 OS 线程相同的线程概念。但是在这种情况下，OS 线程之间的上下文切换成本比不同的 goroutine 之间的上下文切换成本要大得多。
+ 
+		
+	</div>
+</article>
+
+		
+			<article>
 	<h1><a href="https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/">Golang设计模式学习_工厂方法FactoryMethod</a></h1>
 	<b><time>2020.07.26 23:01</time></b>
 	
@@ -263,53 +302,6 @@ Go 创建对象时，如何优雅的传递初始化参数
 这个点你有想过吗？Go 语言如何进行类型检查
 		
 			<a href="https://www.xssor2600.site/post/go%E5%AD%A6%E4%B9%A0%E4%B8%AD%E6%96%87%E7%BD%91%E8%B5%84%E6%96%99%E5%BD%92%E9%9B%86/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/common_user_redis_batch_scripts/">redis常用的脚本</a></h1>
-	<b><time>2020.07.04 13:51</time></b>
-	
-	<a href="/tags/redis">@redis</a>
-	
-    </br>[content:~]</br>
-	<div>
-		若是想批量启动多个redis服务，或者同时关闭重启多个redis服务，那么通过脚本是最简单的方式。
-  Redis批量启动(使用默认配置文件)
-#!/bin/bash echo &#34;----- start sentinel redis servers --------&#34; cd /usr/local/redis sudo ./redis-server ./redis.conf sudo ./redis-server ./redis-6378.conf sudo ./redis-server ./redis-6380.conf sudo ./redis-server ./redis-sentinel-26379.conf --sentinel echo &#34;----- sentinel redis servers start successfully! ------&#34;   Redis命令参数化连接
-因为配置多个redis实例,每个实例对应不同端口.通过脚本简化redis连接客户端传入的端口参数.
-#!/bin/bash echo &#34;---- connection redis client sudo ./redis-cli -p $1------&#34; cd /usr/local/redis # 其中$0 得到命令语句 $1代表命令后的第一个参数 sudo ./redis-cli -p $1 -a x@123456 # 若是每个redis服务密码也不同，则可以使用密码占用符 sudo ./redis-cli -p $1 -a $2 在使用改脚本去连接redis服务器的时候，可以像如下使用：
-		
-			<a href="https://www.xssor2600.site/post/common_user_redis_batch_scripts/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/mac_iterm2_rz_use/">Mac_iterm2_rz_use</a></h1>
-	<b><time>2020.06.28 23:15</time></b>
-	
-	<a href="/tags/iterm">@iterm</a>
-	
-	<a href="/tags/rz">@rz</a>
-	
-    </br>[content:~]</br>
-	<div>
-		有这样的需求：在跳板机器登陆远程服务器后，需要将mysql数据库数据导出到Excel，并将文件下载到本地。
-mysql数据导出Excel 在登陆跳板机，ssh连接上服务器后，常规情况通过mysql命令可以直接连接进入数据库。此时我并不需要进入mysql命令行，而是需要在Linux命令行中通过mysql查询命令直接将数据导出到本地文件。
-可以通过mysql -e 命令来完成操作：
-echo &quot;select uid,\`order\`,money,country_code from user_order_record_new_202006 where create_time &gt;= '2020-06-18 00:00:00' and manner_id = 3 and client = 1 and agree =1&quot; | mysql -h xxxxx -uroot -Ddemo -p'123456' --default-character-set=utf8 &gt; /tmp/ios_recharge_18.xls; 当通过指定的s q l执行完成后，数据将会写入到Excel中，在目录中生成：
-  Excel文件下载到本地 在具体服务器生成查询数据文件时候，这时候如何将文件下载到本地？
-主要是通过rz/sz来实现两端服务器文件的传输。
- 环境: Mac + iterm2终端: 需要在mac中安装lrzsz插件：  brew install lrzsz  Iterm2配置文件发送send,received脚本命令:
-具体脚本参照工程: iterm2-zmodem
-在目录/usr/local/bin/目录下分别创建脚本iterm2-send-zmodem.sh，iterm2-recv-zmodem.sh：
- iterm2-send-zmodem.sh  #!/bin/bash # Author: Matt Mastracci (matthew@mastracci.com) # AppleScript from http://stackoverflow.
-		
-			<a href="https://www.xssor2600.site/post/mac_iterm2_rz_use/">Read more...</a>
 		
 	</div>
 </article>

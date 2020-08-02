@@ -6,10 +6,23 @@
     <description>Recent content in golang on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 11 Jul 2020 17:43:49 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 02 Aug 2020 15:58:45 +0800</lastBuildDate>
     
 	<atom:link href="https://www.xssor2600.site/tags/golang/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Make与new</title>
+      <link>https://www.xssor2600.site/post/make%E4%B8%8Enew/</link>
+      <pubDate>Sun, 02 Aug 2020 15:58:45 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/make%E4%B8%8Enew/</guid>
+      <description>make 和 new 在 Go 语言中，make 关键字的主要作用是初始化内置的数据结构，也就是我们在前面提到的 数组和切片、哈希表 和 Channel，而当我们想要获取指向某个类型的指针时其实可以使用 new 关键字.
+虽然 make 和 new 都是能够用于初始化数据结构，但是它们两者能够初始化的结构类型却有着较大的不同；make 在 Go 语言中只能用于初始化语言中的基本类型：
+slice := make([]int, 0, 100) hashMap := make(map[int]string, 10) ch := make(chan int, 5) 另一个用于初始化数据结构的关键字 new 的作用其实就非常简单了，它只是接收一个类型作为参数然后返回一个指向这个类型的指针：
+i := new(int) // 变量i中保存着指向int类型的指针地址0x.... var v int i := &amp;amp;v   new(T) 为每个新的类型T分配一片内存，初始化为 0 并且返回类型为*T的内存地址：这种方法 返回一个指向类型为 T值为 0 的地址的指针，它适用于值类型如数组和结构体；它相当于 &amp;amp;T{}
+var p *[]int = new([]int) // *p == nil; with len and cap 0   make(T) 返回一个类型为 T 的初始值，它只适用于3种内建的引用类型：切片、map 和 channel。</description>
+    </item>
     
     <item>
       <title>Go学习中文网资料归集</title>

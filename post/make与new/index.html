@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Make与new</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Make与new</h1>
+			<b><time>2020.08.02 15:58</time></b>
+		       
+		           <a href="/tags/golang">golang</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<h4 id="make-和-new">make 和 new</h4>
+<p>在 Go 语言中，<code>make</code> 关键字的主要作用是初始化内置的数据结构，也就是我们在前面提到的 数组和切片、哈希表 和 Channel，而当我们想要获取指向某个类型的指针时其实可以使用 <code>new</code> 关键字.</p>
+<p>虽然 <code>make</code> 和 <code>new</code> 都是能够用于初始化数据结构，但是它们两者能够初始化的结构类型却有着较大的不同；<code>make</code> 在 Go 语言中只能用于初始化语言中的基本类型：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">100</span>)
+<span style="color:#a6e22e">hashMap</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">int</span>]<span style="color:#66d9ef">string</span>, <span style="color:#ae81ff">10</span>)
+<span style="color:#a6e22e">ch</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">5</span>)
+</code></pre></div><p>另一个用于初始化数据结构的关键字 <code>new</code> 的作用其实就非常简单了，它只是接收一个类型作为参数然后返回一个指向这个类型的指针：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> new(<span style="color:#66d9ef">int</span>) <span style="color:#75715e">// 变量i中保存着指向int类型的指针地址0x....
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">v</span> <span style="color:#66d9ef">int</span>
+<span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">v</span>
+</code></pre></div><ul>
+<li>
+<p>new(T) 为每个新的类型T分配一片内存，初始化为 0 并且返回类型为*T的内存地址：这种方法 <strong>返回一个指向类型为 T值为 0 的地址的指针</strong>，它适用于值类型如数组和结构体；它相当于 <code>&amp;T{}</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">p</span> <span style="color:#f92672">*</span>[]<span style="color:#66d9ef">int</span> = new([]<span style="color:#66d9ef">int</span>) <span style="color:#75715e">// *p == nil; with len and cap 0
+</span></code></pre></div></li>
+<li>
+<p>make(T) <strong>返回一个类型为 T 的初始值</strong>，它只适用于3种内建的引用类型：切片、map 和 channel。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>)
+</code></pre></div></li>
+</ul>
+<p><a href="https://imgchr.com/i/aYYQBD"><img src="https://s1.ax1x.com/2020/08/02/aYYQBD.md.png" alt="aYYQBD.md.png"></a></p>
+<h4 id="实现原理">实现原理</h4>
+<p>主要是从会从<code>编译期间</code>和<code>运行时</code>两个不同的阶段理解这两个关键字的原理。</p>
+<ul>
+<li>
+<p>make</p>
+<p>在go源代码编译过程中，其实会将整个源文件载入解析成AST抽象语法树，然后根据语法树进行编译处理。
+在编译期间的 类型检查 阶段，Go 语言其实就将代表 <code>make</code> 关键字的 <code>OMAKE</code> 节点根据参数类型的不同转换成了 <code>OMAKESLICE</code>、<code>OMAKEMAP</code> 和 <code>OMAKECHAN</code> 三种不同类型的节点，这些节点最终也会调用不同的运行时函数来初始化数据结构。（此处的节点应该就是AST中的树节点）</p>
+</li>
+<li>
+<p>new</p>
+<p>内置函数 <code>new</code> 会在编译期间的 SSA 代码生成 阶段经过 <code>callnew</code> 函数的处理，如果请求创建的类型大小时 0，那么就会返回一个表示空指针的 <code>zerobase</code> 变量，在遇到其他情况时会将关键字转换成 <code>newobject</code>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">callnew</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">Type</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">Node</span> {
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">NotInHeap</span>() {
+        <span style="color:#a6e22e">yyerror</span>(<span style="color:#e6db74">&#34;%v is go:notinheap; heap allocation disallowed&#34;</span>, <span style="color:#a6e22e">t</span>)
+    }
+    <span style="color:#a6e22e">dowidth</span>(<span style="color:#a6e22e">t</span>)
+  
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Size</span>() <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+        <span style="color:#a6e22e">z</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newname</span>(<span style="color:#a6e22e">Runtimepkg</span>.<span style="color:#a6e22e">Lookup</span>(<span style="color:#e6db74">&#34;zerobase&#34;</span>))
+        <span style="color:#a6e22e">z</span>.<span style="color:#a6e22e">SetClass</span>(<span style="color:#a6e22e">PEXTERN</span>)
+        <span style="color:#a6e22e">z</span>.<span style="color:#a6e22e">Type</span> = <span style="color:#a6e22e">t</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">typecheck</span>(<span style="color:#a6e22e">nod</span>(<span style="color:#a6e22e">OADDR</span>, <span style="color:#a6e22e">z</span>, <span style="color:#66d9ef">nil</span>), <span style="color:#a6e22e">ctxExpr</span>)
+    }
+  
+    <span style="color:#a6e22e">fn</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">syslook</span>(<span style="color:#e6db74">&#34;newobject&#34;</span>)
+    <span style="color:#a6e22e">fn</span> = <span style="color:#a6e22e">substArgTypes</span>(<span style="color:#a6e22e">fn</span>, <span style="color:#a6e22e">t</span>)
+    <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">mkcall1</span>(<span style="color:#a6e22e">fn</span>, <span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">NewPtr</span>(<span style="color:#a6e22e">t</span>), <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">typename</span>(<span style="color:#a6e22e">t</span>))
+    <span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">SetNonNil</span>(<span style="color:#66d9ef">true</span>)
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">v</span>
+}
+</code></pre></div><p>需要提到的是，哪怕当前变量是使用 <code>var</code> 进行初始化，在这一阶段可能会被转换成 <code>newobject</code> 的函数调用并在堆上申请内存：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">walkstmt</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Node</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">Node</span> {
+    <span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">n</span>.<span style="color:#a6e22e">Op</span> {
+    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">ODCL</span>:
+        <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">n</span>.<span style="color:#a6e22e">Left</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">Class</span>() <span style="color:#f92672">==</span> <span style="color:#a6e22e">PAUTOHEAP</span> {
+            <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">prealloc</span>[<span style="color:#a6e22e">v</span>] <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+                <span style="color:#a6e22e">prealloc</span>[<span style="color:#a6e22e">v</span>] = <span style="color:#a6e22e">callnew</span>(<span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">Type</span>)
+            }
+            <span style="color:#a6e22e">nn</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">nod</span>(<span style="color:#a6e22e">OAS</span>, <span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">Name</span>.<span style="color:#a6e22e">Param</span>.<span style="color:#a6e22e">Heapaddr</span>, <span style="color:#a6e22e">prealloc</span>[<span style="color:#a6e22e">v</span>])
+            <span style="color:#a6e22e">nn</span>.<span style="color:#a6e22e">SetColas</span>(<span style="color:#66d9ef">true</span>)
+            <span style="color:#a6e22e">nn</span> = <span style="color:#a6e22e">typecheck</span>(<span style="color:#a6e22e">nn</span>, <span style="color:#a6e22e">ctxStmt</span>)
+            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">walkstmt</span>(<span style="color:#a6e22e">nn</span>)
+        }
+    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">ONEW</span>:
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">n</span>.<span style="color:#a6e22e">Esc</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">EscNone</span> {
+            <span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">temp</span>(<span style="color:#a6e22e">n</span>.<span style="color:#a6e22e">Type</span>.<span style="color:#a6e22e">Elem</span>())
+            <span style="color:#a6e22e">r</span> = <span style="color:#a6e22e">nod</span>(<span style="color:#a6e22e">OAS</span>, <span style="color:#a6e22e">r</span>, <span style="color:#66d9ef">nil</span>)
+            <span style="color:#a6e22e">r</span> = <span style="color:#a6e22e">typecheck</span>(<span style="color:#a6e22e">r</span>, <span style="color:#a6e22e">ctxStmt</span>)
+            <span style="color:#a6e22e">init</span>.<span style="color:#a6e22e">Append</span>(<span style="color:#a6e22e">r</span>)
+            <span style="color:#a6e22e">r</span> = <span style="color:#a6e22e">nod</span>(<span style="color:#a6e22e">OADDR</span>, <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Left</span>, <span style="color:#66d9ef">nil</span>)
+            <span style="color:#a6e22e">r</span> = <span style="color:#a6e22e">typecheck</span>(<span style="color:#a6e22e">r</span>, <span style="color:#a6e22e">ctxExpr</span>)
+            <span style="color:#a6e22e">n</span> = <span style="color:#a6e22e">r</span>
+        } <span style="color:#66d9ef">else</span> {
+            <span style="color:#a6e22e">n</span> = <span style="color:#a6e22e">callnew</span>(<span style="color:#a6e22e">n</span>.<span style="color:#a6e22e">Type</span>.<span style="color:#a6e22e">Elem</span>())
+        }
+    }
+}
+</code></pre></div><p>当然这也不是绝对的，如果当前声明的变量或者参数不需要在当前作用域外『生存』，那么其实就不会被初始化在堆上，而是会初始化在当前函数的栈中并随着 函数调用 的结束而被销毁。</p>
+<p><code>newobject</code> 函数的工作就是获取传入类型的大小并调用 <code>mallocgc</code> 在堆上申请一片大小合适的内存空间并返回指向这片内存空间的指针：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">newobject</span>(<span style="color:#a6e22e">typ</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">_type</span>) <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">mallocgc</span>(<span style="color:#a6e22e">typ</span>.<span style="color:#a6e22e">size</span>, <span style="color:#a6e22e">typ</span>, <span style="color:#66d9ef">true</span>)
+}
+</code></pre></div><p>所以，有时候在实际代码开发过程中，结构体的初始化有两种方式：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">hr</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">HistorySt</span>{}
+<span style="color:#75715e">//或者
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">hr</span> <span style="color:#f92672">:=</span> new(<span style="color:#a6e22e">HistorySt</span>)
+</code></pre></div></li>
+</ul>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/make%E4%B8%8Enew/">Make与new</a></li>
+				
+				<li><a href="/post/goroutine%E5%AD%A6%E4%B9%A0%E5%88%9D%E8%A7%81/">Goroutine学习初见</a></li>
+				
+				<li><a href="/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/">Golang设计模式学习_工厂方法FactoryMethod</a></li>
+				
+				<li><a href="/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%BB%BA%E9%80%A0%E8%80%85builder/">Golang设计模式学习_建造者builder</a></li>
+				
+				<li><a href="/post/golang%E4%B8%ADcontext%E7%9A%84%E5%BA%94%E7%94%A8/">Golang中context的应用</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

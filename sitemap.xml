@@ -3,17 +3,37 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/</loc>
-    <lastmod>2020-07-26T23:01:37+08:00</lastmod>
+    <loc>https://www.xssor2600.site/tags/golang/</loc>
+    <lastmod>2020-08-02T15:58:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/post/make%E4%B8%8Enew/</loc>
+    <lastmod>2020-08-02T15:58:45+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://www.xssor2600.site/post/</loc>
-    <lastmod>2020-07-26T23:01:37+08:00</lastmod>
+    <lastmod>2020-08-02T15:58:45+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://www.xssor2600.site/tags/</loc>
+    <lastmod>2020-08-02T15:58:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/tags/goroutine/</loc>
+    <lastmod>2020-08-02T15:23:52+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/post/goroutine%E5%AD%A6%E4%B9%A0%E5%88%9D%E8%A7%81/</loc>
+    <lastmod>2020-08-02T15:23:52+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/</loc>
     <lastmod>2020-07-26T23:01:37+08:00</lastmod>
   </url>
   
@@ -90,11 +110,6 @@
   <url>
     <loc>https://www.xssor2600.site/tags/%E9%9D%A2%E8%AF%95/</loc>
     <lastmod>2020-07-12T00:52:17+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://www.xssor2600.site/tags/golang/</loc>
-    <lastmod>2020-07-11T17:43:49+08:00</lastmod>
   </url>
   
   <url>
