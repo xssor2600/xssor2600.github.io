@@ -25,10 +25,10 @@ var ( WechatSafeConfig struct { sync.RWMutex // key为namespace 	WechatProducts 
     
     <item>
       <title>Go普通指针类型_unsafe</title>
-      <link>https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/</link>
+      <link>https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe_pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/</link>
       <pubDate>Wed, 26 Aug 2020 23:17:27 +0800</pubDate>
       
-      <guid>https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/</guid>
+      <guid>https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe_pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/</guid>
       <description>在golang的源代码中，经常看到几种指针类型关键字：*,unsafe.Pointer,uintptr。那么这几种指针之间有什么关系，每个指针适用的应用场景又是哪些呢？
 Golang指针  *类型：普通指针类型，用于传递对象地址，不能进行指针运算。多数通常应用与开发者和源代码中。 unsafe.Pointer: 通用指针类型，用于转换不同类型指针，不能进行指针运算，不能读取内存存储的值。（指针转换器） uintptr: 用于指针运算，GC不会把uintptr当作指针，uintptr无法持有对象。uintptr类型目标会被GC回收。通常多数都是在源代码中使用。   unsafe.Pointer 是桥梁，可以让任意类型的指针实现相互转换，也可以将任意类型的指针转换为 uintptr 进行指针运算。
  要在某个指针地址上加上一个偏移量，Pointer是不能做这个运算的，那么谁可以呢?
