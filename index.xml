@@ -12,6 +12,104 @@
     
     
     <item>
+      <title>Map进阶</title>
+      <link>https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/</link>
+      <pubDate>Sun, 06 Sep 2020 18:44:18 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/</guid>
+      <description>可以边遍历边删除吗? map 并不是一个线程安全的数据结构。同时读写一个 map 是未定义的行为，如果被检测到，会直接 panic。
+一般而言，这可以通过读写锁来解决：sync.RWMutex。也可以通过线程安全的sync.Map。
+读之前调用 RLock() 函数，读完之后调用 RUnlock() 函数解锁；写之前调用 Lock() 函数，写完之后，调用 Unlock() 解锁。
+var ( WechatSafeConfig struct { sync.RWMutex // key为namespace 	WechatProducts map[string][]WxProduct } ) // 写入前加上写锁 	WechatSafeConfig.Lock() defer WechatSafeConfig.Unlock() // 初始化做内存级缓存 	if _, ok := WechatSafeConfig.WechatProducts[ctx.Namespace]; !ok { WechatSafeConfig.WechatProducts[ctx.Namespace] = config.Products } key 可以是 float 型吗？ 从语法上看，是可以的。Go 语言中只要是可比较的类型都可以作为 key。除开 slice，map，functions 这几种类型，其他类型都是 OK 的。具体包括：布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 == 和 != 操作符， k1==k2 时，可认为 k1 和 k2 是同一个 key。如果是结构体，则需要它们的字段值都相等，才被认为是相同的 key。</description>
+    </item>
+    
+    <item>
+      <title>Go普通指针类型_unsafe</title>
+      <link>https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/</link>
+      <pubDate>Wed, 26 Aug 2020 23:17:27 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/</guid>
+      <description>在golang的源代码中，经常看到几种指针类型关键字：*,unsafe.Pointer,uintptr。那么这几种指针之间有什么关系，每个指针适用的应用场景又是哪些呢？
+Golang指针  *类型：普通指针类型，用于传递对象地址，不能进行指针运算。多数通常应用与开发者和源代码中。 unsafe.Pointer: 通用指针类型，用于转换不同类型指针，不能进行指针运算，不能读取内存存储的值。（指针转换器） uintptr: 用于指针运算，GC不会把uintptr当作指针，uintptr无法持有对象。uintptr类型目标会被GC回收。通常多数都是在源代码中使用。   unsafe.Pointer 是桥梁，可以让任意类型的指针实现相互转换，也可以将任意类型的指针转换为 uintptr 进行指针运算。
+ 要在某个指针地址上加上一个偏移量，Pointer是不能做这个运算的，那么谁可以呢?
+可以做指针运算的只有uintptr，所以需要将Pointer类型转换成uintptr类型，做完加减法后，转换成Pointer，通过*操作，就可以取值，修改值了。
+b := (*bmap)(add(h.buckets, (hash&amp;amp;m)*uintptr(t.bucketsize))) k := add(unsafe.Pointer(b), dataOffset+i*uintptr(t.keysize)) //通过uintptr将通用指针p转换成二进制，在于x值进行指针运算，加上偏移量 //最后又通过通过指针将内存地址值转换成指针返回 // Pointer不能指针运算，只能转换成uintptr func add(p unsafe.Pointer, x uintptr) unsafe.Pointer { return unsafe.Pointer(uintptr(p) + x) } unsafe.Pointer 可以让你的变量在不同的普通指针类型转来转去，也就是表示为任意可寻址的指针类型。而 uintptr 常用于与 unsafe.Pointer 打配合，用于做指针运算。
+unsafe.Pointer unsafe.Pointer称为通用指针，官方文档对该类型有四个重要描述：
+ 任何类型的指针都可以被转化为Pointer Pointer可以被转化为任何类型的指针 uintptr可以被转化为Pointer Pointer可以被转化为uintptr  unsafe.Pointer是特别定义的一种指针类型（译注：类似C语言中的void类型的指针），在golang中是用于各种指针相互转换的桥梁，它可以包含任意类型变量的地址。但是不可以直接通过*p来获取unsafe.Pointer指针指向的真实变量的值，因为我们并不知道变量的具体类型。
+什么叫 unsafe.Pointer它可以包含任意类型变量的地址？
+可以得到一点，就是 unsafe.Pointer 转换的变量，该变量一定要是指针类型，否则编译会报错。
+a := 1 b := unsafe.Pointer(a) //报错 b := unsafe.</description>
+    </item>
+    
+    <item>
+      <title>深入学习map_1</title>
+      <link>https://www.xssor2600.site/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/</link>
+      <pubDate>Sat, 22 Aug 2020 15:32:44 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/</guid>
+      <description>在源码中，表示 map 的结构体是 hmap，它是 hashmap,底层golang对map的实现主要是通过hmap+maptype运行的。
+对golang底层源代码的理解学习，要习惯用动态的角度去考虑，因为golang具体底层运行是包括编译器的。
+ 会有不少内建数据类型，在编译器期间，编译器会为了某种实现目的，会动态给源代码中数据结构进行加工处理。
+在go的源代码中，出现很多地址类型，在看的时候，需要结合起始内存地址+偏移量的思维去理解。
+ Map的底层实现原理 Go runtime 中的map是如何实现的？Go 中的 map 是一个 hashmap
+ Hashmap 是一种经典的数据结构，提供了平均 O(1) 的查询时间复杂度，即使在最糟的情况下也有 O(n) 的复杂度。也就是说，正常情况下，执行 map 函数的时间是个常量。
+这个常量的大小部分取决于 hashmap 的设计方式，而 map 存取时间从 O(1) 到 O(n) 的变化则取决于它的 hash 函数。
+ Hashmap 的使用方面有两个重要的特点:
+ 第一个是稳定性。Hash 函数必须是稳定的。给定相同的 key，你的 hash 函数必须返回相同的值。 第二个特点是良好的分布。给定两个相类似的 key，结果应该是极其不同的。hashmap 中的 value 值应当均匀地分布于 buckets 之间，否则存取的复杂度不会是 O(1).    Hashmap数据结构
+经典的 hashmap 结构是一个 bucket 数组，其中的每项包含一个指针指向一个 key/value entry 数组。
+golang底层的map结构是如何的？
+底层数据结构也是一个bucket数组，并且每个 bucket 最多持有 8 个 key/value entry。使用 2 的次方便于做位掩码和移位，而不必做昂贵的除法操作。宏观看map底层实现</description>
+    </item>
+    
+    <item>
+      <title>Slice与数组基础比较</title>
+      <link>https://www.xssor2600.site/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/</link>
+      <pubDate>Mon, 17 Aug 2020 23:47:36 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/</guid>
+      <description>Array 总的来说，数组是同一类型元素的集合，Go 语言中不允许数组混合不同类型的元素。(当然interface{}除外)
+通常情况下，array在声明的时候，就要确定数组个数的大小，并且后面不允许容量发生变化。
+  数组的声明与赋值
+一个数组的表示形式为 [n]T。n 表示数组中元素的数量，T 代表每个元素的类型。
+//数组中的所有元素都被自动赋值为数组类型的零值。 func main() { var a [3]int // int array with length 3  fmt.Println(a) } 数组的赋值可以通过数组下标索引赋值，也可以在声明的时候进行赋值：
+func main(){ ia := [3]int{1,2,3} var indexa [3]int indexa[0] = 1 indexa[1] = 2 indexa[2] = 3 }   数组是值类型(对赋值和入参的影响)
+  数组是值类型而不是引用类型，意味着当将数组赋值给新变量时候，新变量会得到一个原数组的值拷贝副本，当原数组内容发生变化的时候，并不会影响新变量的值。（或者新变量操作数组内容，并不会影响原数组的内容）
+func main(){ ia := [3]int{1,2,3} ib := ia ib[0] = 2 fmt.Println(ia) // [1 2 3]  fmt.Println(ib) // [2 2 3]  a := [3]int{1,2,3} fmt.</description>
+    </item>
+    
+    <item>
+      <title>Slice与map基础比较</title>
+      <link>https://www.xssor2600.site/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/</link>
+      <pubDate>Mon, 17 Aug 2020 23:40:41 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/</guid>
+      <description>Slice 和 Map 是 Go 中的两种重要的数据类型。
+Slice Slice是在底层为数组的基础上抽象出来的数据结构，其拥有一个指向数组开始位置的指针，与数组不同的是，slice切片可以动态增长或者收缩，两者都是基于底层的数组重新分配内存。像copy和append这样的函数可以调整底层数组大小。
+Map map 是在 Go 中将值（value）与键（key）关联的内置类型。通过相应的键可以获取到值。
+  map的创建
+通过向 make 函数传入键和值的类型，可以创建 map。语法make(map[type of key]type of value)。
+// 例如声明一个map nameMaps := make(map[string]string) // 当没有初始化map的时候，map的零值是nil 特别要注意的是：当仅仅是声明，没有通过make初始化map的时候，map变量的值是nil,若是此时给map赋值，会出现Panic。
+AliAppsSafeConfig struct { sync.RWMutex AliAppsConfig map[string]AliAppCommonParams // 声明，没有初始化  } // 若此时直接给map（nil) 赋值，会Panic AliAppsSafeConfig.AliAppsConfig[namespace] = aliPayConf // 正确的做法是，在赋值之前，要通过make进行初始化map func init() { AliAppsSafeConfig.AliAppsConfig = make(map[string]AliAppCommonParams) } 所有可比较的类型都可以作为map的key值。
+ Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier nil.</description>
+    </item>
+    
+    <item>
+      <title>Golang同步初见</title>
+      <link>https://www.xssor2600.site/post/golang%E5%90%8C%E6%AD%A5%E5%88%9D%E8%A7%81/</link>
+      <pubDate>Sun, 09 Aug 2020 00:03:37 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/golang%E5%90%8C%E6%AD%A5%E5%88%9D%E8%A7%81/</guid>
+      <description>Go语言在设计上对同步（Synchronization，数据同步和线程同步）提供大量的支持，比如 goroutine和channel同步原语，库层面有:
+ sync：提供基本的同步原语（比如Mutex、RWMutex、Locker）和 工具类（Once、WaitGroup、Cond、Pool、Map） sync/atomic：提供原子操作（基于硬件指令compare-and-swap）  具体的同步应用场景，和不同应用场景下使用的同步工具也不太相同，参考下图总结：
+
+sync.Once 用法 上述图描述Once适用于懒加载，即为处理只读写一次的数据。通常用于控制变量的初始化，变量的读写遵循单例模式：
+通常使用该种形式加载的数据通常不会变化，因为数据常驻内存的。
+ 当且仅当第一次读某个变量时，进行初始化（写操作） 变量被初始化过程中，所有读都被阻塞（读操作；当变量初始化完成后，读操作继续进行) 变量仅初始化一次，初始化完成后驻留在内存里  golang源代码SDK中在源代码/usr/local/go/src/net/conf.go中，读取系统的网络配置就是懒加载，仅仅单例模式形式读取一次，并将数据保存在内存中：
+var ( confOnce sync.Once // guards init of confVal via initConfVal 	confVal = &amp;amp;conf{goos: runtime.GOOS} ) // systemConf returns the machine&amp;#39;s network configuration. func systemConf() *conf { confOnce.Do(initConfVal) return confVal } func initConfVal() { dnsMode, debugLevel := goDebugNetDNS() confVal.dnsDebugLevel = debugLevel .... } 其中，confVal存放系统网络配置数据，confOnce控制读写，其中其处理入参数是一个函数类型。
+func (o *Once) Do(f func()) 常用场景包括：</description>
+    </item>
+    
+    <item>
       <title>Make与new</title>
       <link>https://www.xssor2600.site/post/make%E4%B8%8Enew/</link>
       <pubDate>Sun, 02 Aug 2020 15:58:45 +0800</pubDate>
@@ -35,7 +133,10 @@ var p *[]int = new([]int) // *p == nil; with len and cap 0   make(T) 返回一�
  Go 运行时允许您在机器上运行数十万个并发 goroutine 。Goroutine 是一个轻量级的执行线程。 Go 运行时将这些 goroutine 复用到操作系统线程上。 这意味着多个 goroutine 可以在单个操作系统线程上同时运行。
 Go 运行时有一个调度程序，其任务是调度这些 goroutine 执行。
  1:初始化时的 Goroutine 具有 2KB 的堆栈。与一个一般为 1 MB 的 OS 线程堆栈相比，这非常小巧。当你需要同时运行几十万个不同的 goroutine 时，这个数字很重要。如果你要并行运行数千个 OS 线程，RAM 显然将成为瓶颈。 2:Go 可以遵循与 Java 等其他语言相同的模型，它支持与 OS 线程相同的线程概念。但是在这种情况下，OS 线程之间的上下文切换成本比不同的 goroutine 之间的上下文切换成本要大得多。
- </description>
+ 使用go标准编译器编译的代码，每个协程都会有自己的协程栈，一个协程栈是一个预申请的内存块。每个协程的初始栈大小比较小（在64位系统上2KB）。 每个栈的大小在协程运行的时候将按照需要增长和收缩( stack grow )。
+当我们创建对象申请内存块的时候，可以从协程栈上申请，也可以从堆上申请。（类似java的线程栈，是每个线程私有的，堆上数据是各个线程共享访问的，需要注意并发安全控制）
+ 当一个协程的栈的大小改变(grow)时，一个新的内存段将申请给此栈使用。原先已经开辟在老的内存段上的内存块将很有可能被转移到新的内存段上，或者说这些内存块的地址将改变。 相应地，引用着这些开辟在此栈上的内存块的指针（它们同样开辟在此栈上）中存储的地址也将得到刷新。 这里很重要，这也是 uintptr 变量不要轻易使用的原因。
+   学 Go 时肯定要学习如何使用并发（goroutine），而开发者该如何控制并发呢？ 其实有两种方式，一种是WaitGroup，另一种就是 context。 而什么时候需要用到 WaitGroup 呢？很简单，就是当您需要将同一件事情拆成不同的 Job 进行执行，最后需要等到全部的 Job 都执行完成才继续执行主程序，这时候就需要用到 WaitGroup。</description>
     </item>
     
     <item>

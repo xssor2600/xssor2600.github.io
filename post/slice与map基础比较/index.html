@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Slice与map基础比较</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Slice与map基础比较</h1>
+			<b><time>2020.08.17 23:40</time></b>
+		       
+		           <a href="/tags/slice">slice</a>
+        	       
+		           <a href="/tags/map">map</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<p>Slice 和 Map 是 Go 中的两种重要的数据类型。</p>
+<h4 id="slice">Slice</h4>
+<p>Slice是在底层为数组的基础上抽象出来的数据结构，其拥有一个指向数组开始位置的指针，与数组不同的是，slice切片可以动态增长或者收缩，两者都是基于底层的数组重新分配内存。像<code>copy</code>和<code>append</code>这样的函数可以调整底层数组大小。</p>
+<h4 id="map">Map</h4>
+<p>map 是在 Go 中将值（value）与键（key）关联的内置类型。通过相应的键可以获取到值。</p>
+<ul>
+<li>
+<p>map的创建</p>
+<p>通过向 <code>make</code> 函数传入键和值的类型，可以创建 map。语法<code>make(map[type of key]type of value)</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 例如声明一个map
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">nameMaps</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>)
+<span style="color:#75715e">// 当没有初始化map的时候，map的零值是nil
+</span></code></pre></div><p><strong>特别要注意的是：当仅仅是声明，没有通过make初始化map的时候，map变量的值是nil,若是此时给map赋值，会出现Panic。</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#a6e22e">AliAppsSafeConfig</span> <span style="color:#66d9ef">struct</span> {
+      <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">RWMutex</span>
+      <span style="color:#a6e22e">AliAppsConfig</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#a6e22e">AliAppCommonParams</span>   <span style="color:#75715e">// 声明，没有初始化
+</span><span style="color:#75715e"></span>  }
+  
+<span style="color:#75715e">// 若此时直接给map（nil) 赋值，会Panic
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">AliAppsSafeConfig</span>.<span style="color:#a6e22e">AliAppsConfig</span>[<span style="color:#a6e22e">namespace</span>] = <span style="color:#a6e22e">aliPayConf</span>
+  
+<span style="color:#75715e">// 正确的做法是，在赋值之前，要通过make进行初始化map
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
+  <span style="color:#a6e22e">AliAppsSafeConfig</span>.<span style="color:#a6e22e">AliAppsConfig</span> = make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#a6e22e">AliAppCommonParams</span>)
+}
+  
+  
+</code></pre></div><p>所有可比较的类型都可以作为map的key值。</p>
+<blockquote>
+<p>Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier <code>nil</code>.</p>
+<p><a href="https://golang.org/ref/spec#Comparison_operators">https://golang.org/ref/spec#Comparison_operators</a></p>
+</blockquote>
+</li>
+<li>
+<p>map的赋值和设值和取值</p>
+<p>因为map是key-value字段类型,所以赋值和设置就是将某个key设置成某个值。可以在初始化map的时候赋值，也可以在初始化后，显式的设置key值：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#75715e">// 初始化赋值
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">locationNamesMaps</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{
+    <span style="color:#e6db74">&#34;CN&#34;</span>:<span style="color:#e6db74">&#34;china&#34;</span>,
+    <span style="color:#e6db74">&#34;USA&#34;</span>:<span style="color:#e6db74">&#34;america&#34;</span>,
+  }
+  <span style="color:#75715e">// 显示设置
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">locationNamesMaps</span>[<span style="color:#e6db74">&#34;JPA&#34;</span>] = <span style="color:#e6db74">&#34;Japan&#34;</span>
+    
+}
+</code></pre></div><p>map的取值，就是通过具体的key形如：<code>value:=map[key]</code>，通过时间复杂度是O(1)直接定位到具体的value值，不需要通过遍历比较取值。当然了，若是想要遍历map,也是可以通过<code>range</code>来遍历map中的key,value的。</p>
+<blockquote>
+<p><strong>有一点很重要，当使用 <code>for range</code> 遍历 map 时，不保证每次执行程序获取的元素顺序相同</strong></p>
+<p>事实上，我们每次运行下面的代码，<code>key</code> 的顺序都会改变。</p>
+</blockquote>
+<p>**如果获取一个不存在的元素，会发生什么呢？**map 会返回该元素类型的零值。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_map</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>){
+  <span style="color:#a6e22e">mas</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{
+      <span style="color:#e6db74">&#34;hello&#34;</span>:<span style="color:#e6db74">&#34;map&#34;</span>,
+  }
+  <span style="color:#a6e22e">imax</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>{
+      <span style="color:#e6db74">&#34;hello&#34;</span>:<span style="color:#ae81ff">1</span>,
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">mas</span>[<span style="color:#e6db74">&#34;hxllo&#34;</span>]) <span style="color:#75715e">// 返回空字符串&#34;&#34;
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">imax</span>[<span style="color:#e6db74">&#34;hxllo&#34;</span>]) <span style="color:#75715e">// 返回空数值0
+</span><span style="color:#75715e"></span>  
+}
+</code></pre></div><p>如果想要不通过遍历，直接判断某个map中是否存在键值为某个key是，可以通过语法:</p>
+<p><code>value, ok := map[key]</code>来处理，若是ok为true，代表key存在，反之，则不存在。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">numbersMap</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>{
+      <span style="color:#e6db74">&#34;one&#34;</span>:<span style="color:#ae81ff">1</span>,
+      <span style="color:#e6db74">&#34;two&#34;</span>:<span style="color:#ae81ff">2</span>,
+  }
+  <span style="color:#a6e22e">_</span>,<span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">numbersMap</span>[<span style="color:#e6db74">&#34;three&#34;</span>]; <span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">ok</span> {
+      <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;three in map = &#34;</span>,<span style="color:#a6e22e">ok</span>)
+  }
+}
+</code></pre></div></li>
+<li>
+<p>map删除元素</p>
+<p>删除 <code>map</code> 中 <code>key</code> 的语法是 <code>delete(map, key)</code>。这个函数没有返回值。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#a6e22e">numbersMap</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>{
+      <span style="color:#e6db74">&#34;one&#34;</span>:<span style="color:#ae81ff">1</span>,
+      <span style="color:#e6db74">&#34;two&#34;</span>:<span style="color:#ae81ff">2</span>,
+      <span style="color:#e6db74">&#34;three&#34;</span>:<span style="color:#ae81ff">3</span>,
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">numbersMap</span>) <span style="color:#75715e">// map[one:1 three:3 two:2]
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">k</span>,<span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">numbersMap</span> {
+      <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">k</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;three&#34;</span>{
+          delete(<span style="color:#a6e22e">numbersMap</span>,<span style="color:#a6e22e">k</span>)
+      }
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">numbersMap</span>) <span style="color:#75715e">// map[one:1 two:2]
+</span></code></pre></div></li>
+<li>
+<p>map类型说明</p>
+<p>map是引用类型，与slice一致。即为当将一个map赋值给另外一个变量的时候。两个变量都同时指向相同的map引用，任意一个变量修改map内容，都会影响大另外的变量。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#a6e22e">numbersMap</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>{
+      <span style="color:#e6db74">&#34;one&#34;</span>:<span style="color:#ae81ff">1</span>,
+      <span style="color:#e6db74">&#34;two&#34;</span>:<span style="color:#ae81ff">2</span>,
+      <span style="color:#e6db74">&#34;three&#34;</span>:<span style="color:#ae81ff">3</span>,
+  }
+  
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">numbersMap</span>) <span style="color:#75715e">// map[one:1 three:3 two:2]
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">refNewMap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">numbersMap</span>  <span style="color:#75715e">// 赋值新变量，指向相同
+</span><span style="color:#75715e"></span>  
+  delete(<span style="color:#a6e22e">refNewMap</span>,<span style="color:#e6db74">&#34;three&#34;</span>)  <span style="color:#75715e">// 删除新引用变量key值
+</span><span style="color:#75715e"></span>  
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">numbersMap</span>) <span style="color:#75715e">// map[one:1 two:2] // 旧变量引用的map也受影响
+</span></code></pre></div></li>
+<li>
+<p>map等值判断</p>
+<p><strong>map之间是否能通过操作符<code>==</code>进行比较？</strong></p>
+<p>map 之间不能使用 <code>==</code> 操作符判断，<code>==</code> 只能用来检查 map 是否为 <code>nil</code>。所以map通常也不能作为map类型的key，因为<code>map[key]</code>是需要能比较操作的。</p>
+<p>若是需要自定义比较两个map,则可以自定义比较方法，来按照指定的自定义规则定义两个map是否相等，但是通常是不能在SDK级别进行map的比较。<code>所以，通常map内的数据元素也是无序的</code>。</p>
+</li>
+</ul>
+<h4 id="slice与map的性能比较">Slice与Map的性能比较</h4>
+<p>对于不同的 n，Map 查找是常数复杂度（O(1)）。然而，有趣的是，对于 n 较小的 Slice，简单的 for 循环和 if 比较花费的时间比 Map 少。较大的 n 如期望那样花费更多的时间。</p>
+<p><strong>对于查找一个给定的键，我建议使用 Map。而对于一个较小的大小（n），使用 Slice 仍然是可以的</strong></p>
+<p><strong>给定一个字符串类型的键进行查找，我推荐使用 Map。即使对于较小的 n ，使用 Map 也是不错的。</strong></p>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
+				
+				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe</a></li>
+				
+				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与数组基础比较</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与map基础比较</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

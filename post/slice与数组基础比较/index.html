@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Slice与数组基础比较</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Slice与数组基础比较</h1>
+			<b><time>2020.08.17 23:47</time></b>
+		       
+		           <a href="/tags/slice">slice</a>
+        	       
+		           <a href="/tags/array">array</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<h4 id="array">Array</h4>
+<p>总的来说，数组是同一类型元素的集合，Go 语言中不允许数组混合不同类型的元素。(当然interface{}除外)</p>
+<p>通常情况下，array在声明的时候，就要确定数组个数的大小，并且后面不允许容量发生变化。</p>
+<ul>
+<li>
+<p>数组的声明与赋值</p>
+<p>一个数组的表示形式为 <code>[n]T</code>。<code>n</code> 表示数组中元素的数量，<code>T</code> 代表每个元素的类型。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">//数组中的所有元素都被自动赋值为数组类型的零值。
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span> <span style="color:#75715e">// int array with length 3
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>)
+}
+</code></pre></div><p>数组的赋值可以通过数组下标索引赋值，也可以在声明的时候进行赋值：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#a6e22e">ia</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>}
+  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">indexa</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>
+  <span style="color:#a6e22e">indexa</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">1</span>
+  <span style="color:#a6e22e">indexa</span>[<span style="color:#ae81ff">1</span>] = <span style="color:#ae81ff">2</span>
+  <span style="color:#a6e22e">indexa</span>[<span style="color:#ae81ff">2</span>] = <span style="color:#ae81ff">3</span>
+    
+}
+</code></pre></div></li>
+<li>
+<p>数组是值类型(对赋值和入参的影响)</p>
+<ol>
+<li>
+<p>数组是值类型而不是引用类型，意味着当将数组赋值给新变量时候，新变量会得到一个原数组的值拷贝副本，当原数组内容发生变化的时候，并不会影响新变量的值。（或者新变量操作数组内容，并不会影响原数组的内容）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#a6e22e">ia</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>}
+   <span style="color:#a6e22e">ib</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">ia</span>
+   <span style="color:#a6e22e">ib</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">2</span>
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">ia</span>) <span style="color:#75715e">// [1 2 3]
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">ib</span>) <span style="color:#75715e">// [2 2 3]
+</span><span style="color:#75715e"></span>       
+  <span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>}
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">a</span>))  <span style="color:#75715e">// [3]int  数组长度也作为数组类型属性
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">a</span>).<span style="color:#a6e22e">Kind</span>()) <span style="color:#75715e">// array
+</span><span style="color:#75715e"></span>}
+</code></pre></div></li>
+<li>
+<p>当数组作为参数传递给函数时，它们是按值传递，而原始数组保持不变。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#a6e22e">ia</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>}
+   <span style="color:#a6e22e">updateArray</span>(<span style="color:#a6e22e">ia</span>)  <span style="color:#75715e">// [9 2 3]
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">ia</span>)  <span style="color:#75715e">// [1 2 3]
+</span><span style="color:#75715e"></span>}	
+     
+</code></pre></div></li>
+</ol>
+</li>
+</ul>
+<h4 id="slice">Slice</h4>
+<p>切片是由数组建立的一种方便、灵活且功能强大的包装（Wrapper）。切片本身不拥有任何数据。它们只是对现有数组的引用。</p>
+<ul>
+<li>
+<p>切片声明与赋值</p>
+<p>带有 T 类型元素的切片由 <code>[]T</code> 表示。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#75715e">// 1. 通过数组切slice
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">a</span><span style="color:#f92672">:=</span>[<span style="color:#ae81ff">5</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>}
+  <span style="color:#a6e22e">slicea</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">3</span>] <span style="color:#75715e">//创建一个从 a 数组索引 start 开始到 end - 1 结束的切片
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// 2. 类似数组声明，但是不用设置数组大小
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">a2</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>}
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">a2</span>))  <span style="color:#75715e">// []int
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">a2</span>).<span style="color:#a6e22e">Kind</span>()) <span style="color:#75715e">// slice
+</span><span style="color:#75715e"></span>    
+  <span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>}
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">a</span>))  <span style="color:#75715e">// [3]int
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">TypeOf</span>(<span style="color:#a6e22e">a</span>).<span style="color:#a6e22e">Kind</span>()) <span style="color:#75715e">// array
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p><strong>切片底层的数组会因为切片引用的修改，而会影响到原数组内容：当多个切片共用相同的底层数组时，每个切片所做的更改将反映在数组中</strong>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_A</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+  <span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>}
+  <span style="color:#a6e22e">slicea</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">2</span>]
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;before slice update:&#34;</span>,<span style="color:#a6e22e">a</span>) <span style="color:#75715e">//[1 2 3]
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span>,<span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span><span style="color:#66d9ef">range</span> <span style="color:#a6e22e">slicea</span> {
+      <span style="color:#75715e">//遍历slice修改slice底层指向的数组
+</span><span style="color:#75715e"></span>      <span style="color:#a6e22e">slicea</span>[<span style="color:#a6e22e">i</span>]<span style="color:#f92672">++</span>
+  }
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;after slice update:&#34;</span>,<span style="color:#a6e22e">a</span>)<span style="color:#75715e">//[2 3 3]
+</span><span style="color:#75715e"></span>}
+</code></pre></div></li>
+<li>
+<p>切片的长度和容量</p>
+<p>切片中长度是切片中的元素个数。切片的容量是从创建切片索引开始的底层数组中的元素。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_B</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+  <span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">4</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>}
+  <span style="color:#a6e22e">slicea</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">2</span>]
+  <span style="color:#a6e22e">slicea2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">2</span>]
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;array len:%v,slicea len:%v, slicea2 len:%v&#34;</span>,len(<span style="color:#a6e22e">a</span>),len(<span style="color:#a6e22e">slicea</span>),len(<span style="color:#a6e22e">slicea2</span>))) <span style="color:#75715e">// array len:4,slicea len:2, slicea2 len:1
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;array capacity:%v,slicea capacity:%v, slicea2 capacity:%v&#34;</span>,cap(<span style="color:#a6e22e">a</span>),cap(<span style="color:#a6e22e">slicea</span>),cap(<span style="color:#a6e22e">slicea2</span>))) <span style="color:#75715e">//array capacity:4,slicea capacity:4, slicea2 capacity:3
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>可以看到<code>slicea</code>和<code>slicea2</code>底层都是同一个数组a,但是<strong>两个slice对数组a的切片起始位置是不同的</strong>。造成的<code>len</code>和<code>cap</code>的值都不同。特别注意的是<code>cap</code>是从创建切片索引底层数组位置开始，底层数组中元素的个数。因为<code>slicea</code>是从索引0开始的，所以其容量和底层数组相同，<code>slicea2</code>是从索引1开始，则会比索引0开始少一。（特别注意，<code>cap</code>容量至于slice切片的起始索引值有关，而和后面的闭合索引位无关，例如a[1:2]只会影响索引1起始位置）</p>
+</li>
+<li>
+<p>使用make创建切片</p>
+<p><code>func make（[]T，len，cap）[]T</code> 通过传递类型，长度和容量来创建切片。容量是可选参数, 默认值为切片长度。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#a6e22e">ma</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">5</span>) <span style="color:#75715e">//make 函数创建一个数组，并返回引用该数组的切片。
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">ma</span>) <span style="color:#75715e">// [0 0 0 0 0]
+</span><span style="color:#75715e"></span>  
+</code></pre></div><p>slice是动态容器，可以添加和移除元素，通过<code>append</code>来添加元素，特别的，可以一次添加多个元素入底层数组，通过形如<code>append(x,...)</code>。</p>
+<p><strong>如果切片由数组支持，并且数组本身的长度是固定的，那么切片如何具有动态长度？</strong></p>
+<p>其实当slice切片底层数组达到一定阀值（？），就会进行扩容（通常是2倍原数组capacity）。<code>重点注意，此时会创建一个新的扩容后数组，将旧数组元素拷贝到新数组，并将该slice指向新的底层数组</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#a6e22e">fruit</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;apple&#34;</span>,<span style="color:#e6db74">&#34;orange&#34;</span>,<span style="color:#e6db74">&#34;banana&#34;</span>}
+  <span style="color:#75715e">// fruit: [apple orange banana] has old length 3 and capacity 3
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;fruit:&#34;</span>, <span style="color:#a6e22e">fruit</span>, <span style="color:#e6db74">&#34;has old length&#34;</span>, len(<span style="color:#a6e22e">fruit</span>), <span style="color:#e6db74">&#34;and capacity&#34;</span>, cap(<span style="color:#a6e22e">fruit</span>)) 
+  <span style="color:#75715e">// fruit: [apple orange banana cherry] has new length 4 and capacity 6
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fruit</span> = append(<span style="color:#a6e22e">fruit</span>,<span style="color:#e6db74">&#34;cherry&#34;</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;fruit:&#34;</span>, <span style="color:#a6e22e">fruit</span>, <span style="color:#e6db74">&#34;has new length&#34;</span>, len(<span style="color:#a6e22e">fruit</span>), <span style="color:#e6db74">&#34;and capacity&#34;</span>, cap(<span style="color:#a6e22e">fruit</span>)) <span style="color:#75715e">//
+</span><span style="color:#75715e"></span>}
+</code></pre></div></li>
+<li>
+<p>动态添加元素</p>
+<p>切片是可以通过<code>append</code>方法动态添加到原数组中，也是可以通过<code>append(...)</code>将两外一个slice切片合并到同一个切片中。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">veggies</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;potatoes&#34;</span>, <span style="color:#e6db74">&#34;tomatoes&#34;</span>, <span style="color:#e6db74">&#34;brinjal&#34;</span>}
+    <span style="color:#a6e22e">fruits</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;oranges&#34;</span>, <span style="color:#e6db74">&#34;apples&#34;</span>}
+    <span style="color:#75715e">// 通过append可以将另外一个slice内容添加到另外一个slice中
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">food</span> <span style="color:#f92672">:=</span> append(<span style="color:#a6e22e">veggies</span>, <span style="color:#a6e22e">fruits</span><span style="color:#f92672">...</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;food:&#34;</span>,<span style="color:#a6e22e">food</span>)
+}
+</code></pre></div></li>
+<li>
+<p>切片的函数传递</p>
+<p>切片在内部可由一个结构体类型表示。这是它的表现形式，形如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">slice</span> <span style="color:#66d9ef">struct</span> {  
+    <span style="color:#a6e22e">Length</span>        <span style="color:#66d9ef">int</span>
+    <span style="color:#a6e22e">Capacity</span>      <span style="color:#66d9ef">int</span>
+    <span style="color:#a6e22e">ZerothElement</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">byte</span>
+}
+</code></pre></div><p>切片包含长度、容量和指向数组第零个元素的指针。当切片传递给函数时，<code>即使它通过值传递，指针变量也将引用相同的底层数组</code>。因此，<strong>当切片作为参数传递给函数时，函数内所做的更改也会在函数外可见(引用传递)</strong>。</p>
+</li>
+<li>
+<p>内存优化</p>
+<p>切片持有对底层数组的引用。只要切片在内存中，数组就不能被垃圾回收。</p>
+<p>若是切片引用底层大数组对象较少内容，而又不想保持对底层大数组的引用，而不能对大数组进行垃圾回收。</p>
+<p>一种解决方法是使用 copy 函数 <code>func copy(dst，src[]T)int</code> 来生成一个切片的副本。这样我们可以使用新的切片，原始数组可以被垃圾回收。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#a6e22e">bigArray</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;one&#34;</span>,<span style="color:#e6db74">&#34;two&#34;</span>,<span style="color:#e6db74">&#34;three&#34;</span>,<span style="color:#e6db74">&#34;four&#34;</span>}
+  <span style="color:#a6e22e">waitCopyArray</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">bigArray</span>[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">2</span>]
+  <span style="color:#a6e22e">copyNewArray</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">string</span>,<span style="color:#ae81ff">0</span>)
+  copy(<span style="color:#a6e22e">copyNewArray</span>,<span style="color:#a6e22e">waitCopyArray</span>)
+}
+</code></pre></div></li>
+</ul>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
+				
+				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe</a></li>
+				
+				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与数组基础比较</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与map基础比较</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

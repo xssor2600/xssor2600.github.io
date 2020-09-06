@@ -57,6 +57,174 @@
 <p>1:初始化时的 Goroutine 具有 2KB 的堆栈。与一个一般为 1 MB 的 OS 线程堆栈相比，这非常小巧。当你需要同时运行几十万个不同的 goroutine 时，这个数字很重要。如果你要并行运行数千个 OS 线程，RAM 显然将成为瓶颈。
 2:Go 可以遵循与 Java 等其他语言相同的模型，它支持与 OS 线程相同的线程概念。但是在这种情况下，OS 线程之间的上下文切换成本比不同的 goroutine 之间的上下文切换成本要大得多。</p>
 </blockquote>
+<p>使用go标准编译器编译的代码，每个协程都会有自己的协程栈，一个协程栈是一个预申请的内存块。每个协程的初始栈大小比较小（在64位系统上2KB）。 每个栈的大小在协程运行的时候将按照需要增长和收缩( stack grow )。</p>
+<p>当我们创建对象申请内存块的时候，可以从协程栈上申请，也可以从堆上申请。（类似java的线程栈，是每个线程私有的，堆上数据是各个线程共享访问的，需要注意并发安全控制）</p>
+<blockquote>
+<p>当一个协程的栈的大小改变(grow)时，一个新的内存段将申请给此栈使用。原先已经开辟在老的内存段上的内存块将很有可能被转移到新的内存段上，或者说这些内存块的地址将改变。 <strong>相应地，引用着这些开辟在此栈上的内存块的指针（它们同样开辟在此栈上）中存储的地址也将得到刷新</strong>。 这里很重要，这也是 uintptr 变量不要轻易使用的原因。</p>
+</blockquote>
+<ul>
+<li>
+<p>学 Go 时肯定要学习如何使用并发（goroutine），而开发者该如何控制并发呢？
+其实有两种方式，一种是<code>WaitGroup</code>，另一种就是 <code>context</code>。
+而什么时候需要用到 WaitGroup 呢？很简单，就是当您需要将同一件事情拆成不同的 Job 进行执行，最后需要等到全部的 Job 都执行完成才继续执行主程序，这时候就需要用到 WaitGroup。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">wg</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>
+  
+    <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">2</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;job 1 done.&#34;</span>)
+        <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Done</span>()
+    }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;job 2 done.&#34;</span>)
+        <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Done</span>()
+    }()
+    <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Wait</span>()
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;All Done.&#34;</span>)
+}
+</code></pre></div></li>
+<li>
+<p>如何主动通知并停止正在执行的goroutine?
+虽然把工作拆成多个，并且通过协程丢到后台去跑，可是使用者该如何透过其他方式来终止相关的 goroutine 工作呢？大致有两种方式：</p>
+<ol>
+<li>
+<p>使用channel+select方式</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">stop</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>)
+     
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#66d9ef">select</span> {
+            <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">stop</span>:
+                <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;got the stop channel&#34;</span>)
+                <span style="color:#66d9ef">return</span>
+            <span style="color:#66d9ef">default</span>:
+                <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;still working&#34;</span>)
+                <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+            }
+        }
+    }()
+     
+    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;stop the gorutine&#34;</span>)
+    <span style="color:#a6e22e">stop</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">true</span>
+    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+}
+     
+<span style="color:#75715e">// output
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">stop</span> <span style="color:#a6e22e">the</span> <span style="color:#a6e22e">gorutine</span>
+<span style="color:#a6e22e">got</span> <span style="color:#a6e22e">the</span> <span style="color:#a6e22e">stop</span> <span style="color:#a6e22e">channel</span>
+</code></pre></div><p>只要在任何地方将 bool 值丢入 stop channel 就可以停止后台正在处理的 Job。<code>select + channel</code>方式适合比较简单的goroutine场景，如果是后台运行多个groutine，其中又嵌套着groutine，那么该种方式是无法准确控制某条goroutine分支所有任务都停止的，这时候需要使用context来处理。</p>
+<p>在实践中的应用：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">     
+   <span style="color:#75715e">// 逐条处理订单信息
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">wg</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>{}
+   <span style="color:#a6e22e">resultChan</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">apple</span>.<span style="color:#a6e22e">AppleNotifySingleResultStruct</span>, len(<span style="color:#a6e22e">appleNotifyData</span>))
+   <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Add</span>(len(<span style="color:#a6e22e">appleNotifyData</span>))
+   <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">row</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">appleNotifyData</span> {
+       <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">_appleSingleRowAction</span>(<span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">wg</span>, <span style="color:#a6e22e">resultChan</span>, <span style="color:#a6e22e">row</span>, <span style="color:#a6e22e">req</span>)
+   }
+   <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Wait</span>()
+      
+   <span style="color:#75715e">// 7. 返回
+</span><span style="color:#75715e"></span>   <span style="color:#a6e22e">resultFlag</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">true</span>
+   <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">appleNotifyData</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+       <span style="color:#a6e22e">rst</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">resultChan</span>
+       <span style="color:#a6e22e">logging</span>.<span style="color:#a6e22e">Infof</span>(<span style="color:#e6db74">&#34;_appleSingleRowAction return rest=%+v&#34;</span>, <span style="color:#a6e22e">rst</span>)
+       <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">rst</span>.<span style="color:#a6e22e">ResultCode</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">respCode</span>.<span style="color:#a6e22e">STATUS_SUCCESS</span> {
+           <span style="color:#a6e22e">logging</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;uid=%v|orderId=%v.transcactionId=%v _appleSingleRowAction return code error. resultCode=%v. resultErrorMsg=%v&#34;</span>, <span style="color:#a6e22e">rst</span>.<span style="color:#a6e22e">NotifyData</span>.<span style="color:#a6e22e">Uid</span>, <span style="color:#a6e22e">rst</span>.<span style="color:#a6e22e">NotifyData</span>.<span style="color:#a6e22e">Order</span>, <span style="color:#a6e22e">rst</span>.<span style="color:#a6e22e">NotifyData</span>.<span style="color:#a6e22e">TransactionId</span>, <span style="color:#a6e22e">rst</span>.<span style="color:#a6e22e">ResultCode</span>, <span style="color:#a6e22e">rst</span>.<span style="color:#a6e22e">ResultErrorMsg</span>)
+           <span style="color:#a6e22e">resultFlag</span> = <span style="color:#66d9ef">false</span>
+       }
+   }
+   close(<span style="color:#a6e22e">resultChan</span>)
+</code></pre></div></li>
+</ol>
+</li>
+</ul>
+<p>​</p>
+<ol start="2">
+<li>
+<p>通过context
+通常main启动都有一个主<code>context.Background()</code>，然后在每个 worker 节点分别在单独建立子上下文中，其最主要目的就是当关闭其中一个上下文就可以直接取消该 worker 内在跑的 goroutine。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">cancel</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">WithCancel</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>())
+     
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#66d9ef">select</span> {
+            <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Done</span>():
+                <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;got the stop channel&#34;</span>)
+                <span style="color:#66d9ef">return</span>
+            <span style="color:#66d9ef">default</span>:
+                <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;still working&#34;</span>)
+                <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+            }
+        }
+    }()
+     
+    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;stop the gorutine&#34;</span>)
+    <span style="color:#a6e22e">cancel</span>()
+    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+}
+</code></pre></div><p>可以看看具体的如何通过一个context来一次停止多个goroutine：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">cancel</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">WithCancel</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>())
+     
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#e6db74">&#34;node01&#34;</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#e6db74">&#34;node02&#34;</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#e6db74">&#34;node03&#34;</span>)
+     
+    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;stop the gorutine&#34;</span>)
+    <span style="color:#a6e22e">cancel</span>()
+    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+}
+     
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">worker</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>) {
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#66d9ef">select</span> {
+        <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Done</span>():
+            <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">name</span>, <span style="color:#e6db74">&#34;got the stop channel&#34;</span>)
+            <span style="color:#66d9ef">return</span>
+        <span style="color:#66d9ef">default</span>:
+            <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">name</span>, <span style="color:#e6db74">&#34;still working&#34;</span>)
+            <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+        }
+    }
+}
+     
+     
+     
+<span style="color:#75715e">// output,至于是那个worker先停止的是无法预判的
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">node3</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node1</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node2</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node2</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node1</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node3</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node3</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node1</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node2</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node2</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node1</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node3</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node3</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node2</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">node1</span> <span style="color:#a6e22e">still</span> <span style="color:#a6e22e">working</span>
+<span style="color:#a6e22e">stop</span> <span style="color:#a6e22e">the</span> <span style="color:#a6e22e">gorutine</span>
+<span style="color:#a6e22e">node1</span> <span style="color:#a6e22e">got</span> <span style="color:#a6e22e">the</span> <span style="color:#a6e22e">stop</span> <span style="color:#a6e22e">channel</span>
+<span style="color:#a6e22e">node3</span> <span style="color:#a6e22e">got</span> <span style="color:#a6e22e">the</span> <span style="color:#a6e22e">stop</span> <span style="color:#a6e22e">channel</span>
+<span style="color:#a6e22e">node2</span> <span style="color:#a6e22e">got</span> <span style="color:#a6e22e">the</span> <span style="color:#a6e22e">stop</span> <span style="color:#a6e22e">channel</span>
+</code></pre></div></li>
+</ol>
 
 			</div>
                    </br>[content:] end~</br>
@@ -70,15 +238,15 @@
 		<div>
 			<ul>
 				
-				<li><a href="/post/make%E4%B8%8Enew/">Make与new</a></li>
+				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
 				
-				<li><a href="/post/goroutine%E5%AD%A6%E4%B9%A0%E5%88%9D%E8%A7%81/">Goroutine学习初见</a></li>
+				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe</a></li>
 				
-				<li><a href="/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/">Golang设计模式学习_工厂方法FactoryMethod</a></li>
+				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
 				
-				<li><a href="/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%BB%BA%E9%80%A0%E8%80%85builder/">Golang设计模式学习_建造者builder</a></li>
+				<li><a href="/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与数组基础比较</a></li>
 				
-				<li><a href="/post/golang%E4%B8%ADcontext%E7%9A%84%E5%BA%94%E7%94%A8/">Golang中context的应用</a></li>
+				<li><a href="/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与map基础比较</a></li>
 				
 			</ul>
 		</div>

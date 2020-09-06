@@ -42,6 +42,150 @@
 		
 		
 			<article>
+	<h1><a href="https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></h1>
+	<b><time>2020.09.06 18:44</time></b>
+	
+	<a href="/tags/map">@map</a>
+	
+    </br>[content:~]</br>
+	<div>
+		可以边遍历边删除吗? map 并不是一个线程安全的数据结构。同时读写一个 map 是未定义的行为，如果被检测到，会直接 panic。
+一般而言，这可以通过读写锁来解决：sync.RWMutex。也可以通过线程安全的sync.Map。
+读之前调用 RLock() 函数，读完之后调用 RUnlock() 函数解锁；写之前调用 Lock() 函数，写完之后，调用 Unlock() 解锁。
+var ( WechatSafeConfig struct { sync.RWMutex // key为namespace 	WechatProducts map[string][]WxProduct } ) // 写入前加上写锁 	WechatSafeConfig.Lock() defer WechatSafeConfig.Unlock() // 初始化做内存级缓存 	if _, ok := WechatSafeConfig.WechatProducts[ctx.Namespace]; !ok { WechatSafeConfig.WechatProducts[ctx.Namespace] = config.Products } key 可以是 float 型吗？ 从语法上看，是可以的。Go 语言中只要是可比较的类型都可以作为 key。除开 slice，map，functions 这几种类型，其他类型都是 OK 的。具体包括：布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 == 和 != 操作符， k1==k2 时，可认为 k1 和 k2 是同一个 key。如果是结构体，则需要它们的字段值都相等，才被认为是相同的 key。
+		
+			<a href="https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe</a></h1>
+	<b><time>2020.08.26 23:17</time></b>
+	
+	<a href="/tags/pointer">@pointer</a>
+	
+    </br>[content:~]</br>
+	<div>
+		在golang的源代码中，经常看到几种指针类型关键字：*,unsafe.Pointer,uintptr。那么这几种指针之间有什么关系，每个指针适用的应用场景又是哪些呢？
+Golang指针  *类型：普通指针类型，用于传递对象地址，不能进行指针运算。多数通常应用与开发者和源代码中。 unsafe.Pointer: 通用指针类型，用于转换不同类型指针，不能进行指针运算，不能读取内存存储的值。（指针转换器） uintptr: 用于指针运算，GC不会把uintptr当作指针，uintptr无法持有对象。uintptr类型目标会被GC回收。通常多数都是在源代码中使用。   unsafe.Pointer 是桥梁，可以让任意类型的指针实现相互转换，也可以将任意类型的指针转换为 uintptr 进行指针运算。
+ 要在某个指针地址上加上一个偏移量，Pointer是不能做这个运算的，那么谁可以呢?
+可以做指针运算的只有uintptr，所以需要将Pointer类型转换成uintptr类型，做完加减法后，转换成Pointer，通过*操作，就可以取值，修改值了。
+b := (*bmap)(add(h.buckets, (hash&amp;m)*uintptr(t.bucketsize))) k := add(unsafe.Pointer(b), dataOffset+i*uintptr(t.keysize)) //通过uintptr将通用指针p转换成二进制，在于x值进行指针运算，加上偏移量 //最后又通过通过指针将内存地址值转换成指针返回 // Pointer不能指针运算，只能转换成uintptr func add(p unsafe.Pointer, x uintptr) unsafe.Pointer { return unsafe.Pointer(uintptr(p) + x) } unsafe.Pointer 可以让你的变量在不同的普通指针类型转来转去，也就是表示为任意可寻址的指针类型。而 uintptr 常用于与 unsafe.Pointer 打配合，用于做指针运算。
+unsafe.Pointer unsafe.Pointer称为通用指针，官方文档对该类型有四个重要描述：
+ 任何类型的指针都可以被转化为Pointer Pointer可以被转化为任何类型的指针 uintptr可以被转化为Pointer Pointer可以被转化为uintptr  unsafe.Pointer是特别定义的一种指针类型（译注：类似C语言中的void类型的指针），在golang中是用于各种指针相互转换的桥梁，它可以包含任意类型变量的地址。但是不可以直接通过*p来获取unsafe.Pointer指针指向的真实变量的值，因为我们并不知道变量的具体类型。
+什么叫 unsafe.Pointer它可以包含任意类型变量的地址？
+可以得到一点，就是 unsafe.Pointer 转换的变量，该变量一定要是指针类型，否则编译会报错。
+a := 1 b := unsafe.Pointer(a) //报错 b := unsafe.
+		
+			<a href="https://www.xssor2600.site/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></h1>
+	<b><time>2020.08.22 15:32</time></b>
+	
+	<a href="/tags/map">@map</a>
+	
+    </br>[content:~]</br>
+	<div>
+		在源码中，表示 map 的结构体是 hmap，它是 hashmap,底层golang对map的实现主要是通过hmap+maptype运行的。
+对golang底层源代码的理解学习，要习惯用动态的角度去考虑，因为golang具体底层运行是包括编译器的。
+ 会有不少内建数据类型，在编译器期间，编译器会为了某种实现目的，会动态给源代码中数据结构进行加工处理。
+在go的源代码中，出现很多地址类型，在看的时候，需要结合起始内存地址+偏移量的思维去理解。
+ Map的底层实现原理 Go runtime 中的map是如何实现的？Go 中的 map 是一个 hashmap
+ Hashmap 是一种经典的数据结构，提供了平均 O(1) 的查询时间复杂度，即使在最糟的情况下也有 O(n) 的复杂度。也就是说，正常情况下，执行 map 函数的时间是个常量。
+这个常量的大小部分取决于 hashmap 的设计方式，而 map 存取时间从 O(1) 到 O(n) 的变化则取决于它的 hash 函数。
+ Hashmap 的使用方面有两个重要的特点:
+ 第一个是稳定性。Hash 函数必须是稳定的。给定相同的 key，你的 hash 函数必须返回相同的值。 第二个特点是良好的分布。给定两个相类似的 key，结果应该是极其不同的。hashmap 中的 value 值应当均匀地分布于 buckets 之间，否则存取的复杂度不会是 O(1).    Hashmap数据结构
+经典的 hashmap 结构是一个 bucket 数组，其中的每项包含一个指针指向一个 key/value entry 数组。
+golang底层的map结构是如何的？
+底层数据结构也是一个bucket数组，并且每个 bucket 最多持有 8 个 key/value entry。使用 2 的次方便于做位掩码和移位，而不必做昂贵的除法操作。宏观看map底层实现
+		
+			<a href="https://www.xssor2600.site/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与数组基础比较</a></h1>
+	<b><time>2020.08.17 23:47</time></b>
+	
+	<a href="/tags/slice">@slice</a>
+	
+	<a href="/tags/array">@array</a>
+	
+    </br>[content:~]</br>
+	<div>
+		Array 总的来说，数组是同一类型元素的集合，Go 语言中不允许数组混合不同类型的元素。(当然interface{}除外)
+通常情况下，array在声明的时候，就要确定数组个数的大小，并且后面不允许容量发生变化。
+  数组的声明与赋值
+一个数组的表示形式为 [n]T。n 表示数组中元素的数量，T 代表每个元素的类型。
+//数组中的所有元素都被自动赋值为数组类型的零值。 func main() { var a [3]int // int array with length 3  fmt.Println(a) } 数组的赋值可以通过数组下标索引赋值，也可以在声明的时候进行赋值：
+func main(){ ia := [3]int{1,2,3} var indexa [3]int indexa[0] = 1 indexa[1] = 2 indexa[2] = 3 }   数组是值类型(对赋值和入参的影响)
+  数组是值类型而不是引用类型，意味着当将数组赋值给新变量时候，新变量会得到一个原数组的值拷贝副本，当原数组内容发生变化的时候，并不会影响新变量的值。（或者新变量操作数组内容，并不会影响原数组的内容）
+func main(){ ia := [3]int{1,2,3} ib := ia ib[0] = 2 fmt.Println(ia) // [1 2 3]  fmt.Println(ib) // [2 2 3]  a := [3]int{1,2,3} fmt.
+		
+			<a href="https://www.xssor2600.site/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与map基础比较</a></h1>
+	<b><time>2020.08.17 23:40</time></b>
+	
+	<a href="/tags/slice">@slice</a>
+	
+	<a href="/tags/map">@map</a>
+	
+    </br>[content:~]</br>
+	<div>
+		Slice 和 Map 是 Go 中的两种重要的数据类型。
+Slice Slice是在底层为数组的基础上抽象出来的数据结构，其拥有一个指向数组开始位置的指针，与数组不同的是，slice切片可以动态增长或者收缩，两者都是基于底层的数组重新分配内存。像copy和append这样的函数可以调整底层数组大小。
+Map map 是在 Go 中将值（value）与键（key）关联的内置类型。通过相应的键可以获取到值。
+  map的创建
+通过向 make 函数传入键和值的类型，可以创建 map。语法make(map[type of key]type of value)。
+// 例如声明一个map nameMaps := make(map[string]string) // 当没有初始化map的时候，map的零值是nil 特别要注意的是：当仅仅是声明，没有通过make初始化map的时候，map变量的值是nil,若是此时给map赋值，会出现Panic。
+AliAppsSafeConfig struct { sync.RWMutex AliAppsConfig map[string]AliAppCommonParams // 声明，没有初始化  } // 若此时直接给map（nil) 赋值，会Panic AliAppsSafeConfig.AliAppsConfig[namespace] = aliPayConf // 正确的做法是，在赋值之前，要通过make进行初始化map func init() { AliAppsSafeConfig.AliAppsConfig = make(map[string]AliAppCommonParams) } 所有可比较的类型都可以作为map的key值。
+ Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier nil.
+		
+			<a href="https://www.xssor2600.site/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/golang%E5%90%8C%E6%AD%A5%E5%88%9D%E8%A7%81/">Golang同步初见</a></h1>
+	<b><time>2020.08.09 00:03</time></b>
+	
+	<a href="/tags/%E5%90%8C%E6%AD%A5">@同步</a>
+	
+    </br>[content:~]</br>
+	<div>
+		Go语言在设计上对同步（Synchronization，数据同步和线程同步）提供大量的支持，比如 goroutine和channel同步原语，库层面有:
+ sync：提供基本的同步原语（比如Mutex、RWMutex、Locker）和 工具类（Once、WaitGroup、Cond、Pool、Map） sync/atomic：提供原子操作（基于硬件指令compare-and-swap）  具体的同步应用场景，和不同应用场景下使用的同步工具也不太相同，参考下图总结：
+
+sync.Once 用法 上述图描述Once适用于懒加载，即为处理只读写一次的数据。通常用于控制变量的初始化，变量的读写遵循单例模式：
+通常使用该种形式加载的数据通常不会变化，因为数据常驻内存的。
+ 当且仅当第一次读某个变量时，进行初始化（写操作） 变量被初始化过程中，所有读都被阻塞（读操作；当变量初始化完成后，读操作继续进行) 变量仅初始化一次，初始化完成后驻留在内存里  golang源代码SDK中在源代码/usr/local/go/src/net/conf.go中，读取系统的网络配置就是懒加载，仅仅单例模式形式读取一次，并将数据保存在内存中：
+var ( confOnce sync.Once // guards init of confVal via initConfVal 	confVal = &amp;conf{goos: runtime.GOOS} ) // systemConf returns the machine&#39;s network configuration. func systemConf() *conf { confOnce.Do(initConfVal) return confVal } func initConfVal() { dnsMode, debugLevel := goDebugNetDNS() confVal.dnsDebugLevel = debugLevel .... } 其中，confVal存放系统网络配置数据，confOnce控制读写，其中其处理入参数是一个函数类型。
+func (o *Once) Do(f func()) 常用场景包括：
+		
+			<a href="https://www.xssor2600.site/post/golang%E5%90%8C%E6%AD%A5%E5%88%9D%E8%A7%81/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
 	<h1><a href="https://www.xssor2600.site/post/make%E4%B8%8Enew/">Make与new</a></h1>
 	<b><time>2020.08.02 15:58</time></b>
 	
@@ -74,7 +218,12 @@ var p *[]int = new([]int) // *p == nil; with len and cap 0   make(T) 返回一�
  Go 运行时允许您在机器上运行数十万个并发 goroutine 。Goroutine 是一个轻量级的执行线程。 Go 运行时将这些 goroutine 复用到操作系统线程上。 这意味着多个 goroutine 可以在单个操作系统线程上同时运行。
 Go 运行时有一个调度程序，其任务是调度这些 goroutine 执行。
  1:初始化时的 Goroutine 具有 2KB 的堆栈。与一个一般为 1 MB 的 OS 线程堆栈相比，这非常小巧。当你需要同时运行几十万个不同的 goroutine 时，这个数字很重要。如果你要并行运行数千个 OS 线程，RAM 显然将成为瓶颈。 2:Go 可以遵循与 Java 等其他语言相同的模型，它支持与 OS 线程相同的线程概念。但是在这种情况下，OS 线程之间的上下文切换成本比不同的 goroutine 之间的上下文切换成本要大得多。
- 
+ 使用go标准编译器编译的代码，每个协程都会有自己的协程栈，一个协程栈是一个预申请的内存块。每个协程的初始栈大小比较小（在64位系统上2KB）。 每个栈的大小在协程运行的时候将按照需要增长和收缩( stack grow )。
+当我们创建对象申请内存块的时候，可以从协程栈上申请，也可以从堆上申请。（类似java的线程栈，是每个线程私有的，堆上数据是各个线程共享访问的，需要注意并发安全控制）
+ 当一个协程的栈的大小改变(grow)时，一个新的内存段将申请给此栈使用。原先已经开辟在老的内存段上的内存块将很有可能被转移到新的内存段上，或者说这些内存块的地址将改变。 相应地，引用着这些开辟在此栈上的内存块的指针（它们同样开辟在此栈上）中存储的地址也将得到刷新。 这里很重要，这也是 uintptr 变量不要轻易使用的原因。
+   学 Go 时肯定要学习如何使用并发（goroutine），而开发者该如何控制并发呢？ 其实有两种方式，一种是WaitGroup，另一种就是 context。 而什么时候需要用到 WaitGroup 呢？很简单，就是当您需要将同一件事情拆成不同的 Job 进行执行，最后需要等到全部的 Job 都执行完成才继续执行主程序，这时候就需要用到 WaitGroup。
+		
+			<a href="https://www.xssor2600.site/post/goroutine%E5%AD%A6%E4%B9%A0%E5%88%9D%E8%A7%81/">Read more...</a>
 		
 	</div>
 </article>
@@ -140,168 +289,6 @@ Go应用   定义建造者最终的产品实体Product(产品都有相同的构�
 // 产品1：支付订单Product type Order struct { OrderId string Price Money UserId int64 GoodName string OrderType string // .
 		
 			<a href="https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%BB%BA%E9%80%A0%E8%80%85builder/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/golang%E4%B8%ADcontext%E7%9A%84%E5%BA%94%E7%94%A8/">Golang中context的应用</a></h1>
-	<b><time>2020.07.23 18:56</time></b>
-	
-	<a href="/tags/context">@context</a>
-	
-    </br>[content:~]</br>
-	<div>
-		
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2/">动态域名切换</a></h1>
-	<b><time>2020.07.23 16:42</time></b>
-	
-	<a href="/tags/%E8%B7%AF%E7%94%B1%E5%88%87%E6%8D%A2">@路由切换</a>
-	
-    </br>[content:~]</br>
-	<div>
-		在中台或者其他应用对接开发过程中，如果某条业务线产品运营广告投放行为可能会影响产品线域名是否被封情况，例如经常在社交应用分享一些分销推广很容易就会导致域名被封，那么产品线下通过域名进行网络传输就会被影响，在金融支付容易影响的，就是一些外网渠道交互场景：例如对接某个渠道，例如微信，那么需要配置安全域名，回调地址等等。
-对于域名被封情况下，若是金融端对接外部渠道没有主动查单功能，那么就会导致掉单问题，引起大量用户报障投诉。 所以，需要域名动态切换。当然了前提是产品线应用，例如客户端和服务端协商一个域名获取的请求地址，通过外部域名或者内部ip就能解析到的实时域名。（当域名被封后，需要快速替换域名）
-域名动态切换  统一域名获取地址 例如客户端和服务端协商通过地址：http://test.dyncroutehostname.com/api/config/get_raw 获取测试环境和线上环境域名地址如下：  { &#34;data&#34;: { &#34;App&#34;: &#34;http://service.dyncroutehostname.com&#34;, &#34;H5&#34;: &#34;https://h5.dyncroutehostname.com&#34;, &#34;TestApp&#34;: &#34;http://test.dyncroutehostname.com&#34;, &#34;TestH5&#34;: &#34;http://testh5.dyncroutehostname.com&#34;, .... }, &#34;dm_error&#34;: 0, &#34;error_msg&#34;: &#34;操作成功&#34;, &#34;status&#34;: &#34;ok&#34;, &#34;version&#34;: &#34;1590117188&#34; }  服务器端动态切换  服务器端实现思路： 通过每次实时的通过http调用域名获取地址来得到最新的域名，因为使用场景不是高并发，对实时性要求比较高的场景。同时对域名的实时正确性要求比较高，（因为如果回调域名错误就掉单，当然了渠道也会有延时通知机制）所以可以先不考虑使用redis缓存来缓存域名。
-其中，一个域名可以通过CNAME解析到不同机器ip地址上，所以可以咨询产品线的运维获取域名解析到的机器IP，服务器端可以根据ip动态路由地址。
-  在配置文件中通过占位符配置统一域名获取地址：
-#app_config_url = &#34;http://%s/api/appconfig/get_raw&#34; #app_config_ips = [&#34;10.x.x.19&#34;,&#34;10.x.x.20&#34;,] // 也可以通过内网ip进行替换域名获取,可以配置多个ip #base_host = &#34;https://test.basehostname.com&#34; //配置兜底域名  // 外部渠道回调通知地址 channel_notify_url = &#34;/api/test/notify&#34;   在程序中通过http获取最新域名 目的就是通过地址获取动态域名，然后再拼接上内部具体回调url进行拼接，得到完整的url地址。
-  func _getNotifyUrl() string { url := cfgs.
-		
-			<a href="https://www.xssor2600.site/post/%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/%E4%B8%AD%E5%8F%B0%E5%AD%A6%E4%B9%A0/">中台学习</a></h1>
-	<b><time>2020.07.18 15:46</time></b>
-	
-	<a href="/tags/%E4%B8%AD%E5%8F%B0">@中台</a>
-	
-    </br>[content:~]</br>
-	<div>
-		听说”中台“概念是在15年阿里推广出来，虽然现在工作声称要中台化。但是对于什么是中台化也是云里雾里的。
- 不要刻意去十分明确的定义什么是“中台”，而是尽量从各家中台中找出自己可以学习借鉴之处。
- 中台不是数据公式公里，不需要明确的定义概念。因为这个概念也是由互联网一线大厂推销出来的，每家公司对中台的理解是不同的，但是相同之处都是抽象化，服务于业务。其实最终目的都是服务于业务，而更深层是的还是服务于资本！
- 产生背景离不开&quot;资本&rdquo;   任何新的概念产生驱动的原因：
-资本要赚钱盈利，当公司的业务架构和产品线达到一个瓶颈的时候，这时候就需要公司相关人员进厂学习参观交流。然后企图在资本交流过程中可以发现一些新的模式，概念，来适当变更当前公司经营模式，要进一步赚更多的钱！例如发现了supercell的游戏高产模式。
-所以说，中台概念的出现，最终目的还是为了赚钱来的。（适当在脑海中建立&quot;资本为最终核心&quot;概念）
-  ​
-  那么企业资本如何赚钱？
-无非是两个方面：一是在盈利平缓情况下，减少开销（办公成本，人员薪资成本，软硬件设施成本，产品推广运营成本&hellip;) ； 二是在有资本加持情况下，砸钱改革，快速推出新产品投放市场进行试错&hellip;.
-那么如果快速产出业务产品，投放市场进行试错探索？这就需要灵活强大的公司技术，业务架构来支撑。 中台就是这超级APP工场快速产出”资本商品“的重要一环，可以说中台是架构，也可以说中台是战略，都可以说，然后形成目前互联网的中台产品： 支付中台,数据中台,算法中台，搜索中台,用户中台,推荐中台&hellip;.
-  中台业务架构 对于中台的概念参照知乎某观点：
- 中台是支持多个前台业务且具备业务属性的共性能力组织。
- 三点含义：
- 中台必须具备业务属性。 中台是一种共性能力组织，支撑多个业务。 中台支持的是多个前台业务。（而不是后台业务）   对于业务中台，什么时候需要中台组织？
- 业务系统研发团队人员较多，需求变化快，系统涉及多个领域（外卖，电商，直播，社交)，业务逻辑比较复杂。 业务规模比较大的，中台可以提升软件复用，降低定制化成本，提高研发效率。  支持业务中台的技术体系，包括微服务、DevOps、云原生和分布式事务等。
-对于数据中台？
- 数据产品比较多，每天要看数据如果没数据就不知道怎么工作的运营人员比较多的业务。比如电商就是典型。尤其是数据产品和运营人员还在多个团队。 用数据的姿势比较复杂，问题比较多，比如经常出现指标不一致、数据出错、想要的数据不知道哪里有等问题  支持数据中台的技术体系，包括指标管理、数据服务、元数据管理、数仓开发与管理、数据安全管理、数据资产管理、大数据计算引擎、数据集成/同步/交换引擎等。
- 金融中台 目前工作就是实现灵活的金融中台，在支付，提现等金融行为抽象化组建，服务于多个业务项目线。
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/mysql%E5%BA%93%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E6%95%B4%E7%90%86/">Mysql库表数据常用操作整理</a></h1>
-	<b><time>2020.07.13 15:57</time></b>
-	
-	<a href="/tags/mysql">@mysql</a>
-	
-    </br>[content:~]</br>
-	<div>
-		在日常mysql使用过程中，通常会涉及到mysql库的迁移，库表数据的同步导入/导出。或者是将一些线上库表数据导出到本地，都会涉及到常见的mysql数据处理流程，那么就需要总结一下常见的mysql针对数据，库表，结构的数据的导入导出方式。
-将线上库表数据导出文本 需要先登陆数据库服务器，通过mysql命令指定参数添加sql查询结果导出到当前服务器路径。后面通过sc,zc进行传输。详情参考另外一篇文章:mac使用sz,rz远程传输文件
-mysql -h 10.224.40.35 -uuser -p&#39;password&#39; -Ddatabase --default-character-set=utf8 -e&#34;select column1,column2... where payee_logon_id in(&#39;13960225506&#39;,&#39;15905957688&#39;,&#39;15905023789&#39;,&#39;13641490558&#39;,&#39;15260388243&#39;,&#39;17305081757&#39;)&#34; &gt;tt.log  // 另外一种方式 echo &#34;select uid,\`order\`,money,country_code from user_order_record_new_202006 where create_time &gt;= &#39;2020-06-18 00:00:00&#39; and manner_id = 3 and client = 1 and agree =1&#34; | mysql -h xxxxx -uroot -Ddemo -p&#39;123456&#39; --default-character-set=utf8 &gt; /tmp/ios_recharge_18.xls;  // mysqldump -uinke_db_user -h10.100.130.39 -p --default-character-set=utf8 --single-transaction --master-data --where=&#39;type = 1 and money &gt; 1 and money &lt; 9998&#39; inke_payment rule_charge &gt; TableConditon.
-		
-			<a href="https://www.xssor2600.site/post/mysql%E5%BA%93%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E6%95%B4%E7%90%86/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/golang%E9%9D%A2%E8%AF%95%E9%A2%98%E8%B5%84%E6%96%99/">Golang面试题资料</a></h1>
-	<b><time>2020.07.12 00:52</time></b>
-	
-	<a href="/tags/%E9%9D%A2%E8%AF%95">@面试</a>
-	
-	<a href="/tags/%E5%88%B7%E9%A2%98">@刷题</a>
-	
-    </br>[content:~]</br>
-	<div>
-		长期收集并准备golang工程师面试题相关资料。
-面试题与刷题   LeetCode
-动态规划（1）最长回文子串	动态规划（2）最长公共子串（子序列）
-动态规划（3）动态规划总结分类	动态规划（4）分割等和子集（0,1背包问题）
-动态规划（5）lis 最长递增子序列	二叉树的遍历
-二叉树的最大路径和	动态规划（6）正则表达式
-恢复二叉搜索树	动态规划（7）通配符
-回溯法（1）:全排列	螺旋矩阵	前序＋中序／中序＋后序构造二叉树
-找出第 k 小	二叉树链表相互转换
-滑动窗口（1）	滑动窗口（2）K 个不同整数的子数组	滑动窗口（3）最长湍流子数组
-滑动窗口（4）滑动窗口中位数	链表（1）交换旋转
-滑动窗口（5）无重复字符的最长子串	滑动窗口（6）替换后的最长重复字符
-滑动窗口（7）最小覆盖子串	滑动窗口（8）滑动窗口最大值
-链表（1）交换旋转	链表(2) 删除重复元素	链表(3)反转链表	链表(5)环形链表
-二叉树（3）二叉树路径和	二叉树（4）右侧指针
-  面试每日一题
-Go面试每日一题（2）	Go 面试每天一篇（第 3 天）	Go 面试每天一篇（第 4 天）	Go 面试每天一篇（第 5 天）
-Go 面试每天一篇（第 6 天）	Go 面试每天一篇（第 7 天）	Go 面试每天一篇（第 8 天）
-Go 面试每天一篇（第 9 天）	Go 面试每天一篇（第 10 天）	Go 面试每天一篇（第 11 天）
-		
-			<a href="https://www.xssor2600.site/post/golang%E9%9D%A2%E8%AF%95%E9%A2%98%E8%B5%84%E6%96%99/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/go%E5%AD%A6%E4%B9%A0%E4%B8%AD%E6%96%87%E7%BD%91%E8%B5%84%E6%96%99%E5%BD%92%E9%9B%86/">Go学习中文网资料归集</a></h1>
-	<b><time>2020.07.11 17:43</time></b>
-	
-	<a href="/tags/golang">@golang</a>
-	
-	<a href="/tags/%E8%B5%84%E6%96%99">@资料</a>
-	
-    </br>[content:~]</br>
-	<div>
-		为了应对太多的目不暇接，散乱的go学习资料。想把golang学习中文网中的资源进行分类归类，后续按照分类来集中学习，提高学习效率。
-&lt;每日一库&gt;  Go 每日一库之 mapstructure   &lt;基础内容范围&gt;   [其他基础(Go特性/基础类型)]
-Go 中的位运算
-Go 的大门已经打开-认识go
-Go 语言中的可赋值性
-Go 中的等效类型-type
-Go 1.11 正式发布：对 Modules 的支持
-你所不知道的 Go 语言的一些令人惊叹的优点
-For Range 的语义
-Golang 中 strings.builder 的 7 个要点
-Go 语言之美
-Go 语言汇编快速入门
-Donng Go 语言的优点，缺点和令人厌恶的设计
-Go 语言中的初始化依赖项
-Go 语言中的作用域
-为什么 Go 类型系统中没可变性
-Go 中如何有效的比较字符串
-理解 Go 语言的类型
-浅析 Go 语言的数字常量
-深入理解 fmt 包
-图解中文字符编码-Go语言例解
-Go 语言中 GOROOT 一定需要设置吗？
-Go 创建对象时，如何优雅的传递初始化参数
-这个点你有想过吗？Go 语言如何进行类型检查
-		
-			<a href="https://www.xssor2600.site/post/go%E5%AD%A6%E4%B9%A0%E4%B8%AD%E6%96%87%E7%BD%91%E8%B5%84%E6%96%99%E5%BD%92%E9%9B%86/">Read more...</a>
 		
 	</div>
 </article>

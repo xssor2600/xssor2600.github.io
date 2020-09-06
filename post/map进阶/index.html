@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Map进阶</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Map进阶</h1>
+			<b><time>2020.09.06 18:44</time></b>
+		       
+		           <a href="/tags/map">map</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<h5 id="可以边遍历边删除吗">可以边遍历边删除吗?</h5>
+<p>map 并不是一个线程安全的数据结构。同时读写一个 map 是未定义的行为，如果被检测到，会直接 panic。</p>
+<p>一般而言，这可以通过读写锁来解决：<code>sync.RWMutex</code>。也可以通过线程安全的<code>sync.Map。</code></p>
+<p>读之前调用 <code>RLock()</code> 函数，读完之后调用 <code>RUnlock()</code> 函数解锁；写之前调用 <code>Lock()</code> 函数，写完之后，调用 <code>Unlock()</code> 解锁。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> (
+	<span style="color:#a6e22e">WechatSafeConfig</span> <span style="color:#66d9ef">struct</span> {
+		<span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">RWMutex</span>
+    <span style="color:#75715e">// key为namespace
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">WechatProducts</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>][]<span style="color:#a6e22e">WxProduct</span>
+	}
+)
+  
+ <span style="color:#75715e">// 写入前加上写锁
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">WechatSafeConfig</span>.<span style="color:#a6e22e">Lock</span>()
+	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">WechatSafeConfig</span>.<span style="color:#a6e22e">Unlock</span>()
+  	<span style="color:#75715e">// 初始化做内存级缓存
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">WechatSafeConfig</span>.<span style="color:#a6e22e">WechatProducts</span>[<span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Namespace</span>]; !<span style="color:#a6e22e">ok</span> {
+    <span style="color:#a6e22e">WechatSafeConfig</span>.<span style="color:#a6e22e">WechatProducts</span>[<span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Namespace</span>] = <span style="color:#a6e22e">config</span>.<span style="color:#a6e22e">Products</span>
+  }
+
+</code></pre></div><h5 id="key-可以是-float-型吗">key 可以是 float 型吗？</h5>
+<p>从语法上看，是可以的。Go 语言中只要是可比较的类型都可以作为 key。除开 slice，map，functions 这几种类型，其他类型都是 OK 的。具体包括：布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 <code>==</code> 和 <code>!=</code> 操作符， <code>k1==k2</code> 时，可认为 k1 和 k2 是同一个 key。如果是结构体，则需要它们的字段值都相等，才被认为是相同的 key。</p>
+<p>当用 float64 作为 key 的时候，先要将其转成 unit64 类型，再插入 key 中。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// Float64bits returns the IEEE 754 binary representation of f,
+</span><span style="color:#75715e">// with the sign bit of f and the result in the same bit position,
+</span><span style="color:#75715e">// and Float64bits(Float64frombits(x)) == x.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Float64bits</span>(<span style="color:#a6e22e">f</span> <span style="color:#66d9ef">float64</span>) <span style="color:#66d9ef">uint64</span> { <span style="color:#66d9ef">return</span> <span style="color:#f92672">*</span>(<span style="color:#f92672">*</span><span style="color:#66d9ef">uint64</span>)(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">f</span>)) }
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+<span style="color:#a6e22e">m</span> : make(<span style="color:#66d9ef">map</span>[<span style="color:#a6e22e">float64lint</span>)
+<span style="color:#a6e22e">m</span>[<span style="color:#ae81ff">2.4</span>]=<span style="color:#ae81ff">2</span>
+<span style="color:#a6e22e">fmt</span> <span style="color:#a6e22e">PrintIn</span>(<span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">Float64bits</span>(<span style="color:#ae81ff">2.4</span>))
+<span style="color:#a6e22e">fmt</span> <span style="color:#a6e22e">PrintIn</span>(<span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">Float64bits</span>(<span style="color:#ae81ff">2.400000000001</span>)
+<span style="color:#a6e22e">fmt</span>, <span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">F1oat64bits</span>(<span style="color:#ae81ff">2.4000000000000000000000001</span>))
+}
+            
+</code></pre></div><p><code>2.4</code> 和 <code>2.4000000000000000000000001</code> 经过 <code>math.Float64bits()</code> 函数转换后的结果是一样的。自然，二者在 map 看来，就是同一个 key 了.</p>
+<p>最后说结论：float 型可以作为 key，但是由于精度的问题，会导致一些诡异的问题，慎用之。</p>
+<p>总结一下，Go 语言中，通过哈希查找表实现 map，用链表法解决哈希冲突。</p>
+<p>通过 key 的哈希值将 key 散落到不同的桶中，每个桶中有 8 个 cell。哈希值的低位决定桶序号，高位标识同一个桶中的不同 key。</p>
+<p>当向桶中添加了很多 key，造成元素过多，或者溢出桶太多，就会触发扩容。扩容分为等量扩容和 2 倍容量扩容。扩容后，原来一个 bucket 中的 key 一分为二，会被重新分配到两个桶中。</p>
+<p>扩容过程是渐进的，主要是防止一次扩容需要搬迁的 key 数量过多，引发性能问题。触发扩容的时机是增加了新元素，bucket 搬迁的时机则发生在赋值、删除期间，每次最多搬迁两个 bucket。</p>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
+				
+				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe</a></li>
+				
+				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与数组基础比较</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与map基础比较</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

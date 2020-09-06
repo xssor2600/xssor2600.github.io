@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>map on 琳琅世界，观山河</title>
+    <link>https://www.xssor2600.site/tags/map/</link>
+    <description>Recent content in map on 琳琅世界，观山河</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 06 Sep 2020 18:44:18 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.xssor2600.site/tags/map/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Map进阶</title>
+      <link>https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/</link>
+      <pubDate>Sun, 06 Sep 2020 18:44:18 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/</guid>
+      <description>可以边遍历边删除吗? map 并不是一个线程安全的数据结构。同时读写一个 map 是未定义的行为，如果被检测到，会直接 panic。
+一般而言，这可以通过读写锁来解决：sync.RWMutex。也可以通过线程安全的sync.Map。
+读之前调用 RLock() 函数，读完之后调用 RUnlock() 函数解锁；写之前调用 Lock() 函数，写完之后，调用 Unlock() 解锁。
+var ( WechatSafeConfig struct { sync.RWMutex // key为namespace 	WechatProducts map[string][]WxProduct } ) // 写入前加上写锁 	WechatSafeConfig.Lock() defer WechatSafeConfig.Unlock() // 初始化做内存级缓存 	if _, ok := WechatSafeConfig.WechatProducts[ctx.Namespace]; !ok { WechatSafeConfig.WechatProducts[ctx.Namespace] = config.Products } key 可以是 float 型吗？ 从语法上看，是可以的。Go 语言中只要是可比较的类型都可以作为 key。除开 slice，map，functions 这几种类型，其他类型都是 OK 的。具体包括：布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 == 和 != 操作符， k1==k2 时，可认为 k1 和 k2 是同一个 key。如果是结构体，则需要它们的字段值都相等，才被认为是相同的 key。</description>
+    </item>
+    
+    <item>
+      <title>深入学习map_1</title>
+      <link>https://www.xssor2600.site/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/</link>
+      <pubDate>Sat, 22 Aug 2020 15:32:44 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/</guid>
+      <description>在源码中，表示 map 的结构体是 hmap，它是 hashmap,底层golang对map的实现主要是通过hmap+maptype运行的。
+对golang底层源代码的理解学习，要习惯用动态的角度去考虑，因为golang具体底层运行是包括编译器的。
+ 会有不少内建数据类型，在编译器期间，编译器会为了某种实现目的，会动态给源代码中数据结构进行加工处理。
+在go的源代码中，出现很多地址类型，在看的时候，需要结合起始内存地址+偏移量的思维去理解。
+ Map的底层实现原理 Go runtime 中的map是如何实现的？Go 中的 map 是一个 hashmap
+ Hashmap 是一种经典的数据结构，提供了平均 O(1) 的查询时间复杂度，即使在最糟的情况下也有 O(n) 的复杂度。也就是说，正常情况下，执行 map 函数的时间是个常量。
+这个常量的大小部分取决于 hashmap 的设计方式，而 map 存取时间从 O(1) 到 O(n) 的变化则取决于它的 hash 函数。
+ Hashmap 的使用方面有两个重要的特点:
+ 第一个是稳定性。Hash 函数必须是稳定的。给定相同的 key，你的 hash 函数必须返回相同的值。 第二个特点是良好的分布。给定两个相类似的 key，结果应该是极其不同的。hashmap 中的 value 值应当均匀地分布于 buckets 之间，否则存取的复杂度不会是 O(1).    Hashmap数据结构
+经典的 hashmap 结构是一个 bucket 数组，其中的每项包含一个指针指向一个 key/value entry 数组。
+golang底层的map结构是如何的？
+底层数据结构也是一个bucket数组，并且每个 bucket 最多持有 8 个 key/value entry。使用 2 的次方便于做位掩码和移位，而不必做昂贵的除法操作。宏观看map底层实现</description>
+    </item>
+    
+    <item>
+      <title>Slice与map基础比较</title>
+      <link>https://www.xssor2600.site/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/</link>
+      <pubDate>Mon, 17 Aug 2020 23:40:41 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/</guid>
+      <description>Slice 和 Map 是 Go 中的两种重要的数据类型。
+Slice Slice是在底层为数组的基础上抽象出来的数据结构，其拥有一个指向数组开始位置的指针，与数组不同的是，slice切片可以动态增长或者收缩，两者都是基于底层的数组重新分配内存。像copy和append这样的函数可以调整底层数组大小。
+Map map 是在 Go 中将值（value）与键（key）关联的内置类型。通过相应的键可以获取到值。
+  map的创建
+通过向 make 函数传入键和值的类型，可以创建 map。语法make(map[type of key]type of value)。
+// 例如声明一个map nameMaps := make(map[string]string) // 当没有初始化map的时候，map的零值是nil 特别要注意的是：当仅仅是声明，没有通过make初始化map的时候，map变量的值是nil,若是此时给map赋值，会出现Panic。
+AliAppsSafeConfig struct { sync.RWMutex AliAppsConfig map[string]AliAppCommonParams // 声明，没有初始化  } // 若此时直接给map（nil) 赋值，会Panic AliAppsSafeConfig.AliAppsConfig[namespace] = aliPayConf // 正确的做法是，在赋值之前，要通过make进行初始化map func init() { AliAppsSafeConfig.AliAppsConfig = make(map[string]AliAppCommonParams) } 所有可比较的类型都可以作为map的key值。
+ Slice, map, and function values are not comparable. However, as a special case, a slice, map, or function value may be compared to the predeclared identifier nil.</description>
+    </item>
+    
+  </channel>
+</rss>

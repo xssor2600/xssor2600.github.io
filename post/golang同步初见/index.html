@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Golang同步初见</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Golang同步初见</h1>
+			<b><time>2020.08.09 00:03</time></b>
+		       
+		           <a href="/tags/%E5%90%8C%E6%AD%A5">同步</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<p>Go语言在设计上对同步（Synchronization，<code>数据同步</code>和<code>线程同步</code>）提供大量的支持，比如 goroutine和channel同步原语，库层面有:</p>
+<ul>
+<li>sync：提供基本的同步原语（比如Mutex、RWMutex、Locker）和 工具类（Once、WaitGroup、Cond、Pool、Map）</li>
+<li>sync/atomic：提供原子操作（基于硬件指令compare-and-swap）</li>
+</ul>
+<p>具体的同步应用场景，和不同应用场景下使用的同步工具也不太相同，参考下图总结：</p>
+<p><a href="https://imgchr.com/i/aonG6I"><img src="https://s1.ax1x.com/2020/08/09/aonG6I.md.png" alt="aonG6I.md.png"></a></p>
+<h5 id="synconce-用法">sync.Once 用法</h5>
+<p>上述图描述<code>Once</code>适用于懒加载，即为处理只读写一次的数据。<strong>通常用于控制变量的初始化，变量的读写遵循单例模式</strong>：</p>
+<p>通常使用该种形式加载的数据通常不会变化，因为数据常驻内存的。</p>
+<ol>
+<li>当且仅当第一次读某个变量时，进行<code>初始化</code>（写操作）</li>
+<li>变量被初始化过程中，<strong>所有读都被阻塞</strong>（读操作；当变量初始化完成后，读操作继续进行)</li>
+<li>变量仅初始化一次，初始化完成后驻留在内存里</li>
+</ol>
+<p>golang源代码SDK中在源代码<code>/usr/local/go/src/net/conf.go</code>中，读取系统的网络配置就是懒加载，仅仅单例模式形式读取一次，并将数据保存在内存中：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> (
+	<span style="color:#a6e22e">confOnce</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Once</span> <span style="color:#75715e">// guards init of confVal via initConfVal
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">confVal</span>  = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">conf</span>{<span style="color:#a6e22e">goos</span>: <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">GOOS</span>}
+)
+
+<span style="color:#75715e">// systemConf returns the machine&#39;s network configuration.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">systemConf</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">conf</span> {
+	<span style="color:#a6e22e">confOnce</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#a6e22e">initConfVal</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">confVal</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">initConfVal</span>() {
+	<span style="color:#a6e22e">dnsMode</span>, <span style="color:#a6e22e">debugLevel</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">goDebugNetDNS</span>()
+	<span style="color:#a6e22e">confVal</span>.<span style="color:#a6e22e">dnsDebugLevel</span> = <span style="color:#a6e22e">debugLevel</span>
+  <span style="color:#f92672">...</span>.
+}
+</code></pre></div><p>其中，<code>confVal</code>存放系统网络配置数据，<code>confOnce</code>控制读写，其中其处理入参数是一个函数类型。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">o</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Once</span>) <span style="color:#a6e22e">Do</span>(<span style="color:#a6e22e">f</span> <span style="color:#66d9ef">func</span>())
+</code></pre></div><p>常用场景包括：</p>
+<ol>
+<li>
+<p>初始化 rpc/http client</p>
+<p>下面场景是初始化打开一个mysql的client连接：每次使用打开一个连接的时候，通过Once同步工具类保证每次单例初始化成功。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// Client mysql client
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Client</span> <span style="color:#66d9ef">struct</span> {
+ <span style="color:#a6e22e">gDB</span>  <span style="color:#f92672">*</span><span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">DB</span>
+ <span style="color:#a6e22e">once</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Once</span>
+}
+   
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">client</span> <span style="color:#a6e22e">Client</span>
+   
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
+   <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">once</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#66d9ef">func</span>() {
+     <span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">gorm</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#e6db74">&#34;mysql&#34;</span>, <span style="color:#a6e22e">conf</span>.<span style="color:#a6e22e">DBCfg</span>.<span style="color:#a6e22e">Username</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34;:&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">conf</span>.<span style="color:#a6e22e">DBCfg</span>.<span style="color:#a6e22e">Password</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34;@tcp(&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">conf</span>.<span style="color:#a6e22e">DBCfg</span>.<span style="color:#a6e22e">Addrs</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34;)/&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">conf</span>.<span style="color:#a6e22e">DBCfg</span>.<span style="color:#a6e22e">Database</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34;?charset=utf8&amp;parseTime=True&amp;loc=Local&#34;</span>)
+     <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+         <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;error happen when connecting to mysql:&#34;</span>, <span style="color:#a6e22e">err</span>)
+         panic(<span style="color:#a6e22e">err</span>)
+     }
+     <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Success to connect db %v, db:%s, user:%s\n&#34;</span>, <span style="color:#a6e22e">conf</span>.<span style="color:#a6e22e">DBCfg</span>.<span style="color:#a6e22e">Addrs</span>, <span style="color:#a6e22e">conf</span>.<span style="color:#a6e22e">DBCfg</span>.<span style="color:#a6e22e">Database</span>, <span style="color:#a6e22e">conf</span>.<span style="color:#a6e22e">DBCfg</span>.<span style="color:#a6e22e">Username</span>)
+   
+     <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>().<span style="color:#a6e22e">SetMaxIdleConns</span>(<span style="color:#ae81ff">100</span>)
+     <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">DB</span>().<span style="color:#a6e22e">SetMaxOpenConns</span>(<span style="color:#ae81ff">100</span>)
+     <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">gDB</span> = <span style="color:#a6e22e">db</span>
+ })
+}
+</code></pre></div></li>
+<li>
+<p>open/close 文件</p>
+</li>
+<li>
+<p>close channel</p>
+</li>
+<li>
+<p>线程池初始化</p>
+<p>例如项目根据thrift配置文件进行加载初始化配置。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">GlobalThriftPool</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ThriftPool</span>.<span style="color:#a6e22e">ThriftPool</span>
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">once</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Once</span>
+   
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
+ <span style="color:#a6e22e">once</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#66d9ef">func</span>() {
+     <span style="color:#a6e22e">cfg</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Thrift</span>{}
+     <span style="color:#a6e22e">configs</span>.<span style="color:#a6e22e">LoadJsonConfig</span>(<span style="color:#a6e22e">cfg</span>, <span style="color:#e6db74">&#34;thrift.json&#34;</span>)
+     <span style="color:#a6e22e">GlobalThriftPool</span> = <span style="color:#a6e22e">ThriftPool</span>.<span style="color:#a6e22e">NewThriftPool</span>(<span style="color:#a6e22e">cfg</span>.<span style="color:#a6e22e">Ip</span>, <span style="color:#a6e22e">cfg</span>.<span style="color:#a6e22e">Port</span>, <span style="color:#a6e22e">cfg</span>.<span style="color:#a6e22e">MaxConn</span>, <span style="color:#a6e22e">cfg</span>.<span style="color:#a6e22e">ConnTimeout</span>, <span style="color:#a6e22e">cfg</span>.<span style="color:#a6e22e">IdleTimeout</span>, <span style="color:#a6e22e">Dial</span>, <span style="color:#a6e22e">Close</span>)
+   
+ })
+}
+</code></pre></div><p>又例如redis加载配置文件。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">pool</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">redis</span>.<span style="color:#a6e22e">Pool</span>
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">initialized</span> <span style="color:#66d9ef">int32</span>
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">once</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Once</span>
+   
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
+ <span style="color:#a6e22e">once</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#66d9ef">func</span>() {
+     <span style="color:#a6e22e">cfg</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">redisUtil</span>.<span style="color:#a6e22e">RedisCfg</span>{}
+     <span style="color:#a6e22e">configs</span>.<span style="color:#a6e22e">LoadJsonConfig</span>(<span style="color:#a6e22e">cfg</span>, <span style="color:#e6db74">&#34;redis_bill_amount.json&#34;</span>)
+     <span style="color:#a6e22e">pool</span> = <span style="color:#a6e22e">redisUtil</span>.<span style="color:#a6e22e">NewConnPool</span>(<span style="color:#a6e22e">cfg</span>)
+     <span style="color:#a6e22e">atomic</span>.<span style="color:#a6e22e">StoreInt32</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">initialized</span>, <span style="color:#ae81ff">1</span>)
+ })
+   
+}
+   
+<span style="color:#75715e">// redis连接池等等。。。
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Init</span>(<span style="color:#a6e22e">cfg</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">redisUtil</span>.<span style="color:#a6e22e">RedisCfg</span>) {
+   
+ <span style="color:#a6e22e">once</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#66d9ef">func</span>() {
+     <span style="color:#a6e22e">pool</span> = <span style="color:#a6e22e">redisUtil</span>.<span style="color:#a6e22e">NewConnPool</span>(<span style="color:#a6e22e">cfg</span>)
+     <span style="color:#a6e22e">atomic</span>.<span style="color:#a6e22e">StoreInt32</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">initialized</span>, <span style="color:#ae81ff">1</span>)
+ })
+   
+}
+</code></pre></div></li>
+</ol>
+<h5 id="synconce-实现">sync.Once 实现</h5>
+<p>sync.Once 类通过一个<code>锁变量</code>和<code>原子变量</code>保障 <code>exactly once</code>语义，直接撸下源码（为了便于阅读，做了简化处理）：</p>
+<p>简单来说：<strong>就是通过一个内在原子变量的值（状态位）来判断是否已经执行过一次了</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">sync</span>
+
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;sync/atomic&#34;</span>
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Once</span> <span style="color:#66d9ef">struct</span> {
+  <span style="color:#a6e22e">done</span> <span style="color:#66d9ef">uint32</span>
+  <span style="color:#a6e22e">m</span>    <span style="color:#a6e22e">Mutex</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">o</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Once</span>) <span style="color:#a6e22e">Do</span>(<span style="color:#a6e22e">f</span> <span style="color:#66d9ef">func</span>()) {
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">atomic</span>.<span style="color:#a6e22e">LoadUint32</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">o</span>.<span style="color:#a6e22e">done</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+    <span style="color:#a6e22e">o</span>.<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Lock</span>()
+    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">o</span>.<span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Unlock</span>()
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">o</span>.<span style="color:#a6e22e">done</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+      <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">atomic</span>.<span style="color:#a6e22e">StoreUint32</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">o</span>.<span style="color:#a6e22e">done</span>, <span style="color:#ae81ff">1</span>)
+      <span style="color:#a6e22e">f</span>()
+    }
+  }
+}
+</code></pre></div><p>这里 <code>done</code> 是一个状态位，用于判断变量是否初始化完成，其有效值是：</p>
+<ol>
+<li>0: 函数 f 尚未执行或执行中，Once对象创建时 <code>done</code>默认值就是0</li>
+<li>1: 函数 f 已经执行结束，保证 <code>f</code> 不会被再次执行</li>
+</ol>
+<p>而 <code>m Mutex</code> 用于控制临界区的进入，保证同一时间点最多有一个 <code>f</code>在执行。</p>
+<p><code>done</code> 在 <code>m.Lock()</code> 前后的两次校验都是必要的。</p>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
+				
+				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe.pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe</a></li>
+				
+				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与数组基础比较</a></li>
+				
+				<li><a href="/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与map基础比较</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>
