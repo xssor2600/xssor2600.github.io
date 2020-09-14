@@ -101,7 +101,7 @@
 </li>
 </ul>
 <h4 id="slice">Slice</h4>
-<p>切片是由数组建立的一种方便、灵活且功能强大的包装（Wrapper）。切片本身不拥有任何数据。它们只是对现有数组的引用。</p>
+<p>切片是由数组建立的一种方便、灵活且功能强大的包装（Wrapper）。切片本身不拥有任何数据。它们只是对现有数组的引用。(<code>slice</code> 翻译成中文就是<code>切片</code>，它和<code>数组（array）</code>很类似，可以用下标的方式进行访问，如果越界，就会产生 panic。但是它比数组更灵活，可以自动地进行扩容。)</p>
 <ul>
 <li>
 <p>切片声明与赋值</p>
@@ -195,6 +195,25 @@
 }
 </code></pre></div></li>
 </ul>
+<h5 id="slice底层分析">Slice底层分析</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_demo</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">inta</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">p</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>
+	<span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">0</span>)
+	<span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>,<span style="color:#ae81ff">1</span>)
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Sizeof</span>(<span style="color:#a6e22e">slice</span>))  <span style="color:#75715e">// 24个字节
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Sizeof</span>(<span style="color:#a6e22e">p</span>))  <span style="color:#75715e">// 8个字节  通用指针类型占用8个字节
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Sizeof</span>(<span style="color:#a6e22e">inta</span>))  <span style="color:#75715e">// 8个字节  int类型占用8个字节内存
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>看到上面源代码中slice变量在内存中占24byte，为什么会占24byte，这就跟slice底层定义的结构有关。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">slice</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">array</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>   <span style="color:#75715e">// 指向底层引用数组内存地址指针
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">len</span>   <span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">cap</span>   <span style="color:#66d9ef">int</span>
+}
+</code></pre></div><ul>
+<li>slice初始化</li>
+</ul>
 
 			</div>
                    </br>[content:] end~</br>
@@ -208,15 +227,15 @@
 		<div>
 			<ul>
 				
+				<li><a href="/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/">Go_汇编学习</a></li>
+				
+				<li><a href="/post/slice%E5%BA%95%E5%B1%82%E5%AD%A6%E4%B9%A0/">Slice底层学习</a></li>
+				
 				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
 				
 				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe_pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe.pointer_uintptr之间关系</a></li>
 				
 				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
-				
-				<li><a href="/post/slice%E4%B8%8E%E6%95%B0%E7%BB%84%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与数组基础比较</a></li>
-				
-				<li><a href="/post/slice%E4%B8%8Emap%E5%9F%BA%E7%A1%80%E6%AF%94%E8%BE%83/">Slice与map基础比较</a></li>
 				
 			</ul>
 		</div>

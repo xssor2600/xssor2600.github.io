@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Go_汇编学习</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Go_汇编学习</h1>
+			<b><time>2020.09.07 18:04</time></b>
+		       
+		           <a href="/tags/go">go</a>
+        	       
+		           <a href="/tags/%E6%B1%87%E7%BC%96">汇编</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<p>Go语言的编译器和汇编器都带了一个<code>-S</code>参数，可以查看生成的最终目标代码。通过对比目标代码和原始的Go语言或Go汇编语言代码的差异可以加深对底层实现的理解。</p>
+<p>在学习go源代码和原理过程中，需要结合汇编进行学习，所以必要少不了要熟知基础汇编知识。go也提供了工具可以将源代码中底层汇编指令输出，通过``go tool compile<code>命令用于调用Go语言提供的底层命令工具，其中</code>-S`参数表示输出汇编格式。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">add</span>(<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">5</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">a</span>,<span style="color:#a6e22e">b</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#a6e22e">b</span>
+}
+</code></pre></div><p><code>go tool compile -S demo.go</code>命令执行查看源代码的汇编指令。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">cotox</span><span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">cotoxdeMacBook</span><span style="color:#f92672">-</span><span style="color:#a6e22e">Pro</span> <span style="color:#a6e22e">main</span> <span style="color:#f92672">%</span> <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">tool</span> <span style="color:#a6e22e">compile</span> <span style="color:#f92672">-</span><span style="color:#a6e22e">S</span> <span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>
+<span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">main</span> <span style="color:#a6e22e">STEXT</span> <span style="color:#a6e22e">nosplit</span> <span style="color:#a6e22e">size</span>=<span style="color:#ae81ff">1</span> <span style="color:#a6e22e">args</span>=<span style="color:#ae81ff">0x0</span> <span style="color:#a6e22e">locals</span>=<span style="color:#ae81ff">0x0</span>
+<span style="color:#f92672">...</span>..
+<span style="color:#75715e">// add函数底层汇编
+</span><span style="color:#75715e"></span><span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">add</span> <span style="color:#a6e22e">STEXT</span> <span style="color:#a6e22e">nosplit</span> <span style="color:#a6e22e">size</span>=<span style="color:#ae81ff">19</span> <span style="color:#a6e22e">args</span>=<span style="color:#ae81ff">0x18</span> <span style="color:#a6e22e">locals</span>=<span style="color:#ae81ff">0x0</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">9</span>)        <span style="color:#a6e22e">TEXT</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">NOSPLIT</span>|<span style="color:#a6e22e">ABIInternal</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span><span style="color:#f92672">-</span><span style="color:#ae81ff">24</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">9</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">9</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">9</span>)        <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">33</span><span style="color:#a6e22e">cdeccccebe80329f1fdbee7f5874cb</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">9</span>)        <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">33</span><span style="color:#a6e22e">cdeccccebe80329f1fdbee7f5874cb</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">9</span>)        <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">33</span><span style="color:#a6e22e">cdeccccebe80329f1fdbee7f5874cb</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">b</span><span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x0005</span> <span style="color:#ae81ff">00005</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">CX</span>
+        <span style="color:#ae81ff">0x000a</span> <span style="color:#ae81ff">00010</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">ADDQ</span>    <span style="color:#a6e22e">CX</span>, <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x000d</span> <span style="color:#ae81ff">00013</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#960050;background-color:#1e0010">~</span><span style="color:#a6e22e">r2</span><span style="color:#f92672">+</span><span style="color:#ae81ff">24</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x0012</span> <span style="color:#ae81ff">0001</span><span style="color:#ae81ff">8</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">RET</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">8</span><span style="color:#a6e22e">b</span> <span style="color:#ae81ff">44</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">10</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">8</span><span style="color:#a6e22e">b</span> <span style="color:#ae81ff">4</span><span style="color:#a6e22e">c</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">08</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">01</span> <span style="color:#a6e22e">c8</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">89</span> <span style="color:#ae81ff">44</span>  <span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">D</span><span style="color:#960050;background-color:#1e0010">$</span>.<span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">L</span><span style="color:#960050;background-color:#1e0010">$</span>.<span style="color:#a6e22e">H</span>..<span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">D</span>
+        <span style="color:#ae81ff">0x0010</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">18</span> <span style="color:#a6e22e">c3</span>                                         <span style="color:#960050;background-color:#1e0010">$</span>..
+<span style="color:#f92672">...</span>.
+
+</code></pre></div><p>其中，会根据源代码中<code>func add</code>函数的生命定义，底层汇编也会生成方法:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 第一步声明定义函数
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">9</span>)        <span style="color:#a6e22e">TEXT</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">NOSPLIT</span>|<span style="color:#a6e22e">ABIInternal</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span><span style="color:#f92672">-</span><span style="color:#ae81ff">24</span>
+</code></pre></div><p>这一行表示定义<code>add</code>这个函数，最后的数字<code>$0-24</code>，其中<code>0</code>表示函数栈帧大小为0；<code>24</code>表示参数及返回值的大小：参数是2个int型变量，返回值是1个int型变量，共24字节。</p>
+<p>在定义完函数之后，就是函数逻辑处理了，可以从上面看到变量<code>a,b</code>的处理：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">b</span><span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x0005</span> <span style="color:#ae81ff">00005</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">CX</span>
+        <span style="color:#ae81ff">0x000a</span> <span style="color:#ae81ff">00010</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">ADDQ</span>    <span style="color:#a6e22e">CX</span>, <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x000d</span> <span style="color:#ae81ff">00013</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#960050;background-color:#1e0010">~</span><span style="color:#a6e22e">r2</span><span style="color:#f92672">+</span><span style="color:#ae81ff">24</span>(<span style="color:#a6e22e">SP</span>)
+</code></pre></div><p>代码片段中的第1行，将第2个参数<code>b</code>搬到<code>AX</code>寄存器；第2行将1个参数<code>a</code>搬到寄存器<code>CX</code>；第3行将<code>a</code>和<code>b</code>相加，相加的结果搬到<code>AX</code>；最后一行，将结果搬到返回参数的地址。</p>
+<p>上面add函数的栈帧大小为0，其实更一般的调用者与被调用者的栈帧示意图如下：<img src="https://s1.ax1x.com/2020/09/07/wuHuGt.md.png" alt="image"></p>
+<p>最后，执行<code>RET</code>指令。这一步把被调用函数<code>add</code>栈帧清零,接着，弹出栈顶的<code>返回地址</code>，把它赋给指令寄存器<code>rip</code>，而<code>返回地址</code>就是<code>main</code>函数里调用<code>add</code>函数的下一行。</p>
+<h5 id="plan9-assembly学习">plan9 assembly学习</h5>
+<h6 id="基础操作">基础操作</h6>
+<ul>
+<li>
+<p>栈调整
+plan9 中没有 push 和 pop，栈的调整是通过对硬件 SP 寄存器进行运算来实现的</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">SUBQ</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0x18</span>, <span style="color:#a6e22e">SP</span> <span style="color:#75715e">// 对 SP 做减法，为函数分配函数栈帧
+</span><span style="color:#75715e"></span><span style="color:#f92672">...</span>               <span style="color:#75715e">// 省略无用代码
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">ADDQ</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0x18</span>, <span style="color:#a6e22e">SP</span> <span style="color:#75715e">// 对 SP 做加法，清除函数栈帧
+</span></code></pre></div></li>
+<li>
+<p>数据搬运
+常数在 plan9 汇编用 $num 表示，可以为负数，默认情况下为十进制。可以用 $0x123 的形式来表示十六进制数。
+<code>B</code>: 一个字节，<code>W</code>:两个字节，<code>D</code>：4个字节，<code>Q</code>: 8个字节</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">MOVB</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">DI</span>      <span style="color:#75715e">// 1 byte
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">MOVW</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0x10</span>, <span style="color:#a6e22e">BX</span>   <span style="color:#75715e">// 2 bytes
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">MOVD</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">DX</span>      <span style="color:#75715e">// 4 bytes
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">MOVQ</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">10</span>, <span style="color:#a6e22e">AX</span>     <span style="color:#75715e">// 8 bytes
+</span></code></pre></div><p>可以看到，搬运的长度是由 MOV 的后缀决定的。plan9 的汇编的操作数的方向是和 intel 汇编相反的，与 AT&amp;T 类似。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">MOVQ</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0x10</span>, <span style="color:#a6e22e">AX</span> <span style="color:#f92672">====</span>= <span style="color:#a6e22e">mov</span> <span style="color:#a6e22e">rax</span>, <span style="color:#ae81ff">0x10</span>
+       |    |<span style="color:#f92672">------------</span>|      |
+       |<span style="color:#f92672">------------------------</span>|
+</code></pre></div></li>
+<li>
+<p>常见计算指令</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">ADDQ</span>  <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">BX</span>   <span style="color:#75715e">// BX += AX
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">SUBQ</span>  <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">BX</span>   <span style="color:#75715e">// BX -= AX
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">IMULQ</span> <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">BX</span>   <span style="color:#75715e">// BX *= AX
+</span></code></pre></div><p>类似数据搬运指令，同样可以通过修改指令的后缀来对应不同长度的操作数。例如 ADDQ/ADDW/ADDL/ADDB。</p>
+</li>
+<li>
+<p>跳转</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 无条件跳转
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">JMP</span> <span style="color:#a6e22e">addr</span>   <span style="color:#75715e">// 跳转到地址，地址可为代码中的地址，不过实际上手写不会出现这种东西
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">JMP</span> <span style="color:#a6e22e">label</span>  <span style="color:#75715e">// 跳转到标签，可以跳转到同一函数内的标签位置
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">JMP</span> <span style="color:#ae81ff">2</span>(<span style="color:#a6e22e">PC</span>)  <span style="color:#75715e">// 以当前指令为基础，向前/后跳转 x 行
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">JMP</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>(<span style="color:#a6e22e">PC</span>) <span style="color:#75715e">// 同上
+</span><span style="color:#75715e"></span>  
+<span style="color:#75715e">// 有条件跳转
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">JNZ</span> <span style="color:#a6e22e">target</span> <span style="color:#75715e">// 如果 zero flag 被 set 过，则跳转
+</span></code></pre></div></li>
+</ul>
+<h6 id="寄存器">寄存器</h6>
+<p>在汇编运算中，也是需要有容器来存放数据的，就是使用寄存器来保存数据（地址数据，值数据，都是二进制数据，但是可以代表不同的概念）</p>
+<ul>
+<li>
+<p>通用寄存器</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">(<span style="color:#a6e22e">lldb</span>) <span style="color:#a6e22e">reg</span> <span style="color:#a6e22e">read</span>
+<span style="color:#a6e22e">General</span> <span style="color:#a6e22e">Purpose</span> <span style="color:#a6e22e">Registers</span>:
+       <span style="color:#a6e22e">rax</span> = <span style="color:#ae81ff">0x0000000000000005</span>
+       <span style="color:#a6e22e">rbx</span> = <span style="color:#ae81ff">0x000000c420088000</span>
+       <span style="color:#a6e22e">rcx</span> = <span style="color:#ae81ff">0x0000000000000000</span>
+       <span style="color:#a6e22e">rdx</span> = <span style="color:#ae81ff">0x0000000000000000</span>
+       <span style="color:#a6e22e">rdi</span> = <span style="color:#ae81ff">0x000000c420088008</span>
+       <span style="color:#a6e22e">rsi</span> = <span style="color:#ae81ff">0x0000000000000000</span>
+       <span style="color:#a6e22e">rbp</span> = <span style="color:#ae81ff">0x000000c420047f78</span>
+       <span style="color:#a6e22e">rsp</span> = <span style="color:#ae81ff">0x000000c420047ed8</span>
+        <span style="color:#a6e22e">r8</span> = <span style="color:#ae81ff">0x0000000000000004</span>
+        <span style="color:#a6e22e">r9</span> = <span style="color:#ae81ff">0x0000000000000000</span>
+       <span style="color:#a6e22e">r10</span> = <span style="color:#ae81ff">0x000000c420020001</span>
+       <span style="color:#a6e22e">r11</span> = <span style="color:#ae81ff">0x0000000000000202</span>
+       <span style="color:#a6e22e">r12</span> = <span style="color:#ae81ff">0x0000000000000000</span>
+       <span style="color:#a6e22e">r13</span> = <span style="color:#ae81ff">0x00000000000000f1</span>
+       <span style="color:#a6e22e">r14</span> = <span style="color:#ae81ff">0x0000000000000011</span>
+       <span style="color:#a6e22e">r15</span> = <span style="color:#ae81ff">0x0000000000000001</span>
+       <span style="color:#a6e22e">rip</span> = <span style="color:#ae81ff">0x000000000108ef85</span>  <span style="color:#66d9ef">int</span><span style="color:#960050;background-color:#1e0010">`</span><span style="color:#a6e22e">main</span>.<span style="color:#a6e22e">main</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">213</span> <span style="color:#a6e22e">at</span> <span style="color:#66d9ef">int</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">19</span>
+    <span style="color:#a6e22e">rflags</span> = <span style="color:#ae81ff">0x0000000000000212</span>
+        <span style="color:#a6e22e">cs</span> = <span style="color:#ae81ff">0x000000000000002b</span>
+        <span style="color:#a6e22e">fs</span> = <span style="color:#ae81ff">0x0000000000000000</span>
+        <span style="color:#a6e22e">gs</span> = <span style="color:#ae81ff">0x0000000000000000</span>
+</code></pre></div><p>在 plan9 汇编里都是可以使用的，应用代码层面会用到的通用寄存器主要是:<code> rax, rbx, rcx, rdx, rdi, rsi, r8~r15</code> 这 14 个寄存器，虽然 rbp 和 rsp 也可以用，不过 bp 和 sp 会被用来管理栈顶和栈底，最好不要拿来进行运算。</p>
+<p>plan9 中使用寄存器不需要带 r 或 e 的前缀，例如 rax，只要写 AX 即可:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">MOVQ</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">101</span>, <span style="color:#a6e22e">AX</span> = <span style="color:#a6e22e">mov</span> <span style="color:#a6e22e">rax</span>, <span style="color:#ae81ff">101</span>
+</code></pre></div></li>
+<li>
+<p>伪寄存器</p>
+<p>Go 的汇编还引入了 4 个伪寄存器，援引官方文档的描述：</p>
+<blockquote>
+<ul>
+<li><code>FP</code>: Frame pointer: arguments and locals.</li>
+<li><code>PC</code>: Program counter: jumps and branches.</li>
+<li><code>SB</code>: Static base pointer: global symbols.</li>
+<li><code>SP</code>: Stack pointer: top of stack.</li>
+</ul>
+</blockquote>
+<p>我们这里对容易混淆的几点简单进行说明：</p>
+<ol>
+<li>伪 SP 和硬件 SP 不是一回事，在手写代码时，伪 SP 和硬件 SP 的区分方法是看该 SP 前是否有 symbol。如果有 symbol，那么即为伪寄存器，如果没有，那么说明是硬件 SP 寄存器。</li>
+<li>SP 和 FP 的相对位置是会变的，所以不应该尝试用伪 SP 寄存器去找那些用 FP + offset 来引用的值，例如函数的入参和返回值。</li>
+<li>官方文档中说的伪 SP 指向 stack 的 top，是有问题的。其指向的局部变量位置实际上是整个栈的栈底(除 caller BP 之外)，所以说 bottom 更合适一些。</li>
+<li>在 go tool objdump/go tool compile -S 输出的代码中，是没有伪 SP 和 FP 寄存器的，我们上面说的区分伪 SP 和硬件 SP 寄存器的方法，对于上述两个命令的输出结果是没法使用的。在编译和反汇编的结果中，只有真实的 SP 寄存器。</li>
+<li>FP 和 Go 的官方源代码里的 framepointer 不是一回事，源代码里的 framepointer 指的是 caller BP 寄存器的值，在这里和 caller 的伪 SP 是值是相等的</li>
+</ol>
+</li>
+<li>
+<p>变量声明</p>
+<p>在汇编里所谓的变量，一般是存储在 .rodata 或者 .data 段中的只读值。对应到应用层的话，就是已初始化过的全局的 const、var、static 变量/常量。</p>
+<p>使用 DATA 结合 GLOBL 来定义一个变量。DATA 的用法为:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">DATA</span>    <span style="color:#a6e22e">symbol</span><span style="color:#f92672">+</span><span style="color:#a6e22e">offset</span>(<span style="color:#a6e22e">SB</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">width</span>, <span style="color:#a6e22e">value</span>
+</code></pre></div><p>大多数参数都是字面意思，不过这个 offset 需要稍微注意。其含义是该值相对于符号 symbol 的偏移，而不是相对于全局某个地址的偏移。</p>
+</li>
+<li>
+<p>函数声明
+我们来看看一个典型的 plan9 的汇编函数的定义：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// func add(a, b int) int
+</span><span style="color:#75715e">//   =&gt; 该声明定义在同一个 package 下的任意 .go 文件中
+</span><span style="color:#75715e">//   =&gt; 只有函数头，没有实现
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">TEXT</span> <span style="color:#a6e22e">pkgname</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">NOSPLIT</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#ae81ff">0</span>(<span style="color:#a6e22e">FP</span>), <span style="color:#a6e22e">AX</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">FP</span>), <span style="color:#a6e22e">BX</span>
+    <span style="color:#a6e22e">ADDQ</span> <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">BX</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">BX</span>, <span style="color:#a6e22e">ret</span><span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">FP</span>)
+    <span style="color:#a6e22e">RET</span>
+</code></pre></div><p>为什么要叫 TEXT ？如果对程序数据在文件中和内存中的分段稍有了解的同学应该知道，我们的代码在二进制文件中，是存储在 .text 段中的，这里也就是一种约定俗成的起名方式。实际上在 plan9 中 TEXT 是一个指令，用来定义一个函数。除了 TEXT 之外还有前面变量声明说到的 DATA/GLOBL。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">                              <span style="color:#a6e22e">参数及返回值大小</span>,<span style="color:#a6e22e">入参数</span><span style="color:#f92672">+</span><span style="color:#a6e22e">返回参数总字节</span>
+                                  | 
+ <span style="color:#a6e22e">TEXT</span> <span style="color:#a6e22e">pkgname</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">SB</span>),<span style="color:#a6e22e">NOSPLIT</span>,<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">32</span><span style="color:#f92672">-</span><span style="color:#ae81ff">32</span>
+       |        |               |
+      <span style="color:#a6e22e">包名</span>     <span style="color:#a6e22e">函数名</span>         <span style="color:#a6e22e">栈帧大小</span>(<span style="color:#a6e22e">局部变量</span><span style="color:#f92672">+</span><span style="color:#a6e22e">可能需要的额外调用函数的参数空间的总大小</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">但不包括调用其它函数时的</span> <span style="color:#a6e22e">ret</span> <span style="color:#a6e22e">address</span> <span style="color:#a6e22e">的大小</span>)
+</code></pre></div></li>
+<li>
+<p>栈结构
+下面是一个典型的函数的栈结构图:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">                                          <span style="color:#f92672">-----------------</span>                                           
+                       <span style="color:#a6e22e">current</span> <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">arg0</span>                                           
+                       <span style="color:#f92672">-----------------</span> <span style="color:#f92672">&lt;-----------</span> <span style="color:#a6e22e">FP</span>(<span style="color:#a6e22e">pseudo</span> <span style="color:#a6e22e">FP</span>)                
+                        <span style="color:#a6e22e">caller</span> <span style="color:#a6e22e">ret</span> <span style="color:#a6e22e">addr</span>                                            
+                       <span style="color:#f92672">+---------------+</span>                                           
+                       | <span style="color:#a6e22e">caller</span> <span style="color:#a6e22e">BP</span>(<span style="color:#f92672">*</span>)  |                                           
+                       <span style="color:#f92672">-----------------</span> <span style="color:#f92672">&lt;-----------</span> <span style="color:#a6e22e">SP</span>(<span style="color:#a6e22e">pseudo</span> <span style="color:#a6e22e">SP</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">实际上是当前栈帧的</span> <span style="color:#a6e22e">BP</span> <span style="color:#a6e22e">位置</span>)
+                       |   <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">Var0</span>  |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |   <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">Var1</span>  |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |   <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">Var2</span>  |                                           
+                       <span style="color:#f92672">-----------------</span>                <span style="color:#f92672">-</span>                          
+                       |   <span style="color:#f92672">......</span>..    |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |   <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">VarN</span>  |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |               |                                           
+                       |               |                                           
+                       |  <span style="color:#a6e22e">temporarily</span>  |                                           
+                       |  <span style="color:#a6e22e">unused</span> <span style="color:#a6e22e">space</span> |                                           
+                       |               |                                           
+                       |               |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |  <span style="color:#a6e22e">call</span> <span style="color:#a6e22e">retn</span>    |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |  <span style="color:#a6e22e">call</span> <span style="color:#a6e22e">ret</span>(<span style="color:#a6e22e">n</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)|                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |  <span style="color:#f92672">.........</span>.   |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |  <span style="color:#a6e22e">call</span> <span style="color:#a6e22e">ret1</span>    |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |  <span style="color:#a6e22e">call</span> <span style="color:#a6e22e">argn</span>    |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |   <span style="color:#f92672">...</span>..       |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |  <span style="color:#a6e22e">call</span> <span style="color:#a6e22e">arg3</span>    |                                           
+                       <span style="color:#f92672">-----------------</span>                                           
+                       |  <span style="color:#a6e22e">call</span> <span style="color:#a6e22e">arg2</span>    |                                           
+                       |<span style="color:#f92672">---------------</span>|                                           
+                       |  <span style="color:#a6e22e">call</span> <span style="color:#a6e22e">arg1</span>    |                                           
+                       <span style="color:#f92672">-----------------</span>   <span style="color:#f92672">&lt;------------</span>  <span style="color:#a6e22e">hardware</span> <span style="color:#a6e22e">SP</span> <span style="color:#a6e22e">位置</span>           
+                       | <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">addr</span>   |                                           
+                       <span style="color:#f92672">+---------------+</span>                               
+</code></pre></div><p>图上的 caller BP，指的是 caller 的 BP 寄存器值，有些人把 caller BP 叫作 caller 的 frame pointer，实际上这个习惯是从 x86 架构沿袭来的。Go 的 asm 文档中把伪寄存器 FP 也称为 frame pointer，但是这两个 frame pointer 根本不是一回事。</p>
+<p>如果编译器在最终的汇编结果中没有插入 caller BP(源代码中所称的 frame pointer)的情况下，伪 SP 和伪 FP 之间只有 8 个字节的 caller 的 return address，而插入了 BP 的话，就会多出额外的 8 字节。也就说伪 SP 和伪 FP 的相对位置是不固定的，有可能是间隔 8 个字节，也有可能间隔 16 个字节。并且判断依据会根据平台和 Go 的版本有所不同。</p>
+<p>图上可以看到，FP 伪寄存器指向函数的传入参数的开始位置，因为栈是朝低地址方向增长，为了通过寄存器引用参数时方便，所以参数的摆放方向和栈的增长方向是相反的，即：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">                              <span style="color:#a6e22e">FP</span>
+<span style="color:#a6e22e">high</span> <span style="color:#f92672">----------------------</span>&gt; <span style="color:#a6e22e">low</span>
+<span style="color:#a6e22e">argN</span>, <span style="color:#f92672">...</span> <span style="color:#a6e22e">arg3</span>, <span style="color:#a6e22e">arg2</span>, <span style="color:#a6e22e">arg1</span>, <span style="color:#a6e22e">arg0</span>
+</code></pre></div><blockquote>
+<p>假设所有参数均为 8 字节，这样我们就可以用 symname+0(FP) 访问第一个 参数，symname+8(FP) 访问第二个参数，以此类推。用伪 SP 来引用局部变量，原理上来讲差不多，不过因为伪 SP 指向的是局部变量的底部，所以 symname-8(SP) 表示的是第一个局部变量，symname-16(SP)表示第二个，以此类推。当然，这里假设局部变量都占用 8 个字节。</p>
+</blockquote>
+<p>因为官方文档本身较模糊，我们来一个函数调用的全景图，来看一下这些真假 SP/FP/BP 到底是个什么关系:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">                                                                                                                            
+                                       <span style="color:#a6e22e">caller</span>                                                                                 
+                                 <span style="color:#f92672">+------------------+</span>                                                                         
+                                 |                  |                                                                         
+       <span style="color:#f92672">+----------------------</span>&gt;  <span style="color:#f92672">--------------------</span>                                                                         
+       |                         |                  |                                                                         
+       |                         | <span style="color:#a6e22e">caller</span> <span style="color:#a6e22e">parent</span> <span style="color:#a6e22e">BP</span> |                                                                         
+       |           <span style="color:#a6e22e">BP</span>(<span style="color:#a6e22e">pseudo</span> <span style="color:#a6e22e">SP</span>) <span style="color:#f92672">--------------------</span>                                                                         
+       |                         |                  |                                                                         
+       |                         |   <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">Var0</span>     |                                                                         
+       |                         <span style="color:#f92672">--------------------</span>                                                                         
+       |                         |                  |                                                                         
+       |                         |   <span style="color:#f92672">......</span>.        |                                                                         
+       |                         <span style="color:#f92672">--------------------</span>                                                                         
+       |                         |                  |                                                                         
+       |                         |   <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">VarN</span>     |                                                                         
+                                 <span style="color:#f92672">--------------------</span>                                                                         
+ <span style="color:#a6e22e">caller</span> <span style="color:#a6e22e">stack</span> <span style="color:#a6e22e">frame</span>              |                  |                                                                         
+                                 |   <span style="color:#a6e22e">callee</span> <span style="color:#a6e22e">arg2</span>    |                                                                         
+       |                         |<span style="color:#f92672">------------------</span>|                                                                         
+       |                         |                  |                                                                         
+       |                         |   <span style="color:#a6e22e">callee</span> <span style="color:#a6e22e">arg1</span>    |                                                                         
+       |                         |<span style="color:#f92672">------------------</span>|                                                                         
+       |                         |                  |                                                                         
+       |                         |   <span style="color:#a6e22e">callee</span> <span style="color:#a6e22e">arg0</span>    |                                                                         
+       |                         <span style="color:#f92672">----------------------------------------------+</span>   <span style="color:#a6e22e">FP</span>(<span style="color:#a6e22e">virtual</span> <span style="color:#a6e22e">register</span>)                       
+       |                         |                  |                          |                                              
+       |                         |   <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">addr</span>    |  <span style="color:#a6e22e">parent</span> <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">address</span>   |                                              
+       <span style="color:#f92672">+----------------------</span>&gt;  <span style="color:#f92672">+------------------+---------------------------</span>    <span style="color:#f92672">&lt;-------------------------------+</span>         
+                                                    |  <span style="color:#a6e22e">caller</span> <span style="color:#a6e22e">BP</span>               |                                    |         
+                                                    |  (<span style="color:#a6e22e">caller</span> <span style="color:#a6e22e">frame</span> <span style="color:#a6e22e">pointer</span>)  |                                    |         
+                                     <span style="color:#a6e22e">BP</span>(<span style="color:#a6e22e">pseudo</span> <span style="color:#a6e22e">SP</span>)  <span style="color:#f92672">----------------------------</span>                                    |         
+                                                    |                          |                                    |         
+                                                    |     <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">Var0</span>           |                                    |         
+                                                    <span style="color:#f92672">----------------------------</span>                                    |         
+                                                    |                          |                                              
+                                                    |     <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">Var1</span>           |                                              
+                                                    <span style="color:#f92672">----------------------------</span>                            <span style="color:#a6e22e">callee</span> <span style="color:#a6e22e">stack</span> <span style="color:#a6e22e">frame</span>
+                                                    |                          |                                              
+                                                    |       <span style="color:#f92672">...</span>..              |                                              
+                                                    <span style="color:#f92672">----------------------------</span>                                    |         
+                                                    |                          |                                    |         
+                                                    |     <span style="color:#a6e22e">Local</span> <span style="color:#a6e22e">VarN</span>           |                                    |         
+                                  <span style="color:#a6e22e">SP</span>(<span style="color:#a6e22e">Real</span> <span style="color:#a6e22e">Register</span>) <span style="color:#f92672">----------------------------</span>                                    |         
+                                                    |                          |                                    |         
+                                                    |                          |                                    |         
+                                                    |                          |                                    |         
+                                                    |                          |                                    |         
+                                                    |                          |                                    |         
+                                                    <span style="color:#f92672">+--------------------------+</span>    <span style="color:#f92672">&lt;-------------------------------+</span>         
+                                                                                                                                
+                                                              <span style="color:#a6e22e">callee</span>
+</code></pre></div></li>
+</ul>
+<h5 id="argsize-和-framesize-计算规则">argsize 和 framesize 计算规则</h5>
+<p>argSize在函数中声明：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"> <span style="color:#a6e22e">TEXT</span> <span style="color:#a6e22e">pkgname</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">SB</span>),<span style="color:#a6e22e">NOSPLIT</span>,<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">16</span><span style="color:#f92672">-</span><span style="color:#ae81ff">32</span>
+</code></pre></div><p>前面已经说过 $16-32 表示 $framesize-argsize。Go 在函数调用时，参数和返回值都需要由 caller 在其栈帧上备好空间。callee 在声明时仍然需要知道这个 argsize。argsize 的计算方法是，参数大小求和+返回值大小求和，例如入参是 3 个 int64 类型，返回值是 1 个 int64 类型，那么这里的 argsize = sizeof(int64) * 4。</p>
+<p>不过真实世界永远没有我们假设的这么美好，函数参数往往混合了多种类型，还需要考虑内存对齐问题。</p>
+<p>如果不确定自己的函数签名需要多大的 argsize，可以通过简单实现一个相同签名的空函数，然后 <code>go tool objdump</code> 来逆向查找应该分配多少空间。</p>
+<ul>
+<li>
+<p>framesize</p>
+<p>函数的 framesize 就稍微复杂一些了，手写代码的 framesize 不需要考虑由编译器插入的 caller BP，要考虑：</p>
+<ol>
+<li>
+<p>局部变量，及其每个变量的 size。</p>
+</li>
+<li>
+<p>在函数中是否有对其它函数调用时，如果有的话，调用时需要将 callee 的参数、返回值考虑在内。虽然 return address(rip)的值也是存储在 caller 的 stack frame 上的，但是这个过程是由 CALL 指令和 RET 指令完成 PC 寄存器的保存和恢复的，在手写汇编时，同样也是不需要考虑这个 PC 寄存器在栈上所需占用的 8 个字节的。</p>
+</li>
+<li>
+<p>原则上来说，调用函数时只要不把局部变量覆盖掉就可以了。稍微多分配几个字节的 framesize 也不会死。</p>
+</li>
+<li>
+<p>在确保逻辑没有问题的前提下，你愿意覆盖局部变量也没有问题。只要保证进入和退出汇编函数时的 caller 和 callee 能正确拿到返回值就可以。</p>
+</li>
+</ol>
+</li>
+</ul>
+<h5 id="demo">Demo</h5>
+<p>可以通过在源代码中声明函数，不进行实现，而是通过汇编plan9方式进行实现函数也是可以运行的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;fmt&#34;</span>
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">a</span>,<span style="color:#a6e22e">b</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span>  <span style="color:#75715e">// 汇编函数声明
+</span><span style="color:#75715e">//func sub(a,b int) int
+</span><span style="color:#75715e">//func mul(a,b int) int
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">add</span>(<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">11</span>))
+	<span style="color:#75715e">//fmt.Printf(sub(99,15))
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//fmt.Printf(mul(11,12))
+</span><span style="color:#75715e"></span>}
+
+
+
+<span style="color:#75715e">// 汇编plan9  math.s文件
+</span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">#</span><span style="color:#a6e22e">include</span> <span style="color:#e6db74">&#34;textflag.h&#34;</span>
+
+<span style="color:#75715e">// func add(a,b int) int
+</span><span style="color:#75715e">// plan9汇编使用TEXT声明函数
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">TEXT</span> <span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">NOSPLIT</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span><span style="color:#f92672">-</span><span style="color:#ae81ff">24</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#ae81ff">0</span>(<span style="color:#a6e22e">FP</span>),<span style="color:#a6e22e">AX</span>  <span style="color:#75715e">// 参数a
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">b</span><span style="color:#f92672">+</span><span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">FP</span>),<span style="color:#a6e22e">BX</span>
+    <span style="color:#a6e22e">ADDQ</span> <span style="color:#a6e22e">BX</span>,<span style="color:#a6e22e">AX</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">AX</span>,<span style="color:#a6e22e">ret</span><span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">FP</span>)
+    <span style="color:#a6e22e">RET</span>
+
+</code></pre></div><p>将上述源代码与汇编文件同放在一个目录下，执行<code>go build</code>就能看到生成的二进制执行文件。通过<code>./main</code>运行即可。</p>
+<p><strong>伪寄存器 SP 、伪寄存器 FP 和硬件寄存器 SP</strong></p>
+<p>spspfp.s:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#960050;background-color:#1e0010">#</span><span style="color:#a6e22e">include</span> <span style="color:#e6db74">&#34;textflag.h&#34;</span>
+
+<span style="color:#75715e">// func output(int) (int, int, int)
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">TEXT</span> <span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">output</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">8</span><span style="color:#f92672">-</span><span style="color:#ae81ff">48</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#ae81ff">24</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">DX</span> <span style="color:#75715e">// 不带 symbol，这里的 SP 是硬件寄存器 SP
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">DX</span>, <span style="color:#a6e22e">ret3</span><span style="color:#f92672">+</span><span style="color:#ae81ff">24</span>(<span style="color:#a6e22e">FP</span>) <span style="color:#75715e">// 第三个返回值
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">perhapsArg1</span><span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">BX</span> <span style="color:#75715e">// 当前函数栈大小 &gt; 0，所以 FP 在 SP 的上方 16 字节处
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">BX</span>, <span style="color:#a6e22e">ret2</span><span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">FP</span>) <span style="color:#75715e">// 第二个返回值
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">arg1</span><span style="color:#f92672">+</span><span style="color:#ae81ff">0</span>(<span style="color:#a6e22e">FP</span>), <span style="color:#a6e22e">AX</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">ret1</span><span style="color:#f92672">+</span><span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">FP</span>)  <span style="color:#75715e">// 第一个返回值
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">RET</span>
+</code></pre></div><p>spspfp.go:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">output</span>(<span style="color:#66d9ef">int</span>) (<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>) <span style="color:#75715e">// 汇编函数声明
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span>, <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">output</span>(<span style="color:#ae81ff">987654321</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span>, <span style="color:#a6e22e">c</span>)
+}
+
+<span style="color:#75715e">// 执行输出
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">987654321</span> <span style="color:#ae81ff">987654321</span> <span style="color:#ae81ff">987654321</span>
+</code></pre></div><p>和代码结合思考，可以知道我们当前的栈结构是这样的:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">------</span>
+<span style="color:#a6e22e">ret2</span> (<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">bytes</span>)
+<span style="color:#f92672">------</span>
+<span style="color:#a6e22e">ret1</span> (<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">bytes</span>)
+<span style="color:#f92672">------</span>
+<span style="color:#a6e22e">ret0</span> (<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">bytes</span>)
+<span style="color:#f92672">------</span>
+<span style="color:#a6e22e">arg0</span> (<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">bytes</span>)
+<span style="color:#f92672">------</span> <span style="color:#a6e22e">FP</span>
+<span style="color:#a6e22e">ret</span> <span style="color:#a6e22e">addr</span> (<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">bytes</span>)
+<span style="color:#f92672">------</span>
+<span style="color:#a6e22e">caller</span> <span style="color:#a6e22e">BP</span> (<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">bytes</span>)
+<span style="color:#f92672">------</span> <span style="color:#a6e22e">pseudo</span> <span style="color:#a6e22e">SP</span>
+<span style="color:#a6e22e">frame</span> <span style="color:#a6e22e">content</span> (<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">bytes</span>)
+<span style="color:#f92672">------</span> <span style="color:#a6e22e">hardware</span> <span style="color:#a6e22e">SP</span>
+
+</code></pre></div><p>本小节例子的 framesize 是大于 0 的，读者可以尝试修改 framesize 为 0，然后调整代码中引用伪 SP 和硬件 SP 时的 offset，来研究 framesize 为 0 时，伪 FP，伪 SP 和硬件 SP 三者之间的相对位置。</p>
+<p>本小节的例子是为了告诉大家，伪 SP 和伪 FP 的相对位置是会变化的，手写时不应该用伪 SP 和 &gt;0 的 offset 来引用数据，否则结果可能会出乎你的预料.</p>
+<p><strong>汇编调用非汇编函数</strong></p>
+<p>output.s:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#960050;background-color:#1e0010">#</span><span style="color:#a6e22e">include</span> <span style="color:#e6db74">&#34;textflag.h&#34;</span>
+
+<span style="color:#75715e">// func output(a,b int) int
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">TEXT</span> <span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">output</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">NOSPLIT</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">24</span><span style="color:#f92672">-</span><span style="color:#ae81ff">24</span>
+    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">a</span><span style="color:#f92672">+</span><span style="color:#ae81ff">0</span>(<span style="color:#a6e22e">FP</span>), <span style="color:#a6e22e">DX</span> <span style="color:#75715e">// arg a
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">DX</span>, <span style="color:#ae81ff">0</span>(<span style="color:#a6e22e">SP</span>) <span style="color:#75715e">// arg x
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">b</span><span style="color:#f92672">+</span><span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">FP</span>), <span style="color:#a6e22e">CX</span> <span style="color:#75715e">// arg b
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">CX</span>, <span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">SP</span>) <span style="color:#75715e">// arg y
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">CALL</span> <span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">SB</span>) <span style="color:#75715e">// 在调用 add 之前，已经把参数都通过物理寄存器 SP 搬到了函数的栈顶
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">AX</span> <span style="color:#75715e">// add 函数会把返回值放在这个位置
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">MOVQ</span> <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">ret</span><span style="color:#f92672">+</span><span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">FP</span>) <span style="color:#75715e">// return result
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">RET</span>
+</code></pre></div><p>output.go:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;fmt&#34;</span>
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">add</span>(<span style="color:#a6e22e">x</span>, <span style="color:#a6e22e">y</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">y</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">output</span>(<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span>
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">output</span>(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">13</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>)
+}
+</code></pre></div><p>拷贝博客资源：<a href="https://github.com/cch123/golang-notes/blob/master/assembly.md">plan9 assembly 完全解析</a></p>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/">Go_汇编学习</a></li>
+				
+				<li><a href="/post/slice%E5%BA%95%E5%B1%82%E5%AD%A6%E4%B9%A0/">Slice底层学习</a></li>
+				
+				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
+				
+				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe_pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe.pointer_uintptr之间关系</a></li>
+				
+				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

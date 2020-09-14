@@ -42,6 +42,46 @@
 		
 		
 			<article>
+	<h1><a href="https://www.xssor2600.site/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/">Go_汇编学习</a></h1>
+	<b><time>2020.09.07 18:04</time></b>
+	
+	<a href="/tags/go">@go</a>
+	
+	<a href="/tags/%E6%B1%87%E7%BC%96">@汇编</a>
+	
+    </br>[content:~]</br>
+	<div>
+		Go语言的编译器和汇编器都带了一个-S参数，可以查看生成的最终目标代码。通过对比目标代码和原始的Go语言或Go汇编语言代码的差异可以加深对底层实现的理解。
+在学习go源代码和原理过程中，需要结合汇编进行学习，所以必要少不了要熟知基础汇编知识。go也提供了工具可以将源代码中底层汇编指令输出，通过``go tool compile命令用于调用Go语言提供的底层命令工具，其中-S`参数表示输出汇编格式。
+package main func main() { _ = add(3,5) } func add(a,b int) int { return a+b } go tool compile -S demo.go命令执行查看源代码的汇编指令。
+cotox@cotoxdeMacBook-Pro main % go tool compile -S demo.go &#34;&#34;.main STEXT nosplit size=1 args=0x0 locals=0x0 ..... // add函数底层汇编 &#34;&#34;.add STEXT nosplit size=19 args=0x18 locals=0x0 0x0000 00000 (demo.go:9) TEXT &#34;&#34;.add(SB), NOSPLIT|ABIInternal, $0-24 0x0000 00000 (demo.go:9) PCDATA $0, $-2 0x0000 00000 (demo.go:9) PCDATA $1, $-2 0x0000 00000 (demo.
+		
+			<a href="https://www.xssor2600.site/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/slice%E5%BA%95%E5%B1%82%E5%AD%A6%E4%B9%A0/">Slice底层学习</a></h1>
+	<b><time>2020.09.07 17:01</time></b>
+	
+	<a href="/tags/slice">@slice</a>
+	
+    </br>[content:~]</br>
+	<div>
+		slice 翻译成中文就是切片，它和数组（array）很类似，可以用下标的方式进行访问，如果越界，就会产生 panic。但是它比数组更灵活，可以自动地进行扩容。
+ type slice struct { array unsafe.Pointer // 指向底层引用数组内存地址指针 	len int // 表示切片可用元素的个数，也就是说使用下标对 slice 的元素进行访问时，下标不能超过 slice 的长度 	cap int //底层数组的元素个数，容量 &gt;= 长度。在底层数组不进行扩容的情况下，容量也是 slice 可以扩张的最大限度。 } 注意，底层数组是可以被多个 slice 同时指向的，因此对一个 slice 的元素进行操作是有可能影响到其他 slice 的。
+汇编角度看slice func main() { s:= make([]int,3,10) _=f(s) } func f(s []int) int { return s[1] } 通过命令go tool compile -S demo.go查看生成的汇编源代码
+&#34;&#34;.f STEXT nosplit size=60 args=0x20 locals=0x18 // 栈帧大小为24字节，参数和返回值为32字节 (slice类型内存占用24字节)  0x0000 00000 (demo.
+		
+			<a href="https://www.xssor2600.site/post/slice%E5%BA%95%E5%B1%82%E5%AD%A6%E4%B9%A0/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
 	<h1><a href="https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></h1>
 	<b><time>2020.09.06 18:44</time></b>
 	
@@ -229,74 +269,9 @@ Go 运行时有一个调度程序，其任务是调度这些 goroutine 执行。
 </article>
 
 		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/">Golang设计模式学习_工厂方法FactoryMethod</a></h1>
-	<b><time>2020.07.26 23:01</time></b>
-	
-	<a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F">@设计模式</a>
-	
-	<a href="/tags/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95">@工厂方法</a>
-	
-    </br>[content:~]</br>
-	<div>
-		工厂方法模式理论   为什么需要工厂方法模式？
-工厂方法模式也是一种创建型模式，产生的目的就是为了“创建对象”。那么为什么需要这种模式来创建对象，创建哪些场景的对象呢？工厂方法模式也是为了适应软件设计开闭原则，依赖倒置原则的，目的就是通过一种工程化方式，设计可拓展的程序。面向接口开发。不需要太多的关注实现细节
- 定义一个用于创建对象的接口，让子类绝对实例化哪一个类，工厂方法使一个类的实例化延迟到其子类。 总是引用接口而非实现类，能允许变换子类而不影响调用方，即尽可能面向抽象编程。
- 在OOP中，通常都会有抽象的概念，通常在高级语言中，会通过内建的一些关键字进行表达，例如abstrct,interface...,目的就是让开发者通过这些抽象，去设计高可拓展，稳定的程序。
-例如在Java中，如果不是面向接口（抽象）去创建产品，那么在对象的创建过程，和对象的使用过程都会有局限性，因为太过于具体而不利于拓展。
-// 例如有两个实体 public class ProductA { } public class ProductB { } // 要打印所有的商品 public Class ProductPrinter { // 为了突出目的，不用重写  public void printA(ProductA pa){ } public void printB(ProductB pb){ } // ... public void print(ProductB pb){  //} } // 常规创建对象 public static void main(String[] args) { ProductA a = new ProductA(); ProductB b = new ProductB(); // ProductC c = new ProductC();  ProductPrinter printer = new ProductPrinter(); printer.
-		
-			<a href="https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95factorymethod/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%BB%BA%E9%80%A0%E8%80%85builder/">Golang设计模式学习_建造者builder</a></h1>
-	<b><time>2020.07.26 13:31</time></b>
-	
-	<a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F">@设计模式</a>
-	
-	<a href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B">@创建型</a>
-	
-    </br>[content:~]</br>
-	<div>
-		插一句，如果一个struct类型变量，若是属性都是小写开头的话（private），那么json.Marshal方法是序列化不出来的。(Go的json解析：Marshal与Unmarshal)
-建造者模式理念   为什么需要建造者模式？
-建造者模式是构造方法的一种替代方案，目的是通过抽象一层工程方法来更规范的构建复杂对象。
-什么叫复杂的对象？按照单一职责原则来说，一个对象不能包含太多的职责，也就不能包含太多的属性与行为方法,那么在满足单一职责原则基础上，或者实际应用中由于各种情况，也许程序开发中不能遵守原则，有时候会有负责对象的产生：不少的对象属性与行为方法，其中属性又是其他负责对象，常规构造对象过程过于臃肿，不便于拓展，那么就需要设计模式来重构
-核心理念：将复杂对象的表现层与构造过程剥离开来，使相同的构造过程能创建不同的表现层。
-对象构建过程，本质就是赋予对象行为逻辑与设置属性的值，那么Builder建造者模式，在应用上来看，是将对象的属性与创建分离，抽象对象创建过程，根据不同场景复用创建过程。
-  建造模式有哪些组成？
-核心重要的就是两部分：产品实体属性与方法 + 抽象的构建过程
-  抽象建造者（builder）：描述具体建造者的公共接口，一般用来定义建造细节的方法，并不涉及具体的对象部件的创建。【可复用】
-  产品（Product）：描述一个由一系列部件组成较为复杂的对象。
-  具体建造者（ConcreteBuilder）：描述具体建造者，并实现抽象建造者公共接口。
-  指挥者（Director）：调用具体建造者来创建复杂对象（产品）的各个部分，并按照一定顺序（流程）来建造复杂对象。
-    建造者有哪些应用套路？
-  为了分离对象的属性与创建过程
-一旦将属性与对象创建过程接耦，那么对象的创建过程就不再强依赖所有的属性，创建过程就能更灵活的，具体建造者就可以根据实际的对象属性组合的创建不同的产品。
-  相同的构造流程可以产出不同的表现层
-因为对象构建过程是抽象的！那么有相同构建过程的产品，都可以复用改构建过程，从而可以组合创建不同的产品。
-    建造者有哪些优势缺点？
-  优点：
-1、建造者独立，易扩展。 2、便于控制细节风险。
-  缺点：
-1、产品必须有共同点，范围有限制。 2、如内部变化复杂，会有很多的建造类。
-    建造者实践应用 了解了设计模式建造者模式理念，那么就可以通过高级语言来实践应用。
-Go应用   定义建造者最终的产品实体Product(产品都有相同的构建过程)
-// 产品1：支付订单Product type Order struct { OrderId string Price Money UserId int64 GoodName string OrderType string // .
-		
-			<a href="https://www.xssor2600.site/post/golang%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0_%E5%BB%BA%E9%80%A0%E8%80%85builder/">Read more...</a>
-		
-	</div>
-</article>
-
-		
 		<div>
 
-1 of 2
+1 of 3
 
 	<a href="/page/2/">Next Page</a>
 

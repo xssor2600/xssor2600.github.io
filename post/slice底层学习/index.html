@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Slice底层学习</title>
+	<meta name="description" content="老夫聊发少年狂~">
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+</head>
+<body>
+	<header>
+	==============================<br>
+	== <a href="https://www.xssor2600.site/">琳琅世界，观山河</a> ==<br>
+	==============================
+	<div style="float: right;">前三三x后三三</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>[Start]</b></a>.
+			
+			
+			<a href="/post/"><b>[Posts]</b></a>.
+			
+			<a href="/categories/"><b>[Categories]</b></a>.
+			
+			<a href="/tags/"><b>[Tags]</b></a>.
+			
+			<a href="/minds/"><b>[随想杂记]</b></a>.
+			
+	</nav>
+	</p>
+	
+    <img src="https://s1.ax1x.com/2020/07/04/Nx6Ots.png" alt="Nx6Ots.png" border="0" width="75" height="70"/>
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Slice底层学习</h1>
+			<b><time>2020.09.07 17:01</time></b>
+		       
+		           <a href="/tags/slice">slice</a>
+        	       
+                   </br>
+                   </br>[content:] start~</br>
+			<div>
+				<blockquote>
+<p><code>slice</code> 翻译成中文就是<code>切片</code>，它和<code>数组（array）</code>很类似，可以用下标的方式进行访问，如果越界，就会产生 panic。但是它比数组更灵活，可以自动地进行扩容。</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">slice</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">array</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>   <span style="color:#75715e">// 指向底层引用数组内存地址指针
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">len</span>   <span style="color:#66d9ef">int</span> <span style="color:#75715e">// 表示切片可用元素的个数，也就是说使用下标对 slice 的元素进行访问时，下标不能超过 slice 的长度
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">cap</span>   <span style="color:#66d9ef">int</span> <span style="color:#75715e">//底层数组的元素个数，容量 &gt;= 长度。在底层数组不进行扩容的情况下，容量也是 slice 可以扩张的最大限度。
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>注意，<strong>底层数组是可以被多个 slice 同时指向的</strong>，因此对一个 slice 的元素进行操作是有可能影响到其他 slice 的。</p>
+<h5 id="汇编角度看slice">汇编角度看slice</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#a6e22e">s</span><span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">10</span>)
+	<span style="color:#a6e22e">_</span>=<span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">s</span>)
+
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">s</span> []<span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">1</span>]
+}
+</code></pre></div><p>通过命令<code>go tool compile -S demo.go</code>查看生成的汇编源代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">f</span> <span style="color:#a6e22e">STEXT</span> <span style="color:#a6e22e">nosplit</span> <span style="color:#a6e22e">size</span>=<span style="color:#ae81ff">60</span> <span style="color:#a6e22e">args</span>=<span style="color:#ae81ff">0x20</span> <span style="color:#a6e22e">locals</span>=<span style="color:#ae81ff">0x18</span>
+<span style="color:#75715e">// 栈帧大小为24字节，参数和返回值为32字节 (slice类型内存占用24字节)
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">TEXT</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">NOSPLIT</span>|<span style="color:#a6e22e">ABIInternal</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">24</span><span style="color:#f92672">-</span><span style="color:#ae81ff">32</span>
+<span style="color:#75715e">//  SP栈顶指针下移24字节
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">SUBQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">24</span>, <span style="color:#a6e22e">SP</span>
+<span style="color:#75715e">// // 将BP寄存器的值入栈
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0004</span> <span style="color:#ae81ff">00004</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">BP</span>, <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>)
+<span style="color:#75715e">// 将新的栈顶地址保存到BP寄存器
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0009</span> <span style="color:#ae81ff">0000</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">LEAQ</span>    <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">BP</span>
+        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">1</span><span style="color:#a6e22e">a65e721a2ccc325b382662e7ffee780</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">69</span><span style="color:#a6e22e">c1753bd5f81501d95132d08af04464</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">10</span>)       <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">9</span><span style="color:#a6e22e">fb7f0986f647f17cb53dda1484e0f7a</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+<span style="color:#75715e">// 取出slice的长度len
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x000e</span> <span style="color:#ae81ff">00014</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">s</span><span style="color:#f92672">+</span><span style="color:#ae81ff">40</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">CX</span>
+<span style="color:#75715e">// 比较索引1是否超过len
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0013</span> <span style="color:#ae81ff">0001</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">CMPQ</span>    <span style="color:#a6e22e">CX</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+<span style="color:#75715e">// 如果超过len，越界了。跳转到49
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0017</span> <span style="color:#ae81ff">00023</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">JLS</span>     <span style="color:#ae81ff">49</span>
+        <span style="color:#ae81ff">0x0019</span> <span style="color:#ae81ff">00025</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x0019</span> <span style="color:#ae81ff">00025</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+<span style="color:#75715e">// 将slice的数据首地址加载到AX寄存器
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0019</span> <span style="color:#ae81ff">00025</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">s</span><span style="color:#f92672">+</span><span style="color:#ae81ff">32</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x001e</span> <span style="color:#ae81ff">00030</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+<span style="color:#75715e">// 将第8byte地址的元素保存到AX寄存器，也就是s[1]
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x001e</span> <span style="color:#ae81ff">00030</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">AX</span>), <span style="color:#a6e22e">AX</span>
+ <span style="color:#75715e">// 将结果拷贝到返回参数的位置（y）
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0022</span> <span style="color:#ae81ff">00034</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#960050;background-color:#1e0010">~</span><span style="color:#a6e22e">r1</span><span style="color:#f92672">+</span><span style="color:#ae81ff">56</span>(<span style="color:#a6e22e">SP</span>)
+<span style="color:#75715e">//// 恢复BP的值
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0027</span> <span style="color:#ae81ff">0003</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">MOVQ</span>    <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">BP</span>
+        <span style="color:#ae81ff">0x002c</span> <span style="color:#ae81ff">00044</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">ADDQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">24</span>, <span style="color:#a6e22e">SP</span>
+        <span style="color:#ae81ff">0x0030</span> <span style="color:#ae81ff">0004</span><span style="color:#ae81ff">8</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">RET</span>
+        <span style="color:#ae81ff">0x0031</span> <span style="color:#ae81ff">0004</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">MOVL</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">AX</span>
+<span style="color:#75715e">//  越界，panic
+</span><span style="color:#75715e"></span>        <span style="color:#ae81ff">0x0036</span> <span style="color:#ae81ff">00054</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">panicIndex</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x003b</span> <span style="color:#ae81ff">0005</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">demo</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">11</span>)       <span style="color:#a6e22e">XCHGL</span>   <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">83</span> <span style="color:#a6e22e">ec</span> <span style="color:#ae81ff">18</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">89</span> <span style="color:#ae81ff">6</span><span style="color:#a6e22e">c</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">10</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">8</span><span style="color:#a6e22e">d</span> <span style="color:#ae81ff">6</span><span style="color:#a6e22e">c</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">10</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">8</span><span style="color:#a6e22e">b</span>  <span style="color:#a6e22e">H</span><span style="color:#f92672">...</span><span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">l</span><span style="color:#960050;background-color:#1e0010">$</span>.<span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">l</span><span style="color:#960050;background-color:#1e0010">$</span>.<span style="color:#a6e22e">H</span>.
+        <span style="color:#ae81ff">0x0010</span> <span style="color:#ae81ff">4</span><span style="color:#a6e22e">c</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">28</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">83</span> <span style="color:#a6e22e">f9</span> <span style="color:#ae81ff">01</span> <span style="color:#ae81ff">76</span> <span style="color:#ae81ff">18</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">8</span><span style="color:#a6e22e">b</span> <span style="color:#ae81ff">44</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">8</span><span style="color:#a6e22e">b</span>  <span style="color:#a6e22e">L</span><span style="color:#960050;background-color:#1e0010">$</span>(<span style="color:#a6e22e">H</span><span style="color:#f92672">...</span><span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">D</span><span style="color:#960050;background-color:#1e0010">$</span> <span style="color:#a6e22e">H</span>.
+        <span style="color:#ae81ff">0x0020</span> <span style="color:#ae81ff">40</span> <span style="color:#ae81ff">08</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">89</span> <span style="color:#ae81ff">44</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">38</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">8</span><span style="color:#a6e22e">b</span> <span style="color:#ae81ff">6</span><span style="color:#a6e22e">c</span> <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">10</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">83</span> <span style="color:#a6e22e">c4</span> <span style="color:#ae81ff">18</span>  <span style="color:#960050;background-color:#1e0010">@</span>.<span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">D</span><span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">8</span><span style="color:#a6e22e">H</span>.<span style="color:#a6e22e">l</span><span style="color:#960050;background-color:#1e0010">$</span>.<span style="color:#a6e22e">H</span><span style="color:#f92672">...</span>
+        <span style="color:#ae81ff">0x0030</span> <span style="color:#a6e22e">c3</span> <span style="color:#a6e22e">b8</span> <span style="color:#ae81ff">01</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#a6e22e">e8</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">90</span>              <span style="color:#f92672">............</span>
+        <span style="color:#a6e22e">rel</span> <span style="color:#ae81ff">55</span><span style="color:#f92672">+</span><span style="color:#ae81ff">4</span> <span style="color:#a6e22e">t</span>=<span style="color:#ae81ff">8</span> <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">panicIndex</span><span style="color:#f92672">+</span><span style="color:#ae81ff">0</span>
+
+</code></pre></div><p>通过上面的汇编代码，我们画出函数调用的栈帧图：</p>
+<p><img src="https://s1.ax1x.com/2020/09/07/wuLvy6.md.png" alt="image"></p>
+<h5 id="slice的创建">Slice的创建</h5>
+<p>slice的初始化创建方式有以下几种：</p>
+<ol>
+<li>直接声明: <code>var slice []int</code></li>
+<li>new方式创建：<code>slice := *new([]int)</code></li>
+<li>字面量初始化: <code>slice := []int{1,2,3}</code></li>
+<li>make方式：<code>slice := make([]int,0)</code></li>
+<li>从已有的切片或则数组：<code>slice := array[1:5] / slice:= otherSlice[1:5]</code></li>
+</ol>
+<ul>
+<li>
+<p>直接声明方式</p>
+<p>通过变量<code>var</code>定义声明的切片变量，其实是一个<code>nil slice</code>,它的长度和容量都为0，和nil比较结果为true。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">dslice</span> []<span style="color:#66d9ef">int</span>
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(len(<span style="color:#a6e22e">dslice</span>),cap(<span style="color:#a6e22e">dslice</span>))
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">dslice</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>) <span style="color:#75715e">// true
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Sizeof</span>(<span style="color:#a6e22e">dslice</span>)) <span style="color:#75715e">// 24个字节
+</span></code></pre></div><p>这里比较混淆的是<code>empty slice</code>，它的长度和容量也都为0，但是所有的空切片的数据指针都指向同一个地址 <code>0xc42003bda0</code>。空切片和 <code>nil</code> 比较的结果为<code>false</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">dslice</span> []<span style="color:#66d9ef">int</span>
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(len(<span style="color:#a6e22e">dslice</span>),cap(<span style="color:#a6e22e">dslice</span>))
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">dslice</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>) <span style="color:#75715e">// true
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Sizeof</span>(<span style="color:#a6e22e">dslice</span>)) <span style="color:#75715e">// 24个字节
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%p&#34;</span>,<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">dslice</span>) )<span style="color:#75715e">// 0xc0000b7260
+</span><span style="color:#75715e"></span>  
+  
+  <span style="color:#75715e">// 通过new创建出来的empty切片
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">emptySlice</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">*</span>new([]<span style="color:#66d9ef">int</span>) <span style="color:#75715e">// new返回指向空数组的内存地址，*内存地址取得值
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(len(<span style="color:#a6e22e">emptySlice</span>),cap(<span style="color:#a6e22e">emptySlice</span>)) <span style="color:#75715e">// 0, 0
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%p&#34;</span>,<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">emptySlice</span>)) <span style="color:#75715e">// 0xc0000b7280
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">dslice</span> <span style="color:#f92672">==</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">emptySlice</span>) <span style="color:#75715e">// false
+</span></code></pre></div><blockquote>
+<p><code>nil</code> 切片和空切片很相似，长度和容量都是0，官方建议尽量使用 <code>nil</code> 切片。</p>
+</blockquote>
+</li>
+<li>
+<p>make方式创建切片</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+  <span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">10</span>)
+  <span style="color:#a6e22e">slice</span>[<span style="color:#ae81ff">2</span>] = <span style="color:#ae81ff">2</span>
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>)
+}
+</code></pre></div><p>通过命令<code>go tool compile -S main.go</code>查看汇编结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">main</span> <span style="color:#a6e22e">STEXT</span> <span style="color:#a6e22e">size</span>=<span style="color:#ae81ff">213</span> <span style="color:#a6e22e">args</span>=<span style="color:#ae81ff">0x0</span> <span style="color:#a6e22e">locals</span>=<span style="color:#ae81ff">0x58</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">TEXT</span>    <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">main</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">ABIInternal</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">88</span><span style="color:#f92672">-</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x0000</span> <span style="color:#ae81ff">00000</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">MOVQ</span>    (<span style="color:#a6e22e">TLS</span>), <span style="color:#a6e22e">CX</span>
+        <span style="color:#ae81ff">0x0009</span> <span style="color:#ae81ff">0000</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">CMPQ</span>    <span style="color:#a6e22e">SP</span>, <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">CX</span>)
+        <span style="color:#ae81ff">0x000d</span> <span style="color:#ae81ff">00013</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x000d</span> <span style="color:#ae81ff">00013</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">JLS</span>     <span style="color:#ae81ff">203</span>
+        <span style="color:#ae81ff">0x0013</span> <span style="color:#ae81ff">0001</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x0013</span> <span style="color:#ae81ff">0001</span><span style="color:#ae81ff">9</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">SUBQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">88</span>, <span style="color:#a6e22e">SP</span>
+        <span style="color:#ae81ff">0x0017</span> <span style="color:#ae81ff">00023</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">BP</span>, <span style="color:#ae81ff">80</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x001c</span> <span style="color:#ae81ff">0002</span><span style="color:#ae81ff">8</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">LEAQ</span>    <span style="color:#ae81ff">80</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">BP</span>
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">69</span><span style="color:#a6e22e">c1753bd5f81501d95132d08af04464</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#ae81ff">568470801006e5</span><span style="color:#a6e22e">c0dc3947ea998fe279</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span>, <span style="color:#a6e22e">gclocals</span><span style="color:#960050;background-color:#1e0010">·</span><span style="color:#a6e22e">bfec7e55b3f043d1941c093912808913</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">FUNCDATA</span>        <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">3</span>, <span style="color:#e6db74">&#34;&#34;</span>.<span style="color:#a6e22e">main</span>.<span style="color:#a6e22e">stkobj</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x0021</span> <span style="color:#ae81ff">00033</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">LEAQ</span>    <span style="color:#66d9ef">type</span>.int(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x0028</span> <span style="color:#ae81ff">00040</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x0028</span> <span style="color:#ae81ff">00040</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, (<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x002c</span> <span style="color:#ae81ff">00044</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x0035</span> <span style="color:#ae81ff">00053</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x003e</span> <span style="color:#ae81ff">00062</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">makeslice</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x0043</span> <span style="color:#ae81ff">00067</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x0043</span> <span style="color:#ae81ff">00067</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#ae81ff">24</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x0048</span> <span style="color:#ae81ff">00072</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">7</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">AX</span>)
+        <span style="color:#ae81ff">0x0050</span> <span style="color:#ae81ff">000</span><span style="color:#ae81ff">80</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x0050</span> <span style="color:#ae81ff">000</span><span style="color:#ae81ff">80</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, (<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x0054</span> <span style="color:#ae81ff">000</span><span style="color:#ae81ff">84</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x005d</span> <span style="color:#ae81ff">000</span><span style="color:#ae81ff">93</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x0066</span> <span style="color:#ae81ff">00102</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">convTslice</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x006b</span> <span style="color:#ae81ff">00107</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x006b</span> <span style="color:#ae81ff">00107</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#ae81ff">24</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x0070</span> <span style="color:#ae81ff">00112</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x0070</span> <span style="color:#ae81ff">00112</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">XORPS</span>   <span style="color:#a6e22e">X0</span>, <span style="color:#a6e22e">X0</span>
+        <span style="color:#ae81ff">0x0073</span> <span style="color:#ae81ff">00115</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVUPS</span>  <span style="color:#a6e22e">X0</span>, <span style="color:#e6db74">&#34;&#34;</span>..<span style="color:#a6e22e">autotmp_13</span><span style="color:#f92672">+</span><span style="color:#ae81ff">64</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x0078</span> <span style="color:#ae81ff">00120</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x0078</span> <span style="color:#ae81ff">00120</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">LEAQ</span>    <span style="color:#66d9ef">type</span>.[]int(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">CX</span>
+        <span style="color:#ae81ff">0x007f</span> <span style="color:#ae81ff">00127</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x007f</span> <span style="color:#ae81ff">00127</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">CX</span>, <span style="color:#e6db74">&#34;&#34;</span>..<span style="color:#a6e22e">autotmp_13</span><span style="color:#f92672">+</span><span style="color:#ae81ff">64</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x0084</span> <span style="color:#ae81ff">00132</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x0084</span> <span style="color:#ae81ff">00132</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, <span style="color:#e6db74">&#34;&#34;</span>..<span style="color:#a6e22e">autotmp_13</span><span style="color:#f92672">+</span><span style="color:#ae81ff">72</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x0089</span> <span style="color:#ae81ff">00137</span> (&lt;<span style="color:#a6e22e">unknown</span> <span style="color:#a6e22e">line</span> <span style="color:#a6e22e">number</span>&gt;)    <span style="color:#a6e22e">NOP</span>
+        <span style="color:#ae81ff">0x0089</span> <span style="color:#ae81ff">00137</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x0089</span> <span style="color:#ae81ff">00137</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Stdout</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x0090</span> <span style="color:#ae81ff">00144</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x0090</span> <span style="color:#ae81ff">00144</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">LEAQ</span>    <span style="color:#66d9ef">go</span>.<span style="color:#a6e22e">itab</span>.<span style="color:#f92672">*</span><span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">File</span>,<span style="color:#a6e22e">io</span>.<span style="color:#a6e22e">Writer</span>(<span style="color:#a6e22e">SB</span>), <span style="color:#a6e22e">CX</span>
+        <span style="color:#ae81ff">0x0097</span> <span style="color:#ae81ff">00151</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x0097</span> <span style="color:#ae81ff">00151</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">CX</span>, (<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x009b</span> <span style="color:#ae81ff">00155</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x009b</span> <span style="color:#ae81ff">00155</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, <span style="color:#ae81ff">8</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x00a0</span> <span style="color:#ae81ff">00160</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x00a0</span> <span style="color:#ae81ff">00160</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x00a0</span> <span style="color:#ae81ff">00160</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">LEAQ</span>    <span style="color:#e6db74">&#34;&#34;</span>..<span style="color:#a6e22e">autotmp_13</span><span style="color:#f92672">+</span><span style="color:#ae81ff">64</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">AX</span>
+        <span style="color:#ae81ff">0x00a5</span> <span style="color:#ae81ff">00165</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>
+        <span style="color:#ae81ff">0x00a5</span> <span style="color:#ae81ff">00165</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">MOVQ</span>    <span style="color:#a6e22e">AX</span>, <span style="color:#ae81ff">16</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x00aa</span> <span style="color:#ae81ff">00170</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">MOVQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">24</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x00b3</span> <span style="color:#ae81ff">0017</span><span style="color:#ae81ff">9</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">MOVQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">32</span>(<span style="color:#a6e22e">SP</span>)
+        <span style="color:#ae81ff">0x00bc</span> <span style="color:#ae81ff">001</span><span style="color:#ae81ff">88</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Fprintln</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x00c1</span> <span style="color:#ae81ff">001</span><span style="color:#ae81ff">93</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">MOVQ</span>    <span style="color:#ae81ff">80</span>(<span style="color:#a6e22e">SP</span>), <span style="color:#a6e22e">BP</span>
+        <span style="color:#ae81ff">0x00c6</span> <span style="color:#ae81ff">001</span><span style="color:#ae81ff">98</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">ADDQ</span>    <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">88</span>, <span style="color:#a6e22e">SP</span>
+        <span style="color:#ae81ff">0x00ca</span> <span style="color:#ae81ff">00202</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">RET</span>
+        <span style="color:#ae81ff">0x00cb</span> <span style="color:#ae81ff">00203</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">NOP</span>
+        <span style="color:#ae81ff">0x00cb</span> <span style="color:#ae81ff">00203</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x00cb</span> <span style="color:#ae81ff">00203</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>
+        <span style="color:#ae81ff">0x00cb</span> <span style="color:#ae81ff">00203</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">morestack_noctxt</span>(<span style="color:#a6e22e">SB</span>)
+        <span style="color:#ae81ff">0x00d0</span> <span style="color:#ae81ff">0020</span><span style="color:#ae81ff">8</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">PCDATA</span>  <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">0</span>, <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>
+        <span style="color:#ae81ff">0x00d0</span> <span style="color:#ae81ff">0020</span><span style="color:#ae81ff">8</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">JMP</span>     <span style="color:#ae81ff">0</span>
+  
+</code></pre></div><p>先说明一下，Go 语言汇编 <code>FUNCDATA</code> 和 <code>PCDATA</code> 是编译器产生的，用于保存一些和垃圾收集相关的信息，我们可先不关注。<code>BP</code>可以理解为保存了当前函数栈帧栈底的地址，<code>SP</code>则保存栈顶的地址。</p>
+<p>查看关键函数流程：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#ae81ff">0x003e</span> <span style="color:#ae81ff">00062</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">6</span>)        <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">makeslice</span>(<span style="color:#a6e22e">SB</span>) <span style="color:#75715e">// slice := make([]int,5,10)
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">0x0066</span> <span style="color:#ae81ff">00102</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">8</span>)        <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">convTslice</span>(<span style="color:#a6e22e">SB</span>) <span style="color:#75715e">// 类型转换
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">0x00bc</span> <span style="color:#ae81ff">001</span><span style="color:#ae81ff">88</span> (<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">GOROOT</span><span style="color:#f92672">/</span><span style="color:#a6e22e">src</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fmt</span><span style="color:#f92672">/</span><span style="color:#a6e22e">print</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">274</span>)     <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Fprintln</span>(<span style="color:#a6e22e">SB</span>)
+<span style="color:#ae81ff">0x00cb</span> <span style="color:#ae81ff">00203</span> (<span style="color:#a6e22e">math</span>.<span style="color:#66d9ef">go</span>:<span style="color:#ae81ff">5</span>)        <span style="color:#a6e22e">CALL</span>    <span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">morestack_noctxt</span>(<span style="color:#a6e22e">SB</span>) <span style="color:#75715e">// 栈空间扩容
+</span></code></pre></div><blockquote>
+<p>注意，栈上的地址是从高向低增长；堆则从低向高增长。</p>
+</blockquote>
+<p><code>main</code> 函数执行的时候，先根据 <code>main</code> 函数栈帧大小确定 <code>SP</code> 的新指向，使得 <code>main</code> 函数栈帧大小达到 <code>96B</code>。之后把老的 <code>BP</code> 保存到 <code>main</code> 函数栈帧的底部，并使 <code>BP</code> 寄存器重新指向新的栈底，也就是 <code>main</code> 函数栈帧的栈底。</p>
+<p>后，当 <code>main</code> 函数执行完毕，把它栈底的 <code>BP</code> 给回弹回到 <code>BP</code> 寄存器，恢复调用前的初始状态。一切都像是没有发生一样，完美的现场。</p>
+<h5 id="slice截取">slice截取</h5>
+<p>截取也是比较常见的一种创建 slice 的方法，可以从数组或者 slice 直接截取，当然需要指定起止索引位置。</p>
+<blockquote>
+<p>基于已有 slice 创建新 slice 对象，被称为 <code>reslice</code>。新 slice 和老 slice 共用底层数组，新老 slice 对底层数组的更改都会影响到彼此。基于数组创建的新 slice 对象也是同样的效果：对数组或 slice 元素作的更改都会影响到彼此。</p>
+</blockquote>
+</li>
+</ul>
+<p>值得注意的是，新老 slice 或者新 slice 老数组互相影响的前提是两者共用底层数组，如果因为执行 <code>append</code> 操作使得新 slice 底层数组扩容，移动到了新的位置，两者就不会相互影响了。所以，<code>问题的关键在于两者是否会共用底层数组</code>。</p>
+<p>因为若是reslice的切片因为容量cap不足，那么会进行扩容，并且有底层元素拷贝到新内存地址，这时候就不是和原来的array或者slice共享底层数组（指向的是不同的内存地址）。那么相互修改就不会产生影响。</p>
+<h5 id="append-到底做了什么">append 到底做了什么</h5>
+<p>在代码中常常使用的就是通过<code>append</code>方法将一个或者多个元素添加到现有的slice中，那么底层append方式做了什么呢？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> append(<span style="color:#a6e22e">slice</span> []<span style="color:#a6e22e">Type</span>, <span style="color:#a6e22e">elems</span> <span style="color:#f92672">...</span><span style="color:#a6e22e">Type</span>) []<span style="color:#a6e22e">Type</span>
+
+<span style="color:#75715e">// 因为入参是可变类型，则可以传入多个元素
+</span><span style="color:#75715e">// 也可以将其他slice合并添加到当前slice中
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#a6e22e">elem1</span>, <span style="color:#a6e22e">elem2</span>)
+<span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#a6e22e">anotherSlice</span><span style="color:#f92672">...</span>)
+</code></pre></div><p><strong>append返回的slice是新的slice，还是在第一个入参数slice基础上进行拓展添加？</strong></p>
+<p><code>append</code>函数会返回一个新的slice，Go编译器不允许调用了 append 函数后不使用返回值。</p>
+<p>使用 append 可以向 slice 追加元素，实际上是往底层数组添加元素。但是底层数组的长度<code>cap</code>是固定的，如果索引 <code>len-1</code> 所指向的元素已经是底层数组的最后一个元素，就没法再添加了。</p>
+<p>这时，slice 会迁移到新的内存位置，新底层数组的长度也会增加，这样就可以放置新增的元素。同时，为了应对未来可能再次发生的 append 操作，新的底层数组的长度，也就是新 <code>slice</code> 的容量是留了一定的 <code>buffer</code> 的。否则，每次添加元素的时候，都会发生迁移，成本太高。</p>
+<p>新 slice 预留的 <code>buffer</code> 大小是有一定规律的。网上大多数的文章都是这样描述的：</p>
+<blockquote>
+<p>当原 slice 容量小于 <code>1024</code> 的时候，新 slice 容量变成原来的 <code>2</code> 倍；原 slice 容量超过 <code>1024</code>，新 slice 容量变成原来的<code>1.25</code>倍。</p>
+</blockquote>
+<p><strong>以上描述是错误的。网上的结论需要我们依据当前SDK版本号进行代码测试验证</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_slice</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>){
+
+	<span style="color:#a6e22e">testSlice</span><span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>,<span style="color:#ae81ff">0</span>)
+	<span style="color:#75715e">// 初始化容量
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">oldCap</span> <span style="color:#f92672">:=</span> cap(<span style="color:#a6e22e">testSlice</span>)
+
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span><span style="color:#f92672">:=</span><span style="color:#ae81ff">0</span>;<span style="color:#a6e22e">i</span>&lt;<span style="color:#ae81ff">2048</span>;<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>{
+		<span style="color:#a6e22e">testSlice</span> = append(<span style="color:#a6e22e">testSlice</span>,<span style="color:#a6e22e">i</span>)
+		<span style="color:#75715e">//检测append后容量，是否有进行扩容
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">newCap</span> <span style="color:#f92672">:=</span> cap(<span style="color:#a6e22e">testSlice</span>)
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">oldCap</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">newCap</span> {
+			<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;[%d -&gt; %4d] cap = %-4d  |  after append %-4d  cap = %-4d\n&#34;</span>, <span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">i</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">oldCap</span>, <span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">newCap</span>)
+			<span style="color:#a6e22e">oldCap</span> = <span style="color:#a6e22e">newCap</span>
+		}
+	}
+
+
+}
+
+
+<span style="color:#75715e">// 检测的容量更新结果
+</span><span style="color:#75715e"></span>
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;   <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">0</span>     |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">0</span>     <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1</span>   
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;    <span style="color:#ae81ff">0</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1</span>     |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">1</span>     <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">2</span>   
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;    <span style="color:#ae81ff">1</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">2</span>     |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">2</span>     <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">4</span>   
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;    <span style="color:#ae81ff">3</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">4</span>     |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">4</span>     <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">8</span>   
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;    <span style="color:#ae81ff">7</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">8</span>     |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">8</span>     <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">16</span>  
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;   <span style="color:#ae81ff">15</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">16</span>    |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">16</span>    <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">32</span>  
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;   <span style="color:#ae81ff">31</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">32</span>    |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">32</span>    <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">64</span>  
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;   <span style="color:#ae81ff">63</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">64</span>    |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">64</span>    <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">128</span> 
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;  <span style="color:#ae81ff">127</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">128</span>   |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">128</span>   <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">256</span> 
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;  <span style="color:#ae81ff">255</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">256</span>   |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">256</span>   <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">512</span> 
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt;  <span style="color:#ae81ff">511</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">512</span>   |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">512</span>   <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1024</span>
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt; <span style="color:#ae81ff">1023</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1024</span>  |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">1024</span>  <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1280</span>
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt; <span style="color:#ae81ff">1279</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1280</span>  |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">1280</span>  <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1696</span>
+[<span style="color:#ae81ff">0</span> <span style="color:#f92672">-</span>&gt; <span style="color:#ae81ff">1695</span>] <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">1696</span>  |  <span style="color:#a6e22e">after</span> <span style="color:#a6e22e">append</span> <span style="color:#ae81ff">1696</span>  <span style="color:#a6e22e">cap</span> = <span style="color:#ae81ff">2304</span>
+</code></pre></div><p>在老 slice 容量小于1024的时候，新 slice 的容量的确是老 slice 的2倍。目前还算正确。</p>
+<p>但是，当老 slice 容量大于等于 <code>1024</code> 的时候，情况就有变化了。当向 slice 中添加元素 <code>1280</code> 的时候，老 slice 的容量为 <code>1280</code>，之后变成了 <code>1696</code>，两者并不是 <code>1.25</code> 倍的关系（1696/1280=1.325）。添加完 <code>1696</code> 后，新的容量 <code>2304</code> 当然也不是 <code>1696</code> 的 <code>1.25</code> 倍。</p>
+<p>从前面汇编代码我们也看到了，向 slice 追加元素的时候，若容量不够，会调用 <code>growslice</code> 函数:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">growslice</span>(<span style="color:#a6e22e">et</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">_type</span>, <span style="color:#a6e22e">old</span> <span style="color:#a6e22e">slice</span>, <span style="color:#a6e22e">cap</span> <span style="color:#66d9ef">int</span>) <span style="color:#a6e22e">slice</span> {
+ <span style="color:#75715e">// ....
+</span><span style="color:#75715e"></span>
+	<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">cap</span>
+	<span style="color:#a6e22e">doublecap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">newcap</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">cap</span> &gt; <span style="color:#a6e22e">doublecap</span> {  <span style="color:#75715e">// 
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span> &lt; <span style="color:#ae81ff">1024</span> {
+			<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">doublecap</span>  <span style="color:#75715e">// 若是原有cap容量小于1024则x2翻倍扩容cap
+</span><span style="color:#75715e"></span>		} <span style="color:#66d9ef">else</span> { <span style="color:#75715e">// old.len &gt; 1024
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// Check 0 &lt; newcap to detect overflow
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// and prevent an infinite loop.
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">for</span> <span style="color:#ae81ff">0</span> &lt; <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">newcap</span> &lt; <span style="color:#a6e22e">cap</span> {
+				<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">/</span> <span style="color:#ae81ff">4</span>    <span style="color:#75715e">// 新容量要大于等于老容量的1.25倍
+</span><span style="color:#75715e"></span>			}
+			<span style="color:#75715e">// Set newcap to the requested cap when
+</span><span style="color:#75715e"></span>			<span style="color:#75715e">// the newcap calculation overflowed.
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span> {
+				<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+			}
+		}
+	}
+
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">overflow</span> <span style="color:#66d9ef">bool</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">lenmem</span>, <span style="color:#a6e22e">newlenmem</span>, <span style="color:#a6e22e">capmem</span> <span style="color:#66d9ef">uintptr</span>
+	<span style="color:#75715e">// Specialize for common values of et.size.
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// For 1 we don&#39;t need any division/multiplication.
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// For sys.PtrSize, compiler will optimize division/multiplication into a shift by a constant.
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// For powers of 2, use a variable shift.
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">switch</span> {
+	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>)
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>)
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(uintptr(<span style="color:#a6e22e">newcap</span>))
+		<span style="color:#a6e22e">overflow</span> = uintptr(<span style="color:#a6e22e">newcap</span>) &gt; <span style="color:#a6e22e">maxAlloc</span>
+		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span>)
+	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>:
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(uintptr(<span style="color:#a6e22e">newcap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>)
+		<span style="color:#a6e22e">overflow</span> = uintptr(<span style="color:#a6e22e">newcap</span>) &gt; <span style="color:#a6e22e">maxAlloc</span><span style="color:#f92672">/</span><span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>
+		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span>)
+	<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">isPowerOfTwo</span>(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>):
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">shift</span> <span style="color:#66d9ef">uintptr</span>
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">PtrSize</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">8</span> {
+			<span style="color:#75715e">// Mask shift for better code generation.
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">shift</span> = uintptr(<span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">Ctz64</span>(uint64(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>))) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">63</span>
+		} <span style="color:#66d9ef">else</span> {
+			<span style="color:#a6e22e">shift</span> = uintptr(<span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">Ctz32</span>(uint32(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>))) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">31</span>
+		}
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#a6e22e">shift</span>
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#a6e22e">shift</span>
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(uintptr(<span style="color:#a6e22e">newcap</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#a6e22e">shift</span>)
+		<span style="color:#a6e22e">overflow</span> = uintptr(<span style="color:#a6e22e">newcap</span>) &gt; (<span style="color:#a6e22e">maxAlloc</span> <span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">shift</span>)
+		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">shift</span>)
+	<span style="color:#66d9ef">default</span>:
+		<span style="color:#a6e22e">lenmem</span> = uintptr(<span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>
+		<span style="color:#a6e22e">newlenmem</span> = uintptr(<span style="color:#a6e22e">cap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>
+		<span style="color:#a6e22e">capmem</span>, <span style="color:#a6e22e">overflow</span> = <span style="color:#a6e22e">math</span>.<span style="color:#a6e22e">MulUintptr</span>(<span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>, uintptr(<span style="color:#a6e22e">newcap</span>))
+		<span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(<span style="color:#a6e22e">capmem</span>)  <span style="color:#75715e">// 内存对齐
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">et</span>.<span style="color:#a6e22e">size</span>)
+	}
+  <span style="color:#75715e">// .....
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">memmove</span>(<span style="color:#a6e22e">p</span>, <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">array</span>, <span style="color:#a6e22e">lenmem</span>)
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">slice</span>{<span style="color:#a6e22e">p</span>, <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span>, <span style="color:#a6e22e">newcap</span>}
+}
+</code></pre></div><p>如果只看前半部分，现在网上各种文章里说的 <code>newcap</code> 的规律是对的。现实是，后半部分还对 <code>newcap</code> 作了一个<code>内存对齐</code>，这个和内存分配策略相关。进行内存对齐之后，新 slice 的容量是要 <code>大于等于</code> 老 slice 容量的 <code>2倍</code>或者<code>1.25倍</code>。</p>
+<p>向 Go 内存管理器申请内存，将老 slice 中的数据复制过去，并且将 append 的元素添加到新的底层数组中。</p>
+<p>向 <code>growslice</code> 函数调用者返回一个新的 slice，这个 slice 的长度并没有变化，而容量却增大了。</p>
+<blockquote>
+<p>slice的len表示的是当前slice指向底层数组中slice包含的元素</p>
+</blockquote>
+<p>关于slice的扩容，还有些特别的例子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_spec_slice</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>){
+	<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>}
+	<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">6</span>)
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%d, cap=%d&#34;</span>,len(<span style="color:#a6e22e">s</span>),cap(<span style="color:#a6e22e">s</span>))
+}
+</code></pre></div><p>如果按网上各种文章中总结的那样：小于原 slice 长度小于 1024 的时候，容量每次增加 1 倍。添加元素 4 的时候，容量变为4；添加元素 5 的时候不变；添加元素 6 的时候容量增加 1 倍，变成 8。</p>
+<p>那么按照推测上面的结果应该是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">5</span>, <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">8</span>
+
+<span style="color:#75715e">// 实际运行结果
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">5</span>, <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">6</span>
+</code></pre></div><p>但实际运行结果<code>cap</code>并不是8，这是为什么呢？还是得回归源码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 入参数类型 1.元素的类型。2.旧slice  3. 新 slice 最小求的容量
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">growslice</span>(<span style="color:#a6e22e">et</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">_type</span>, <span style="color:#a6e22e">old</span> <span style="color:#a6e22e">slice</span>, <span style="color:#a6e22e">cap</span> <span style="color:#66d9ef">int</span>) <span style="color:#a6e22e">slice</span> {
+ <span style="color:#75715e">// ....
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">cap</span>
+	<span style="color:#a6e22e">doublecap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">newcap</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">cap</span> &gt; <span style="color:#a6e22e">doublecap</span> {  <span style="color:#75715e">// 
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+	} <span style="color:#66d9ef">else</span> {
+    <span style="color:#f92672">...</span>
+  }
+  <span style="color:#a6e22e">capmem</span> = <span style="color:#a6e22e">roundupsize</span>(uintptr(<span style="color:#a6e22e">newcap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">ptrSize</span>)
+  <span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">ptrSize</span>)
+}
+
+<span style="color:#75715e">// 第一步：s := []int{1,2} 此时 len=cap=2
+</span><span style="color:#75715e">// 第二步：s = append(s,4,5,6) 此时 len=5,growslice第三个函数cap最小值是5
+</span><span style="color:#75715e">//此时：
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">cap</span>   <span style="color:#75715e">// newcap =2
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">doublecap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">newcap</span>  <span style="color:#75715e">// doublecap = 2+2 = 4
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">cap</span> &gt; <span style="color:#a6e22e">doublecap</span> {  <span style="color:#75715e">// cap=5 &gt; doublecap
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>       <span style="color:#75715e">// newcap = 5
+</span><span style="color:#75715e"></span>   <span style="color:#f92672">...</span>
+
+ <span style="color:#75715e">//const PtrSize = 4 &lt;&lt; (^uintptr(0) &gt;&gt; 63)   // unsafe.Sizeof(uintptr(0)) but an ideal const
+</span><span style="color:#75715e"></span> <span style="color:#75715e">// const _MaxSmallSize = 32768
+</span><span style="color:#75715e">// const smallSizeMax = 1024
+</span><span style="color:#75715e">// const smallSizeDiv = 8
+</span><span style="color:#75715e"></span> <span style="color:#75715e">//内存对齐： 调用了 roundupsize 函数，传入 40。
+</span><span style="color:#75715e"></span> uintptr(<span style="color:#a6e22e">newcap</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">ptrSize</span> = <span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">8</span> (<span style="color:#a6e22e">代码中ptrSize是指一个指针的大小</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">在64位机上是8字节</span>)
+    
+   <span style="color:#75715e">// 内存对齐函数 
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">roundupsize</span>(<span style="color:#a6e22e">size</span> <span style="color:#66d9ef">uintptr</span>) <span style="color:#66d9ef">uintptr</span> {
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">size</span> &lt; <span style="color:#a6e22e">_MaxSmallSize</span> {
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">size</span> <span style="color:#f92672">&lt;=</span> <span style="color:#a6e22e">smallSizeMax</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span> {
+			<span style="color:#66d9ef">return</span> uintptr(<span style="color:#a6e22e">class_to_size</span>[<span style="color:#a6e22e">size_to_class8</span>[(<span style="color:#a6e22e">size</span><span style="color:#f92672">+</span><span style="color:#a6e22e">smallSizeDiv</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">smallSizeDiv</span>]])
+		} <span style="color:#66d9ef">else</span> {
+			<span style="color:#66d9ef">return</span> uintptr(<span style="color:#a6e22e">class_to_size</span>[<span style="color:#a6e22e">size_to_class128</span>[(<span style="color:#a6e22e">size</span><span style="color:#f92672">-</span><span style="color:#a6e22e">smallSizeMax</span><span style="color:#f92672">+</span><span style="color:#a6e22e">largeSizeDiv</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">largeSizeDiv</span>]])
+		}
+	}
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">size</span><span style="color:#f92672">+</span><span style="color:#a6e22e">_PageSize</span> &lt; <span style="color:#a6e22e">size</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">size</span>
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">alignUp</span>(<span style="color:#a6e22e">size</span>, <span style="color:#a6e22e">_PageSize</span>)
+}
+
+</code></pre></div><p>很明显，我们最终将返回这个式子的结果：</p>
+<p><code> uintptr(class_to_size[size_to_class8[(size+smallSizeDiv-1)/smallSizeDiv]])</code></p>
+<p>这是 <code>Go</code> 源码中有关内存分配的两个 <code>slice</code>。<code>class_to_size</code>通过 <code>spanClass</code>获取 <code>span</code>划分的 <code>object</code>大小。而 <code>size_to_class8</code> 表示通过 <code>size</code> 获取它的 <code>spanClass</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">const</span> (
+	<span style="color:#a6e22e">_MaxSmallSize</span>   = <span style="color:#ae81ff">32768</span>
+	<span style="color:#a6e22e">smallSizeDiv</span>    = <span style="color:#ae81ff">8</span>
+	<span style="color:#a6e22e">smallSizeMax</span>    = <span style="color:#ae81ff">1024</span>
+	<span style="color:#a6e22e">largeSizeDiv</span>    = <span style="color:#ae81ff">128</span>
+	<span style="color:#a6e22e">_NumSizeClasses</span> = <span style="color:#ae81ff">67</span>
+	<span style="color:#a6e22e">_PageShift</span>      = <span style="color:#ae81ff">13</span>
+)
+
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">class_to_size</span> = [<span style="color:#a6e22e">_NumSizeClasses</span>]<span style="color:#66d9ef">uint16</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">32</span>, <span style="color:#ae81ff">48</span>, <span style="color:#ae81ff">64</span>, <span style="color:#ae81ff">80</span>, <span style="color:#ae81ff">96</span>, <span style="color:#ae81ff">112</span>, <span style="color:#ae81ff">128</span>, <span style="color:#ae81ff">144</span>, <span style="color:#ae81ff">160</span>, <span style="color:#ae81ff">176</span>, <span style="color:#ae81ff">192</span>, <span style="color:#ae81ff">208</span>, <span style="color:#ae81ff">224</span>, <span style="color:#ae81ff">240</span>, <span style="color:#ae81ff">256</span>, <span style="color:#ae81ff">288</span>, <span style="color:#ae81ff">320</span>, <span style="color:#ae81ff">352</span>, <span style="color:#ae81ff">384</span>, <span style="color:#ae81ff">416</span>, <span style="color:#ae81ff">448</span>, <span style="color:#ae81ff">480</span>, <span style="color:#ae81ff">512</span>, <span style="color:#ae81ff">576</span>, <span style="color:#ae81ff">640</span>, <span style="color:#ae81ff">704</span>, <span style="color:#ae81ff">768</span>, <span style="color:#ae81ff">896</span>, <span style="color:#ae81ff">1024</span>, <span style="color:#ae81ff">1152</span>, <span style="color:#ae81ff">1280</span>, <span style="color:#ae81ff">1408</span>, <span style="color:#ae81ff">1536</span>, <span style="color:#ae81ff">1792</span>, <span style="color:#ae81ff">2048</span>, <span style="color:#ae81ff">2304</span>, <span style="color:#ae81ff">2688</span>, <span style="color:#ae81ff">3072</span>, <span style="color:#ae81ff">3200</span>, <span style="color:#ae81ff">3456</span>, <span style="color:#ae81ff">4096</span>, <span style="color:#ae81ff">4864</span>, <span style="color:#ae81ff">5376</span>, <span style="color:#ae81ff">6144</span>, <span style="color:#ae81ff">6528</span>, <span style="color:#ae81ff">6784</span>, <span style="color:#ae81ff">6912</span>, <span style="color:#ae81ff">8192</span>, <span style="color:#ae81ff">9472</span>, <span style="color:#ae81ff">9728</span>, <span style="color:#ae81ff">10240</span>, <span style="color:#ae81ff">10880</span>, <span style="color:#ae81ff">12288</span>, <span style="color:#ae81ff">13568</span>, <span style="color:#ae81ff">14336</span>, <span style="color:#ae81ff">16384</span>, <span style="color:#ae81ff">18432</span>, <span style="color:#ae81ff">19072</span>, <span style="color:#ae81ff">20480</span>, <span style="color:#ae81ff">21760</span>, <span style="color:#ae81ff">24576</span>, <span style="color:#ae81ff">27264</span>, <span style="color:#ae81ff">28672</span>, <span style="color:#ae81ff">32768</span>}
+
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">size_to_class8</span> = [<span style="color:#a6e22e">smallSizeMax</span><span style="color:#f92672">/</span><span style="color:#a6e22e">smallSizeDiv</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]<span style="color:#66d9ef">uint8</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">13</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">17</span>, <span style="color:#ae81ff">17</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">19</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">21</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">22</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">23</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">24</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">26</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">27</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">29</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">31</span>}
+
+</code></pre></div><p>我们传进去的 <code>size</code> 等于 40。所以 <code>(size+smallSizeDiv-1)/smallSizeDiv = 5</code>；获取 <code>size_to_class8</code> 数组中索引为 <code>5</code> 的元素为 <code>4</code>；获取 <code>class_to_size</code> 中索引为 <code>4</code> 的元素为 <code>48</code>。</p>
+<p>最终，新的 slice 的容量为 <code>6</code>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">newcap</span> = int(<span style="color:#a6e22e">capmem</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">ptrSize</span>) <span style="color:#75715e">// 6
+</span></code></pre></div><blockquote>
+<p>roundupsize是内存对齐的过程，我们知道golang中内存分配是根据对象大小来配不同的mspan，为了避免造成过多的内存碎片，slice在扩容中需要对扩容后的cap容量进行内存对齐的操作.</p>
+</blockquote>
+<p>当slice容量cap足够长的时候，往slice中添加元素，len长度会变，但是底层数组指向的内存地址没有发生变化。若是容量cap不足，则底层数组会进行扩容，那么元素会拷贝到新内存地址。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+   <span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">10</span>)
+   <span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#ae81ff">1</span>)
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">slice</span>[<span style="color:#ae81ff">0</span>]), len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+   <span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#ae81ff">2</span>)
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">slice</span>[<span style="color:#ae81ff">0</span>]), len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+}
+
+<span style="color:#75715e">// 输出
+</span><span style="color:#75715e"></span><span style="color:#ae81ff">0xc00009e000</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+<span style="color:#ae81ff">0xc00009e000</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">10</span>
+</code></pre></div><p>当cap容量不足的时候，底层数组会进行扩容，并申请新内存地址，并将元素拷贝。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+   <span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>)
+   <span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#ae81ff">1</span>)
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%p %d %d\n&#34;</span>, <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">slice</span>[<span style="color:#ae81ff">0</span>]), len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+   <span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#ae81ff">2</span>)
+   <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%p %d %d\n&#34;</span>, <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">slice</span>[<span style="color:#ae81ff">0</span>]), len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+}
+
+<span style="color:#75715e">// 输出
+</span><span style="color:#75715e"></span>
+<span style="color:#ae81ff">0xc00009a008</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span>
+<span style="color:#ae81ff">0xc00009a030</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span>
+</code></pre></div><p>我们可以看到当往slice中append一个1后，slice底层数组的指针指向地址0xc00009a008，长度为1，容量为1。这时再往slice中append一个2，那么slice的容量不够了，此时底层数组会发生copy，会重新分配一块新的内存地址，容量也变成了2，所以我们会看到底层数组的指针指向地址发生了改变。</p>
+<h5 id="传-slice-和-slice-指针有什么区别">传 slice 和 slice 指针有什么区别</h5>
+<p>当 slice 作为函数参数时，就是一个普通的结构体。其实很好理解：若直接传 slice，在调用者看来，实参 slice 并不会被函数中的操作改变；若传的是 slice 的指针，在调用者看来，是会被改变原 slice 的。</p>
+<p>不管传的是 slice 还是 slice 指针，如果改变了 slice 底层数组的数据，会反应到实参 slice 的底层数据。为什么能改变底层数组的数据？很好理解：底层数据在 slice 结构体里是一个指针，仅管 slice 结构体自身不会被改变，也就是说底层数据地址不会被改变。 但是通过指向底层数据的指针，可以改变切片的底层数据，没有问题。</p>
+<blockquote>
+<p>假设slice底层数组指针地址为0x23434,虽然slice指向的地址不变，但是地址指针指向数组值是可变的。</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_demo1</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>){
+	<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>}
+	<span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">s</span>)
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">// 输出[2,2,2]
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">s</span> []<span style="color:#66d9ef">int</span>){
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span> {
+		<span style="color:#a6e22e">s</span>[<span style="color:#a6e22e">i</span>]<span style="color:#f92672">+=</span><span style="color:#ae81ff">1</span>
+	}
+}
+</code></pre></div><p>果真改变了原始 slice 的底层数据。这里传递的是一个 slice 的副本，在 <code>f</code> 函数中，<code>s</code> 只是 <code>main</code> 函数中 <code>s</code> 的一个拷贝。在<code>f</code> 函数内部，对 <code>s</code> 的作用并不会改变外层 <code>main</code> 函数的 <code>s</code>。（结果是改变了，因为底层数组改变？）</p>
+<p>但是同样的，若是通过<code>append</code>操作，返回新的slice，则在函数中并不会影响传入参数。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Test_demo1</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>){
+	<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>}
+	<span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">s</span>)
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">// 输出 [1 1 1]
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">s</span> []<span style="color:#66d9ef">int</span>) []<span style="color:#66d9ef">int</span>{
+	<span style="color:#75715e">//for i := range s {
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//	s[i]+=1
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//}
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>,<span style="color:#ae81ff">100</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>
+}
+</code></pre></div><p>当直接用切片作为函数参数时，可以改变切片的元素，不能改变切片本身；想要改变切片本身，可以将改变后的切片返回，函数调用者接收改变后的切片或者将切片指针作为函数参数。</p>
+<h5 id="slice截取-1">slice截取</h5>
+<p>go中的slice是支持截取操作的，虽然使用起来非常的方便，但是有很多坑，稍有不慎就会出现bug且不易排查。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>}
+  <span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">slice</span>[<span style="color:#ae81ff">2</span>:<span style="color:#ae81ff">5</span>]
+  <span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s1</span>[<span style="color:#ae81ff">2</span>:<span style="color:#ae81ff">7</span>]
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d slice=%-1v \n&#34;</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>), <span style="color:#a6e22e">slice</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d s1=%-1v \n&#34;</span>, len(<span style="color:#a6e22e">s1</span>), cap(<span style="color:#a6e22e">s1</span>), <span style="color:#a6e22e">s1</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d s2=%-1v \n&#34;</span>, len(<span style="color:#a6e22e">s2</span>), cap(<span style="color:#a6e22e">s2</span>), <span style="color:#a6e22e">s2</span>)
+}
+
+<span style="color:#75715e">// output
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">3</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">8</span>    <span style="color:#a6e22e">s1</span>=[<span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">5</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">6</span>    <span style="color:#a6e22e">s2</span>=[<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span>]
+</code></pre></div><p>s1的长度变成3，cap变为8（默认截取到最大容量）， 但是s2截取s1的第2到第7个元素，左闭右开，很多人想问，s1根本没有那么元素啊，但是实际情况是s2截取到了，并且没有发生数组越界，<strong>原因就是s2实际截取的是底层数组，目前slice、s1、s2都是共用的同一个底层数组。</strong></p>
+<blockquote>
+<p>注意replace中，新slice的cap通常是从截取起始元素位置到底层元素的最大容量值。</p>
+</blockquote>
+<p>通过对<code>s2</code>进行操作：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;--------append 100----------------&#34;</span>)
+<span style="color:#a6e22e">s2</span> = append(<span style="color:#a6e22e">s2</span>, <span style="color:#ae81ff">100</span>)
+
+<span style="color:#75715e">// 程序输出结果
+</span><span style="color:#75715e"></span><span style="color:#f92672">--------</span><span style="color:#a6e22e">append</span> <span style="color:#ae81ff">100</span><span style="color:#f92672">----------------</span>
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">100</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">3</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">8</span>    <span style="color:#a6e22e">s1</span>=[<span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">6</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">6</span>    <span style="color:#a6e22e">s2</span>=[<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">100</span>]
+</code></pre></div><p>我们看到往s2里append数据影响到了slice，正是因为两者底层数组是一样的；但是既然都是共用的同一底层数组，<strong>s1为什么没有100？</strong></p>
+<p>继续操作：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;--------append 200----------------&#34;</span>)
+<span style="color:#a6e22e">s2</span> = append(<span style="color:#a6e22e">s2</span>, <span style="color:#ae81ff">200</span>)
+
+<span style="color:#75715e">// 输出
+</span><span style="color:#75715e"></span><span style="color:#f92672">--------</span><span style="color:#a6e22e">append</span> <span style="color:#ae81ff">200</span><span style="color:#f92672">----------------</span>
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">100</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">3</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">8</span>    <span style="color:#a6e22e">s1</span>=[<span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">7</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">12</span>   <span style="color:#a6e22e">s2</span>=[<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">100</span> <span style="color:#ae81ff">200</span>]  <span style="color:#75715e">// cap从6扩容到12
+</span></code></pre></div><p>我们看到继续往s2中append一个200，但是只有s2发生了变化，slice并未改变，为什么呢？对，是因为在append完100后，s2的容量已满，再往s2中append，底层数组发生复制，系统分配了一块新的内存地址给s2，s2的容量也翻倍了。</p>
+<p>继续操作：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;--------modify s1----------------&#34;</span>)
+<span style="color:#a6e22e">s1</span>[<span style="color:#ae81ff">2</span>] = <span style="color:#ae81ff">20</span>
+
+<span style="color:#75715e">// 输出结果
+</span><span style="color:#75715e"></span><span style="color:#f92672">--------</span><span style="color:#a6e22e">modify</span> <span style="color:#a6e22e">s1</span><span style="color:#f92672">----------------</span>
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">100</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">3</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">8</span>    <span style="color:#a6e22e">s1</span>=[<span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">20</span>] 
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">7</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">12</span>   <span style="color:#a6e22e">s2</span>=[<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">100</span> <span style="color:#ae81ff">200</span>]
+</code></pre></div><p>这就很容易理解了，我们对s1进行更新，影响了slice，因为两者共用的还是同一底层数组，s2未发生改变是因为在上一步时底层数组已经发生了变化。</p>
+<h5 id="slice深拷贝">slice深拷贝</h5>
+<p>新的slice和原始slice共用同一个底层数组，因此可以看做是对slice的浅拷贝，那么在go中如何实现对slice的深拷贝呢？那么就要依赖golang提供的copy函数。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+
+  <span style="color:#75715e">// Creating slices
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">slice1</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>}
+  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">slice2</span> []<span style="color:#66d9ef">int</span>
+  <span style="color:#a6e22e">slice3</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">5</span>)
+
+  <span style="color:#75715e">// Before copying
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;------------before copy-------------&#34;</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d slice1=%v\n&#34;</span>, len(<span style="color:#a6e22e">slice1</span>), cap(<span style="color:#a6e22e">slice1</span>), <span style="color:#a6e22e">slice1</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d slice2=%v\n&#34;</span>, len(<span style="color:#a6e22e">slice2</span>), cap(<span style="color:#a6e22e">slice2</span>), <span style="color:#a6e22e">slice2</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d slice3=%v\n&#34;</span>, len(<span style="color:#a6e22e">slice3</span>), cap(<span style="color:#a6e22e">slice3</span>), <span style="color:#a6e22e">slice3</span>)
+
+
+  <span style="color:#75715e">// Copying the slices
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">copy_1</span> <span style="color:#f92672">:=</span> copy(<span style="color:#a6e22e">slice2</span>, <span style="color:#a6e22e">slice1</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>()
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d slice1=%v\n&#34;</span>, len(<span style="color:#a6e22e">slice1</span>), cap(<span style="color:#a6e22e">slice1</span>), <span style="color:#a6e22e">slice1</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;len=%-4d cap=%-4d slice2=%v\n&#34;</span>, len(<span style="color:#a6e22e">slice2</span>), cap(<span style="color:#a6e22e">slice2</span>), <span style="color:#a6e22e">slice2</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Total number of elements copied:&#34;</span>, <span style="color:#a6e22e">copy_1</span>)
+}
+</code></pre></div><p>首先定义了三个slice，然后将slice1 copy到slice2，我们来看下输出结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#f92672">------------</span><span style="color:#a6e22e">before</span> <span style="color:#a6e22e">copy</span><span style="color:#f92672">-------------</span>
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice1</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span>]
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">0</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">0</span>    <span style="color:#a6e22e">slice2</span>=[]
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">5</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">5</span>    <span style="color:#a6e22e">slice3</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>]
+
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice1</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span>]
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">0</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">0</span>    <span style="color:#a6e22e">slice2</span>=[]
+<span style="color:#a6e22e">Total</span> <span style="color:#a6e22e">number</span> <span style="color:#a6e22e">of</span> <span style="color:#a6e22e">elements</span> <span style="color:#a6e22e">copied</span>: <span style="color:#ae81ff">0</span>  <span style="color:#75715e">// 将slice1拷贝到slice2，为什么slice2是empty slice？
+</span></code></pre></div><p>我们发现slice1的内容并未copy到slice2，为什么呢？我们再试下将slice1 copy到slice3，如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">slice3</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">5</span>)
+<span style="color:#a6e22e">copy_2</span> <span style="color:#f92672">:=</span> copy(<span style="color:#a6e22e">slice3</span>, <span style="color:#a6e22e">slice1</span>)
+
+<span style="color:#75715e">// 输出结果
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice1</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span>]
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">5</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">5</span>    <span style="color:#a6e22e">slice3</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span>]
+<span style="color:#a6e22e">Total</span> <span style="color:#a6e22e">number</span> <span style="color:#a6e22e">of</span> <span style="color:#a6e22e">elements</span> <span style="color:#a6e22e">copied</span>: <span style="color:#ae81ff">5</span>
+</code></pre></div><p>我们看到copy成功，slice3和slice2唯一的区别就是slice3的容量为5，而slice2容量为0，那么是否是深拷贝呢，我们修改slice3的内容看下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">slice3</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">100</span>
+
+<span style="color:#75715e">// 修改slice3后看是否影响slice1
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">10</span>   <span style="color:#a6e22e">slice1</span>=[<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span>]
+<span style="color:#a6e22e">len</span>=<span style="color:#ae81ff">5</span>    <span style="color:#a6e22e">cap</span>=<span style="color:#ae81ff">5</span>    <span style="color:#a6e22e">slice3</span>=[<span style="color:#ae81ff">100</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span>]
+</code></pre></div><p>我们可以看到修改slice3后，slice1的值并未改变，<strong>可见copy实现的是深拷贝</strong>。由此可见，copy函数为slice提供了深拷贝能力，但是需要在拷贝前申请内存空间。</p>
+<p>发现copy函数其实是调用runtime.memmove，其实我们在研究runtime/slice.go文件中的源码的时候，会发现有一个slicecopy函数，这个函数最终就是调用runtime.memmove来实现slice的copy的，我们看下源码:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">slicecopy</span>(<span style="color:#a6e22e">to</span>, <span style="color:#a6e22e">fm</span> <span style="color:#a6e22e">slice</span>, <span style="color:#a6e22e">width</span> <span style="color:#66d9ef">uintptr</span>) <span style="color:#66d9ef">int</span> {
+  <span style="color:#75715e">// 如果源切片或者目标切片有一个长度为0，那么就不需要拷贝，直接 return 
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">fm</span>.<span style="color:#a6e22e">len</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">len</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+  }
+
+  <span style="color:#75715e">// n 记录下源切片或者目标切片较短的那一个的长度
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fm</span>.<span style="color:#a6e22e">len</span>
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">len</span> &lt; <span style="color:#a6e22e">n</span> {
+    <span style="color:#a6e22e">n</span> = <span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">len</span>
+  }
+
+  <span style="color:#75715e">// 如果入参 width = 0，也不需要拷贝了，返回较短的切片的长度
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">width</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">n</span>
+  }
+
+  <span style="color:#75715e">//如果开启竞争检测
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">raceenabled</span> {
+    <span style="color:#a6e22e">callerpc</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">getcallerpc</span>()
+    <span style="color:#a6e22e">pc</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">funcPC</span>(<span style="color:#a6e22e">slicecopy</span>)
+    <span style="color:#a6e22e">racewriterangepc</span>(<span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">array</span>, uintptr(<span style="color:#a6e22e">n</span><span style="color:#f92672">*</span>int(<span style="color:#a6e22e">width</span>)), <span style="color:#a6e22e">callerpc</span>, <span style="color:#a6e22e">pc</span>)
+    <span style="color:#a6e22e">racereadrangepc</span>(<span style="color:#a6e22e">fm</span>.<span style="color:#a6e22e">array</span>, uintptr(<span style="color:#a6e22e">n</span><span style="color:#f92672">*</span>int(<span style="color:#a6e22e">width</span>)), <span style="color:#a6e22e">callerpc</span>, <span style="color:#a6e22e">pc</span>)
+  }
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">msanenabled</span> {
+    <span style="color:#a6e22e">msanwrite</span>(<span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">array</span>, uintptr(<span style="color:#a6e22e">n</span><span style="color:#f92672">*</span>int(<span style="color:#a6e22e">width</span>)))
+    <span style="color:#a6e22e">msanread</span>(<span style="color:#a6e22e">fm</span>.<span style="color:#a6e22e">array</span>, uintptr(<span style="color:#a6e22e">n</span><span style="color:#f92672">*</span>int(<span style="color:#a6e22e">width</span>)))
+  }
+
+  <span style="color:#a6e22e">size</span> <span style="color:#f92672">:=</span> uintptr(<span style="color:#a6e22e">n</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">width</span>
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">size</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span> { <span style="color:#75715e">// common case worth about 2x to do here
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// TODO: is this still worth it with new memmove impl?
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//如果只有一个元素，那么直接进行地址转换
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">*</span>(<span style="color:#f92672">*</span><span style="color:#66d9ef">byte</span>)(<span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">array</span>) = <span style="color:#f92672">*</span>(<span style="color:#f92672">*</span><span style="color:#66d9ef">byte</span>)(<span style="color:#a6e22e">fm</span>.<span style="color:#a6e22e">array</span>) <span style="color:#75715e">// known to be a byte pointer
+</span><span style="color:#75715e"></span>  } <span style="color:#66d9ef">else</span> {
+    <span style="color:#75715e">//如果不止一个元素，那么就从 fm.array 地址开始，拷贝到 to.array 地址之后，拷贝个数为size
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">memmove</span>(<span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">array</span>, <span style="color:#a6e22e">fm</span>.<span style="color:#a6e22e">array</span>, <span style="color:#a6e22e">size</span>)
+  }
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">n</span>
+}
+</code></pre></div><h5 id="值传递还是引用传递">值传递还是引用传递?</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">10</span>)
+  <span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#ae81ff">1</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">0</span>])) <span style="color:#75715e">// 可以通过此方式查看slice内存地址
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+  <span style="color:#a6e22e">fn</span>(<span style="color:#a6e22e">slice</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fn</span>(<span style="color:#a6e22e">in</span> []<span style="color:#66d9ef">int</span>) {
+  <span style="color:#a6e22e">in</span> = append(<span style="color:#a6e22e">in</span>, <span style="color:#ae81ff">5</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">0</span>])) <span style="color:#75715e">// 此处新赋值的in的内存地址与函数外in地址不一样
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">// output
+</span><span style="color:#75715e"></span>
+[<span style="color:#ae81ff">1</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+[<span style="color:#ae81ff">1</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+</code></pre></div><p>可见fn内的append操作并未对slice产生影响，那我们再看一段代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// 将fn函数中append变成索引修改值
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fn</span>(<span style="color:#a6e22e">in</span> []<span style="color:#66d9ef">int</span>) {
+  <span style="color:#a6e22e">in</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">100</span>   <span style="color:#75715e">// 改变了底层数组内容，简洁影响了slice
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">// ouput
+</span><span style="color:#75715e"></span>
+[<span style="color:#ae81ff">1</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+[<span style="color:#ae81ff">100</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+</code></pre></div><blockquote>
+<p>当slice作为函数的参数传递的时候，跟普通结构体的传递是没有区别的；如果直接传slice，实参slice是不会被函数中的操作改变的，但是如果传递的是slice的指针，是会改变原来的slice的；另外，无论是传递slice还是slice的指针，如果改变了slice的底层数组，那么都是会影响slice的，这种通过数组下标的方式更新slice数据，是会对底层数组进行改变的，所以就会影响slice。</p>
+</blockquote>
+<p><strong>slice字段内len对元素的影响</strong></p>
+<p>有时候对slice进行截取或者<code>append</code>添加的元素，并不会立即在slice元素中体现：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">10</span>)
+  <span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#ae81ff">1</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+  <span style="color:#a6e22e">fn</span>(<span style="color:#a6e22e">slice</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+  <span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">slice</span>[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">9</span>]<span style="color:#75715e">//数组截取
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s1</span>, len(<span style="color:#a6e22e">s1</span>), cap(<span style="color:#a6e22e">s1</span>))
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fn</span>(<span style="color:#a6e22e">in</span> []<span style="color:#66d9ef">int</span>) {
+  <span style="color:#a6e22e">in</span> = append(<span style="color:#a6e22e">in</span>, <span style="color:#ae81ff">5</span>)
+}
+
+
+
+<span style="color:#75715e">// 输出
+</span><span style="color:#75715e"></span>[<span style="color:#ae81ff">1</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+[<span style="color:#ae81ff">1</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+[<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>] <span style="color:#ae81ff">9</span> <span style="color:#ae81ff">10</span>
+</code></pre></div><p>是不是很奇怪为什么在打印<code>slice</code>时候元素没有5，但是在截取slice赋值到新<code>s1</code>的时候，通过<code>append</code>添加的元素又存在了呢？</p>
+<p>虽然在append后，slice中并未展示出5，也无法通过slice[1]取到（会数组越界）,但是实际上底层数组已经有了5这个元素，但是由于slice的len未发生改变，所以我们在上层是无法获取到5这个元素的。</p>
+<p><strong>是否可以手动强制改变slice的len长度，让我们可以获取到append元素？</strong></p>
+<p><code>(*reflect.SliceHeader)(unsafe.Pointer(&amp;slice)).Len = 2</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+  <span style="color:#a6e22e">slice</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">10</span>)
+  <span style="color:#a6e22e">slice</span> = append(<span style="color:#a6e22e">slice</span>, <span style="color:#ae81ff">1</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+  <span style="color:#a6e22e">fn</span>(<span style="color:#a6e22e">slice</span>)
+  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+  (<span style="color:#f92672">*</span><span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">SliceHeader</span>)(<span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">slice</span>)).<span style="color:#a6e22e">Len</span> = <span style="color:#ae81ff">2</span> <span style="color:#75715e">//强制修改slice长度
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">slice</span>, len(<span style="color:#a6e22e">slice</span>), cap(<span style="color:#a6e22e">slice</span>))
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fn</span>(<span style="color:#a6e22e">in</span> []<span style="color:#66d9ef">int</span>) {
+  <span style="color:#a6e22e">in</span> = append(<span style="color:#a6e22e">in</span>, <span style="color:#ae81ff">5</span>)
+}
+
+<span style="color:#75715e">// output
+</span><span style="color:#75715e"></span>[<span style="color:#ae81ff">1</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+[<span style="color:#ae81ff">1</span>] <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">10</span>
+[<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">5</span>] <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">10</span>
+</code></pre></div><p>所以再次回答一开始我们提出的问题，slice是值传递还是引用传递？答案是值传递！</p>
+
+			</div>
+                   </br>[content:] end~</br>
+		</article>
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/">Go_汇编学习</a></li>
+				
+				<li><a href="/post/slice%E5%BA%95%E5%B1%82%E5%AD%A6%E4%B9%A0/">Slice底层学习</a></li>
+				
+				<li><a href="/post/map%E8%BF%9B%E9%98%B6/">Map进阶</a></li>
+				
+				<li><a href="/post/go%E6%99%AE%E9%80%9A%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B_unsafe_pointer_uintptr%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB/">Go普通指针类型_unsafe.pointer_uintptr之间关系</a></li>
+				
+				<li><a href="/post/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0map_1/">深入学习map_1</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2020 <a href="https://www.xssor2600.site/"><b>琳琅世界，观山河</b></a>.
+	<a href="https://github.com/xssor2600"><b>Github</b></a>.
+	<a href="https://www.jianshu.com/u/f83bd1cdcfc0"><b>简书</b></a>.
+	<a href=""><b>知乎</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

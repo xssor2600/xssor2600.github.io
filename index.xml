@@ -12,6 +12,30 @@
     
     
     <item>
+      <title>Go_汇编学习</title>
+      <link>https://www.xssor2600.site/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/</link>
+      <pubDate>Mon, 07 Sep 2020 18:04:48 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/</guid>
+      <description>Go语言的编译器和汇编器都带了一个-S参数，可以查看生成的最终目标代码。通过对比目标代码和原始的Go语言或Go汇编语言代码的差异可以加深对底层实现的理解。
+在学习go源代码和原理过程中，需要结合汇编进行学习，所以必要少不了要熟知基础汇编知识。go也提供了工具可以将源代码中底层汇编指令输出，通过``go tool compile命令用于调用Go语言提供的底层命令工具，其中-S`参数表示输出汇编格式。
+package main func main() { _ = add(3,5) } func add(a,b int) int { return a+b } go tool compile -S demo.go命令执行查看源代码的汇编指令。
+cotox@cotoxdeMacBook-Pro main % go tool compile -S demo.go &amp;#34;&amp;#34;.main STEXT nosplit size=1 args=0x0 locals=0x0 ..... // add函数底层汇编 &amp;#34;&amp;#34;.add STEXT nosplit size=19 args=0x18 locals=0x0 0x0000 00000 (demo.go:9) TEXT &amp;#34;&amp;#34;.add(SB), NOSPLIT|ABIInternal, $0-24 0x0000 00000 (demo.go:9) PCDATA $0, $-2 0x0000 00000 (demo.go:9) PCDATA $1, $-2 0x0000 00000 (demo.</description>
+    </item>
+    
+    <item>
+      <title>Slice底层学习</title>
+      <link>https://www.xssor2600.site/post/slice%E5%BA%95%E5%B1%82%E5%AD%A6%E4%B9%A0/</link>
+      <pubDate>Mon, 07 Sep 2020 17:01:35 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/slice%E5%BA%95%E5%B1%82%E5%AD%A6%E4%B9%A0/</guid>
+      <description>slice 翻译成中文就是切片，它和数组（array）很类似，可以用下标的方式进行访问，如果越界，就会产生 panic。但是它比数组更灵活，可以自动地进行扩容。
+ type slice struct { array unsafe.Pointer // 指向底层引用数组内存地址指针 	len int // 表示切片可用元素的个数，也就是说使用下标对 slice 的元素进行访问时，下标不能超过 slice 的长度 	cap int //底层数组的元素个数，容量 &amp;gt;= 长度。在底层数组不进行扩容的情况下，容量也是 slice 可以扩张的最大限度。 } 注意，底层数组是可以被多个 slice 同时指向的，因此对一个 slice 的元素进行操作是有可能影响到其他 slice 的。
+汇编角度看slice func main() { s:= make([]int,3,10) _=f(s) } func f(s []int) int { return s[1] } 通过命令go tool compile -S demo.go查看生成的汇编源代码
+&amp;#34;&amp;#34;.f STEXT nosplit size=60 args=0x20 locals=0x18 // 栈帧大小为24字节，参数和返回值为32字节 (slice类型内存占用24字节)  0x0000 00000 (demo.</description>
+    </item>
+    
+    <item>
       <title>Map进阶</title>
       <link>https://www.xssor2600.site/post/map%E8%BF%9B%E9%98%B6/</link>
       <pubDate>Sun, 06 Sep 2020 18:44:18 +0800</pubDate>

@@ -6,10 +6,37 @@
     <description>Recent content in Tags on 琳琅世界，观山河</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 06 Sep 2020 18:44:18 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 07 Sep 2020 18:04:48 +0800</lastBuildDate>
     
 	<atom:link href="https://www.xssor2600.site/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>go</title>
+      <link>https://www.xssor2600.site/tags/go/</link>
+      <pubDate>Mon, 07 Sep 2020 18:04:48 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>汇编</title>
+      <link>https://www.xssor2600.site/tags/%E6%B1%87%E7%BC%96/</link>
+      <pubDate>Mon, 07 Sep 2020 18:04:48 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/%E6%B1%87%E7%BC%96/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>slice</title>
+      <link>https://www.xssor2600.site/tags/slice/</link>
+      <pubDate>Mon, 07 Sep 2020 17:01:35 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/tags/slice/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>map</title>
@@ -35,15 +62,6 @@
       <pubDate>Mon, 17 Aug 2020 23:47:36 +0800</pubDate>
       
       <guid>https://www.xssor2600.site/tags/array/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>slice</title>
-      <link>https://www.xssor2600.site/tags/slice/</link>
-      <pubDate>Mon, 17 Aug 2020 23:47:36 +0800</pubDate>
-      
-      <guid>https://www.xssor2600.site/tags/slice/</guid>
       <description></description>
     </item>
     
