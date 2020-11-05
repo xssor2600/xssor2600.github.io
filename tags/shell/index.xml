@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>shell on 琳琅世界，观山河</title>
+    <link>https://www.xssor2600.site/tags/shell/</link>
+    <description>Recent content in shell on 琳琅世界，观山河</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 24 Sep 2020 20:04:21 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.xssor2600.site/tags/shell/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Shell_字符串截取</title>
+      <link>https://www.xssor2600.site/post/shell_%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%AA%E5%8F%96/</link>
+      <pubDate>Thu, 24 Sep 2020 20:04:21 +0800</pubDate>
+      
+      <guid>https://www.xssor2600.site/post/shell_%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%AA%E5%8F%96/</guid>
+      <description>在实际shell脚本使用中，对于字符串的截取需求是非常常见的。例如，截取输入参数的指定位置的子串等等。
+Shell中截取字符串的方式通常有两种：从指定位置开始截取和指定子字符串开始截取
+ 字符串的截取核心元素就是两个：截取起始位置+截取子串长度。
+ 从指定位置开始截取 在想要截取字符串的时候，有时候是双向都有需求的，例如从左边某个指定位置开始截取；又例如从右边某个指定位置开始截取。对于shell来说，两种方向的处理都是支持的：
+ 从左边开始计数时，起始数字是 0（这符合程序员思维）；从右边开始计数时，起始数字是 1（这符合常人思维）。计数方向不同，起始数字也不同。
+不管从哪边开始计数，截取方向都是从左到右。
+   从字符串左边开始计数
+如果想从字符串左边开始计数，截取规则如下：
+${targetstr: start:length} ## targetstr是要截取的字符串，start是起始位置（从左边开始，从0开始），length要截取的长度。 ## 左开右闭 用实际shell交互例子来实践一下：
+[centx@centx ~]$ url=&amp;#34;shell is very useful&amp;#34; [centx@centx ~]$ echo ${url: 6} is very useful [centx@centx ~]$ echo ${url: 0:5} shell   从字符串右边开始计数
+如果想要从右边开始计数，那么截取字符串具体格式：
+${targetstr: 0-start:length} ## 相比较第一种格式，第二种仅仅多了个 0-,这是固定的写法，专门用来表示从字符串右边开始计数 ## 右字符串截取是包含起始位置的字符串的 [centx@centx ~]$ url=&amp;#34;life is so short for anyone&amp;#34; [centx@centx ~]$ echo ${url: 0-6} anyone [centx@centx ~]$ echo ${url: 0-12:5} t for [centx@centx ~]$ echo ${url: 0-10:3} for   从指定子串开始截取 这种截取方式无法指定字符串长度，只能从指定字符（子字符串）截取到字符串末尾。shell可以截取指定字符右边所有字符，也可以从截取左边的所有字符。</description>
+    </item>
+    
+  </channel>
+</rss>

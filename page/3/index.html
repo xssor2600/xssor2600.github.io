@@ -42,6 +42,53 @@
 		
 		
 			<article>
+	<h1><a href="https://www.xssor2600.site/post/common_user_redis_batch_scripts/">redis常用的脚本</a></h1>
+	<b><time>2020.07.04 13:51</time></b>
+	
+	<a href="/tags/redis">@redis</a>
+	
+    </br>[content:~]</br>
+	<div>
+		若是想批量启动多个redis服务，或者同时关闭重启多个redis服务，那么通过脚本是最简单的方式。
+  Redis批量启动(使用默认配置文件)
+#!/bin/bash echo &#34;----- start sentinel redis servers --------&#34; cd /usr/local/redis sudo ./redis-server ./redis.conf sudo ./redis-server ./redis-6378.conf sudo ./redis-server ./redis-6380.conf sudo ./redis-server ./redis-sentinel-26379.conf --sentinel echo &#34;----- sentinel redis servers start successfully! ------&#34;   Redis命令参数化连接
+因为配置多个redis实例,每个实例对应不同端口.通过脚本简化redis连接客户端传入的端口参数.
+#!/bin/bash echo &#34;---- connection redis client sudo ./redis-cli -p $1------&#34; cd /usr/local/redis # 其中$0 得到命令语句 $1代表命令后的第一个参数 sudo ./redis-cli -p $1 -a x@123456 # 若是每个redis服务密码也不同，则可以使用密码占用符 sudo ./redis-cli -p $1 -a $2 在使用改脚本去连接redis服务器的时候，可以像如下使用：
+		
+			<a href="https://www.xssor2600.site/post/common_user_redis_batch_scripts/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/mac_iterm2_rz_use/">Mac_iterm2_rz_use</a></h1>
+	<b><time>2020.06.28 23:15</time></b>
+	
+	<a href="/tags/iterm">@iterm</a>
+	
+	<a href="/tags/rz">@rz</a>
+	
+    </br>[content:~]</br>
+	<div>
+		有这样的需求：在跳板机器登陆远程服务器后，需要将mysql数据库数据导出到Excel，并将文件下载到本地。
+mysql数据导出Excel 在登陆跳板机，ssh连接上服务器后，常规情况通过mysql命令可以直接连接进入数据库。此时我并不需要进入mysql命令行，而是需要在Linux命令行中通过mysql查询命令直接将数据导出到本地文件。
+可以通过mysql -e 命令来完成操作：
+echo &quot;select uid,\`order\`,money,country_code from user_order_record_new_202006 where create_time &gt;= '2020-06-18 00:00:00' and manner_id = 3 and client = 1 and agree =1&quot; | mysql -h xxxxx -uroot -Ddemo -p'123456' --default-character-set=utf8 &gt; /tmp/ios_recharge_18.xls; 当通过指定的s q l执行完成后，数据将会写入到Excel中，在目录中生成：
+  Excel文件下载到本地 在具体服务器生成查询数据文件时候，这时候如何将文件下载到本地？
+主要是通过rz/sz来实现两端服务器文件的传输。
+ 环境: Mac + iterm2终端: 需要在mac中安装lrzsz插件：  brew install lrzsz  Iterm2配置文件发送send,received脚本命令:
+具体脚本参照工程: iterm2-zmodem
+在目录/usr/local/bin/目录下分别创建脚本iterm2-send-zmodem.sh，iterm2-recv-zmodem.sh：
+ iterm2-send-zmodem.sh  #!/bin/bash # Author: Matt Mastracci (matthew@mastracci.com) # AppleScript from http://stackoverflow.
+		
+			<a href="https://www.xssor2600.site/post/mac_iterm2_rz_use/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
 	<h1><a href="https://www.xssor2600.site/post/golang%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">golang基础知识梳理</a></h1>
 	<b><time>2020.06.26 23:05</time></b>
 	

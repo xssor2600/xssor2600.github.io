@@ -42,6 +42,56 @@
 		
 		
 			<article>
+	<h1><a href="https://www.xssor2600.site/post/go_profile_%E5%88%9D%E8%A7%81/">Go_profile_初见</a></h1>
+	<b><time>2020.11.05 20:14</time></b>
+	
+	<a href="/tags/profile">@profile</a>
+	
+    </br>[content:~]</br>
+	<div>
+		什么是 Profiling? Profiling 这个词比较难翻译，一般译成画像。比如在案件侦破的时候会对嫌疑人做画像，从犯罪现场的种种证据，找到嫌疑人的各种特征，方便对嫌疑人进行排查；还有就是互联网公司会对用户信息做画像，通过了解用户各个属性（年龄、性别、消费能力等），方便为用户推荐内容或者广告。
+在计算机性能调试领域里，profiling 就是对应用的画像，这里画像就是应用使用 CPU 和内存的情况。也就是说应用使用了多少 CPU 资源？都是哪些部分在使用？每个函数使用的比例是多少？有哪些函数在等待 CPU 资源？知道了这些，我们就能对应用进行规划，也能快速定位性能瓶颈。
+golang 是一个对性能特别看重的语言，因此语言中自带了 profiling 的库，这篇文章就要讲解怎么在 golang 中做 profiling。
+在 go 语言中，主要关注的应用运行情况主要包括以下几种：
+ CPU profile：报告程序的 CPU 使用情况，按照一定频率去采集应用程序在 CPU 和寄存器上面的数据 Memory Profile（Heap Profile）：报告程序的内存使用情况 Block Profiling：报告 goroutines 不在运行状态的情况，可以用来分析和查找死锁等性能瓶颈 Goroutine Profiling：报告 goroutines 的使用情况，有哪些 goroutine，它们的调用关系是怎样的  两种收集方式 做 Profiling 第一步就是怎么获取应用程序的运行情况数据。go 语言提供了 runtime/pprof 和 net/http/pprof 两个库，这部分我们讲讲它们的用法以及使用场景。
+工具型应用 如果你的应用是一次性的，运行一段时间就结束。那么最好的办法，就是在应用退出的时候把 profiling 的报告保存到文件中，进行分析。对于这种情况，可以使用 runtime/pprof 库。
+pprof 封装了很好的接口供我们使用，比如要想进行 CPU Profiling，可以调用 pprof.StartCPUProfile() 方法，它会对当前应用程序进行 CPU profiling，并写入到提供的参数中（w io.Writer），要停止调用 StopCPUProfile() 即可。
+去除错误处理只需要三行内容，一般把部分内容写在 main.go 文件中，应用程序启动之后就开始执行：
+		
+			<a href="https://www.xssor2600.site/post/go_profile_%E5%88%9D%E8%A7%81/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="https://www.xssor2600.site/post/shell_%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%AA%E5%8F%96/">Shell_字符串截取</a></h1>
+	<b><time>2020.09.24 20:04</time></b>
+	
+	<a href="/tags/shell">@shell</a>
+	
+    </br>[content:~]</br>
+	<div>
+		在实际shell脚本使用中，对于字符串的截取需求是非常常见的。例如，截取输入参数的指定位置的子串等等。
+Shell中截取字符串的方式通常有两种：从指定位置开始截取和指定子字符串开始截取
+ 字符串的截取核心元素就是两个：截取起始位置+截取子串长度。
+ 从指定位置开始截取 在想要截取字符串的时候，有时候是双向都有需求的，例如从左边某个指定位置开始截取；又例如从右边某个指定位置开始截取。对于shell来说，两种方向的处理都是支持的：
+ 从左边开始计数时，起始数字是 0（这符合程序员思维）；从右边开始计数时，起始数字是 1（这符合常人思维）。计数方向不同，起始数字也不同。
+不管从哪边开始计数，截取方向都是从左到右。
+   从字符串左边开始计数
+如果想从字符串左边开始计数，截取规则如下：
+${targetstr: start:length} ## targetstr是要截取的字符串，start是起始位置（从左边开始，从0开始），length要截取的长度。 ## 左开右闭 用实际shell交互例子来实践一下：
+[centx@centx ~]$ url=&#34;shell is very useful&#34; [centx@centx ~]$ echo ${url: 6} is very useful [centx@centx ~]$ echo ${url: 0:5} shell   从字符串右边开始计数
+如果想要从右边开始计数，那么截取字符串具体格式：
+${targetstr: 0-start:length} ## 相比较第一种格式，第二种仅仅多了个 0-,这是固定的写法，专门用来表示从字符串右边开始计数 ## 右字符串截取是包含起始位置的字符串的 [centx@centx ~]$ url=&#34;life is so short for anyone&#34; [centx@centx ~]$ echo ${url: 0-6} anyone [centx@centx ~]$ echo ${url: 0-12:5} t for [centx@centx ~]$ echo ${url: 0-10:3} for   从指定子串开始截取 这种截取方式无法指定字符串长度，只能从指定字符（子字符串）截取到字符串末尾。shell可以截取指定字符右边所有字符，也可以从截取左边的所有字符。
+		
+			<a href="https://www.xssor2600.site/post/shell_%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%AA%E5%8F%96/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
 	<h1><a href="https://www.xssor2600.site/post/go_%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0/">Go_汇编学习</a></h1>
 	<b><time>2020.09.07 18:04</time></b>
 	
@@ -220,50 +270,6 @@ var ( confOnce sync.Once // guards init of confVal via initConfVal 	confVal = &a
 func (o *Once) Do(f func()) 常用场景包括：
 		
 			<a href="https://www.xssor2600.site/post/golang%E5%90%8C%E6%AD%A5%E5%88%9D%E8%A7%81/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/make%E4%B8%8Enew/">Make与new</a></h1>
-	<b><time>2020.08.02 15:58</time></b>
-	
-	<a href="/tags/golang">@golang</a>
-	
-    </br>[content:~]</br>
-	<div>
-		make 和 new 在 Go 语言中，make 关键字的主要作用是初始化内置的数据结构，也就是我们在前面提到的 数组和切片、哈希表 和 Channel，而当我们想要获取指向某个类型的指针时其实可以使用 new 关键字.
-虽然 make 和 new 都是能够用于初始化数据结构，但是它们两者能够初始化的结构类型却有着较大的不同；make 在 Go 语言中只能用于初始化语言中的基本类型：
-slice := make([]int, 0, 100) hashMap := make(map[int]string, 10) ch := make(chan int, 5) 另一个用于初始化数据结构的关键字 new 的作用其实就非常简单了，它只是接收一个类型作为参数然后返回一个指向这个类型的指针：
-i := new(int) // 变量i中保存着指向int类型的指针地址0x.... var v int i := &amp;v   new(T) 为每个新的类型T分配一片内存，初始化为 0 并且返回类型为*T的内存地址：这种方法 返回一个指向类型为 T值为 0 的地址的指针，它适用于值类型如数组和结构体；它相当于 &amp;T{}
-var p *[]int = new([]int) // *p == nil; with len and cap 0   make(T) 返回一个类型为 T 的初始值，它只适用于3种内建的引用类型：切片、map 和 channel。
-		
-			<a href="https://www.xssor2600.site/post/make%E4%B8%8Enew/">Read more...</a>
-		
-	</div>
-</article>
-
-		
-			<article>
-	<h1><a href="https://www.xssor2600.site/post/goroutine%E5%AD%A6%E4%B9%A0%E5%88%9D%E8%A7%81/">Goroutine学习初见</a></h1>
-	<b><time>2020.08.02 15:23</time></b>
-	
-	<a href="/tags/goroutine">@goroutine</a>
-	
-    </br>[content:~]</br>
-	<div>
-		Go 编程语言的目的:
- Go 的目的不是研究编程语言设计; 它是为了改善设计师和同事的工作环境。 Go 比编程语言研究更关注软件工程。 或者换句话说，就是为软件工程师服务的语言设计。
- Go 运行时允许您在机器上运行数十万个并发 goroutine 。Goroutine 是一个轻量级的执行线程。 Go 运行时将这些 goroutine 复用到操作系统线程上。 这意味着多个 goroutine 可以在单个操作系统线程上同时运行。
-Go 运行时有一个调度程序，其任务是调度这些 goroutine 执行。
- 1:初始化时的 Goroutine 具有 2KB 的堆栈。与一个一般为 1 MB 的 OS 线程堆栈相比，这非常小巧。当你需要同时运行几十万个不同的 goroutine 时，这个数字很重要。如果你要并行运行数千个 OS 线程，RAM 显然将成为瓶颈。 2:Go 可以遵循与 Java 等其他语言相同的模型，它支持与 OS 线程相同的线程概念。但是在这种情况下，OS 线程之间的上下文切换成本比不同的 goroutine 之间的上下文切换成本要大得多。
- 使用go标准编译器编译的代码，每个协程都会有自己的协程栈，一个协程栈是一个预申请的内存块。每个协程的初始栈大小比较小（在64位系统上2KB）。 每个栈的大小在协程运行的时候将按照需要增长和收缩( stack grow )。
-当我们创建对象申请内存块的时候，可以从协程栈上申请，也可以从堆上申请。（类似java的线程栈，是每个线程私有的，堆上数据是各个线程共享访问的，需要注意并发安全控制）
- 当一个协程的栈的大小改变(grow)时，一个新的内存段将申请给此栈使用。原先已经开辟在老的内存段上的内存块将很有可能被转移到新的内存段上，或者说这些内存块的地址将改变。 相应地，引用着这些开辟在此栈上的内存块的指针（它们同样开辟在此栈上）中存储的地址也将得到刷新。 这里很重要，这也是 uintptr 变量不要轻易使用的原因。
-   学 Go 时肯定要学习如何使用并发（goroutine），而开发者该如何控制并发呢？ 其实有两种方式，一种是WaitGroup，另一种就是 context。 而什么时候需要用到 WaitGroup 呢？很简单，就是当您需要将同一件事情拆成不同的 Job 进行执行，最后需要等到全部的 Job 都执行完成才继续执行主程序，这时候就需要用到 WaitGroup。
-		
-			<a href="https://www.xssor2600.site/post/goroutine%E5%AD%A6%E4%B9%A0%E5%88%9D%E8%A7%81/">Read more...</a>
 		
 	</div>
 </article>
